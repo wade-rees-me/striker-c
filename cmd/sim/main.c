@@ -35,9 +35,9 @@ int main(int argc, char* argv[]) {
 	params.number_of_decks = number_of_decks; // Assuming the deck string is a number
 	params.strategy = strategy_get();
 	sprintf(params.playbook, "%s-%s", params.decks, params.strategy);
-    params.blackjack_pays = CLSimulation.blackjack_pays;
-    params.rounds = CLSimulation.rounds;
-    params.penetration = CLSimulation.penetration;
+	params.blackjack_pays = CLSimulation.blackjack_pays;
+	params.rounds = CLSimulation.rounds;
+	params.penetration = CLSimulation.penetration;
 
 	rules_load_table(params.decks);
 
@@ -49,10 +49,10 @@ int main(int argc, char* argv[]) {
 	printf("%-18s: %d\n", "NumberOfDecks", params.number_of_decks);
 	printf("%-18s: %s\n", "Strategy", params.strategy);
 	printf("%-18s: %s\n", "Playbook", params.playbook);
-    printf("%-18s: %s\n", "Blackjack Pays", params.blackjack_pays);
-    printf("%-18s: %lld\n", "Number of rounds", params.rounds);
-    printf("%-18s: %f\n", "Penetration", params.penetration);
-    printf("%-18s: %s\n", "Rules", TableRules.playbook);
+	printf("%-18s: %s\n", "Blackjack Pays", params.blackjack_pays);
+	printf("%-18s: %lld\n", "Number of rounds", params.rounds);
+	printf("%-18s: %f\n", "Penetration", params.penetration);
+	printf("%-18s: %s\n", "Rules", TableRules.playbook);
 	printf("\n");
 
 	Simulation* sim = new_simulation(&params);

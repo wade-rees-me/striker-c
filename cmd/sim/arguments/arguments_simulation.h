@@ -5,9 +5,9 @@
 
 // Define the simulation structure in C
 typedef struct {
-    int64_t rounds;
-    char blackjack_pays[10];  // To store "3:2" as a string
-    double penetration;
+	int64_t rounds;
+	char blackjack_pays[10];  // To store "3:2" as a string
+	double penetration;
 } SimulationArgs;
 
 // Declare the global simulation argument structure

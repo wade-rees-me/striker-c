@@ -60,10 +60,10 @@ void simulator_run_once(Simulation *s) {
 	// Print out the results
 	printf("Number of rounds:  %s\n", tbs.rounds);
 	printf("Number of hands:   %lld\n", s->report.total_hands);
-	printf("Total bet:         %lld, average bet per hand: %.2f\n", s->report.total_bet, (double)s->report.total_bet / s->report.total_hands);
-	printf("Total won:         %lld, average win per hand: %.2f\n", s->report.total_won, (double)s->report.total_won / s->report.total_hands);
-	printf("Total time:        %s seconds\n", tbs.total_time);
-	printf("Average time:      %s per 1,000,000 hands\n", tbs.average_time);
+	printf("Total bet:		 %lld, average bet per hand: %.2f\n", s->report.total_bet, (double)s->report.total_bet / s->report.total_hands);
+	printf("Total won:		 %lld, average win per hand: %.2f\n", s->report.total_won, (double)s->report.total_won / s->report.total_hands);
+	printf("Total time:		%s seconds\n", tbs.total_time);
+	printf("Average time:	  %s per 1,000,000 hands\n", tbs.average_time);
 	printf("Player advantage:  %s\n", tbs.advantage);
 	printf("\n");
 
@@ -143,26 +143,26 @@ void simulator_insert(SimulationDatabaseTable *sdt, const char *playbook) {
 
 // Function to serialize the struct to JSON
 char* serialize_parameters(Parameters* parameters) {
-    cJSON *json = cJSON_CreateObject();
+	cJSON *json = cJSON_CreateObject();
 
-    cJSON_AddStringToObject(json, "guid", parameters->guid);
-    cJSON_AddStringToObject(json, "processor", parameters->processor);
-    cJSON_AddStringToObject(json, "timestamp", parameters->timestamp);
-    cJSON_AddStringToObject(json, "decks", parameters->decks);
-    cJSON_AddStringToObject(json, "strategy", parameters->strategy);
-    cJSON_AddStringToObject(json, "playbook", parameters->playbook);
-    cJSON_AddStringToObject(json, "blackjack_pays", parameters->blackjack_pays);
-    cJSON_AddNumberToObject(json, "tables", parameters->tables);
-    cJSON_AddNumberToObject(json, "rounds", parameters->rounds);
-    cJSON_AddNumberToObject(json, "number_of_decks", parameters->number_of_decks);
-    cJSON_AddNumberToObject(json, "penetration", parameters->penetration);
+	cJSON_AddStringToObject(json, "guid", parameters->guid);
+	cJSON_AddStringToObject(json, "processor", parameters->processor);
+	cJSON_AddStringToObject(json, "timestamp", parameters->timestamp);
+	cJSON_AddStringToObject(json, "decks", parameters->decks);
+	cJSON_AddStringToObject(json, "strategy", parameters->strategy);
+	cJSON_AddStringToObject(json, "playbook", parameters->playbook);
+	cJSON_AddStringToObject(json, "blackjack_pays", parameters->blackjack_pays);
+	cJSON_AddNumberToObject(json, "tables", parameters->tables);
+	cJSON_AddNumberToObject(json, "rounds", parameters->rounds);
+	cJSON_AddNumberToObject(json, "number_of_decks", parameters->number_of_decks);
+	cJSON_AddNumberToObject(json, "penetration", parameters->penetration);
 
-    // Convert the cJSON object to a string
-    char *json_string = cJSON_Print(json);
+	// Convert the cJSON object to a string
+	char *json_string = cJSON_Print(json);
 
-    // Free the cJSON object
-    cJSON_Delete(json);
+	// Free the cJSON object
+	cJSON_Delete(json);
 
-    return json_string;
+	return json_string;
 }
 

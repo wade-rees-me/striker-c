@@ -30,7 +30,7 @@ Shoe* new_shoe(int number_of_decks, float penetration) {
 	Shoe* shoe = (Shoe*)malloc(sizeof(Shoe));
 	if (!shoe) {
 		printf("Memory allocation failed for shoe\n");
-        exit(1);
+		exit(1);
 	}
 
 	shoe->number_of_decks = number_of_decks;
@@ -45,7 +45,7 @@ Shoe* new_shoe(int number_of_decks, float penetration) {
 				Card* card = (Card*)malloc(sizeof(Card));
 				if (!card) {
 					printf("Memory allocation failed for card\n");
-        			exit(1);
+					exit(1);
 				}
 
 				card->suit = suits[j];
@@ -80,8 +80,8 @@ void shoe_shuffle(Shoe* shoe) {
 	}
 	shoe->cards_in_play = 0;
 
-    shoe->force_shuffle = false;
-    shoe_shuffle_fisher_yates(shoe->discards, shoe->cards_in_discard);
+	shoe->force_shuffle = false;
+	shoe_shuffle_fisher_yates(shoe->discards, shoe->cards_in_discard);
 
 	for (int i = shoe->cards_in_discard - 1; i >= 0; i--) {
 		shoe->cards[shoe->cards_not_in_play] = shoe->discards[i];

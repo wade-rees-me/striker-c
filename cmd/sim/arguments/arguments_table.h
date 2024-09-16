@@ -5,9 +5,9 @@
 
 // Define the table structure in C
 typedef struct {
-    bool single_deck_flag;
-    bool double_deck_flag;
-    bool six_shoe_flag;
+	bool single_deck_flag;
+	bool double_deck_flag;
+	bool six_shoe_flag;
 } TableArgs;
 
 // Declare the global table argument structure

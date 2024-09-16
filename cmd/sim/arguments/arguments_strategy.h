@@ -5,13 +5,13 @@
 
 // Define the strategy structure in C
 typedef struct {
-    bool mimic_flag;
-    bool basic_flag;
-    bool linear_flag;
-    bool polynomial_flag;
-    bool high_low_flag;
-    bool wong_flag;
-    bool striker_flag;
+	bool mimic_flag;
+	bool basic_flag;
+	bool linear_flag;
+	bool polynomial_flag;
+	bool high_low_flag;
+	bool wong_flag;
+	bool striker_flag;
 } StrategyArgs;
 
 // Declare the global strategy argument structure

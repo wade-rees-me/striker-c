@@ -125,7 +125,7 @@ char* build_params(const int *seenData, const int *haveData, int pair, const cha
 bool parse_aux_tag(cJSON* json, const char* tag, bool missing) {
 	cJSON *item = cJSON_GetObjectItem(json, tag);
 	if (item != NULL) {
-    	return cJSON_IsTrue(item);
+		return cJSON_IsTrue(item);
 	}
 	return missing;
 }
@@ -196,43 +196,43 @@ bool httpGet(const char* url, const char* params) {
 
 // Function to URL-encode a string
 char *url_encode(const char *str) {
-    const char *hex = "0123456789ABCDEF";  // Hexadecimal characters
-    char *encoded = malloc(strlen(str) * 3 + 1);  // Allocate memory (worst case: every character is encoded)
-    char *pencoded = encoded;
+	const char *hex = "0123456789ABCDEF";  // Hexadecimal characters
+	char *encoded = malloc(strlen(str) * 3 + 1);  // Allocate memory (worst case: every character is encoded)
+	char *pencoded = encoded;
 
-    if (encoded == NULL) {
-        return NULL;  // Memory allocation failed
-    }
+	if (encoded == NULL) {
+		return NULL;  // Memory allocation failed
+	}
 
-    while (*str) {
-        if (isalnum((unsigned char)*str) || *str == '-' || *str == '_' || *str == '.' || *str == '~' || *str == '=') {
-            // Characters that don't need encoding
-            *pencoded++ = *str;
-        } else {
-            // Characters that need encoding
-            *pencoded++ = '%';
-            *pencoded++ = hex[(*str >> 4) & 0xF];  // First hex digit
-            *pencoded++ = hex[*str & 0xF];         // Second hex digit
-        }
-        str++;
-    }
+	while (*str) {
+		if (isalnum((unsigned char)*str) || *str == '-' || *str == '_' || *str == '.' || *str == '~' || *str == '=') {
+			// Characters that don't need encoding
+			*pencoded++ = *str;
+		} else {
+			// Characters that need encoding
+			*pencoded++ = '%';
+			*pencoded++ = hex[(*str >> 4) & 0xF];  // First hex digit
+			*pencoded++ = hex[*str & 0xF];		 // Second hex digit
+		}
+		str++;
+	}
 
-    *pencoded = '\0';  // Null-terminate the encoded string
-    return encoded;
+	*pencoded = '\0';  // Null-terminate the encoded string
+	return encoded;
 }
 
 void removeSpaces(char *str) {
-    int i = 0, j = 0;
-    
-    // Iterate through the string
-    while (str[i]) {
-        // If the character is not a space, copy it to the current `j` index
-        if (str[i] != ' ') {
-            str[j++] = str[i];
-        }
-        i++;
-    }
-    
-    // Null-terminate the modified string
-    str[j] = '\0';
+	int i = 0, j = 0;
+	
+	// Iterate through the string
+	while (str[i]) {
+		// If the character is not a space, copy it to the current `j` index
+		if (str[i] != ' ') {
+			str[j++] = str[i];
+		}
+		i++;
+	}
+	
+	// Null-terminate the modified string
+	str[j] = '\0';
 }
