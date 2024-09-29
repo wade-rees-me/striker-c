@@ -1,25 +1,32 @@
-#include <stdlib.h>  // For getenv
-#include "constants.h"
+#include <stdlib.h>
 
-// Function to get environment variables
-
-const char* get_strategy_url() {
-	const char* url = getenv("STRIKER_URL_ACE");
-	return url ? url : "";  // Return empty string if the variable is not set
+//
+const char* getStrategyUrl() {
+	return getenv("STRIKER_URL_ACE");
 }
 
-const char* get_strategy_mlb_url() {
-	const char* url = getenv("STRIKER_URL_MLB");
-	return url ? url : "";
+//
+const char* getStrategyMlbUrl() {
+	return getenv("STRIKER_URL_MLB");
 }
 
-const char* get_rules_url() {
-	const char* url = getenv("STRIKER_URL_RULES");
-	return url ? url : "";
+//
+const char* getRulesUrl() {
+	return getenv("STRIKER_URL_RULES");
 }
 
-const char* get_simulation_url() {
-	const char* url = getenv("STRIKER_URL_SIMULATION");
-	return url ? url : "";
+//
+const char* getSimulationUrl() {
+	return getenv("STRIKER_URL_SIMULATION");
+}
+
+const char* getSimulationDirectory() {
+	return getenv("STRIKER_SIMULATIONS");
+}
+
+int64_t getDatabaseMinimumRounds() {
+	char* str = getenv("STRIKER_MINIMUM_ROUNDS");
+	char* end;
+	return strtol(str, &end, 10);
 }
 

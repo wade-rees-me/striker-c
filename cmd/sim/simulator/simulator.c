@@ -5,13 +5,14 @@
 #include <cjson/cJSON.h>
 #include "table.h"
 #include "player.h"
+#include "logger.h"
 #include "simulator.h"
 
 //
-char* serialize_parameters(Parameters* parameters);
+char* serializeParameters(Parameters* parameters);
 
 // Function to create a new simulation
-Simulation* new_simulation(Parameters *parameters) {
+Simulation* newSimulation(Parameters *parameters, Rules *rules) {
 	Simulation *s = (Simulation*)malloc(sizeof(Simulation));
 	time_t t = time(NULL);
 	struct tm *tm_info = localtime(&t);
@@ -21,32 +22,41 @@ Simulation* new_simulation(Parameters *parameters) {
 	s->month = tm_info->tm_mon + 1;
 	s->day = tm_info->tm_mday;
 
-	s->table = new_table(parameters);
+	s->table = newTable(parameters, rules);
 	s->parameters = parameters;
-	report_init(&s->report);
+	s->rules = rules;
+	reportInit(&s->report);
 
 	return s;
 }
 
-void simulation_delete(Simulation* sim) {
+void simulationDelete(Simulation* sim) {
 	free(sim);
 }
 
 // The SimulatorProcess function
-void simulator_run_once(Simulation *s) {
+void simulatorRunOnce(Simulation *s) {
 	SimulationDatabaseTable tbs;
 
-	printf("Starting striker-c simulation ...\n");
-	simulator_run_simulation(s);
-	printf("Ending striker-c simulation ...\n\n");
+	Logger_simulation(s->parameters->logger, "  Starting striker-c simulation ...\n");
+	simulatorRunSimulation(s);
+	Logger_simulation(s->parameters->logger, "  Ending striker-c simulation ...\n\n");
 
 	// Populate the rest of the SimulationDatabaseTable
 	strcpy(tbs.playbook, s->parameters->playbook);
 	strcpy(tbs.guid, s->parameters->guid);
-	tbs.simulator = "StrikerWhoAmI";
+	tbs.simulator = STRIKER_WHO_AM_I;
 	tbs.summary = "no";
 	tbs.simulations = "1";
-	tbs.parameters = serialize_parameters(s->parameters);
+	strcpy(tbs.parameters, serializeParameters(s->parameters));
+
+	snprintf(tbs.rounds, 128, "%lld", s->report.total_rounds);
+	snprintf(tbs.hands, 128, "%lld", s->report.total_hands);
+	snprintf(tbs.total_bet, 128, "%lld", s->report.total_bet);
+	snprintf(tbs.total_won, 128, "%lld", s->report.total_won);
+	snprintf(tbs.total_time, 128, "%lld", s->report.duration);
+	snprintf(tbs.average_time, 128, "%06.2f seconds", (float)s->report.duration * 1000000 / (float)s->report.total_hands);
+	snprintf(tbs.advantage, 128, "%+04.3f%%", ((double)s->report.total_won / s->report.total_bet) * 100);
 
 	// Format the rounds, hands, and other values into strings
 	sprintf(tbs.rounds, "%lld", s->report.total_rounds);
@@ -58,29 +68,39 @@ void simulator_run_once(Simulation *s) {
 	sprintf(tbs.advantage, "%+04.3f%%", ((double)s->report.total_won / s->report.total_bet) * 100);
 
 	// Print out the results
-	printf("Number of rounds:  %s\n", tbs.rounds);
-	printf("Number of hands:   %lld\n", s->report.total_hands);
-	printf("Total bet:		 %lld, average bet per hand: %.2f\n", s->report.total_bet, (double)s->report.total_bet / s->report.total_hands);
-	printf("Total won:		 %lld, average win per hand: %.2f\n", s->report.total_won, (double)s->report.total_won / s->report.total_hands);
-	printf("Total time:		%s seconds\n", tbs.total_time);
-	printf("Average time:	  %s per 1,000,000 hands\n", tbs.average_time);
-	printf("Player advantage:  %s\n", tbs.advantage);
-	printf("\n");
+    char buffer[256];
 
-	simulator_insert(&tbs, s->parameters->playbook);
+    Logger_simulation(s->parameters->logger, "\n  -- results ---------------------------------------------------------------------\n");
+	sprintf(buffer, "    %-24s: %s\n", "Number of rounds", tbs.rounds);
+	Logger_simulation(s->parameters->logger, buffer);
+	sprintf(buffer, "    %-24s: %lld\n", "Number of hands", s->report.total_hands);
+	Logger_simulation(s->parameters->logger, buffer);
+	sprintf(buffer, "    %-24s: %lld %f average bet per hand\n", "Total bet", s->report.total_bet, (double)s->report.total_bet / s->report.total_hands);
+	Logger_simulation(s->parameters->logger, buffer);
+	sprintf(buffer, "    %-24s: %lld %f average win per hand\n", "Total won", s->report.total_won, (double)s->report.total_won / s->report.total_hands);
+	Logger_simulation(s->parameters->logger, buffer);
+	sprintf(buffer, "    %-24s: %s seconds\n", "Total time", tbs.total_time);
+	Logger_simulation(s->parameters->logger, buffer);
+	sprintf(buffer, "    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.average_time);
+	Logger_simulation(s->parameters->logger, buffer);
+	sprintf(buffer, "    %-24s: %s\n", "Player advantage", tbs.advantage);
+	Logger_simulation(s->parameters->logger, buffer);
+    Logger_simulation(s->parameters->logger, "  --------------------------------------------------------------------------------\n");
+
+	if(s->report.total_rounds >= getDatabaseMinimumRounds()) {
+		simulatorInsert(&tbs, s->parameters->playbook, s->parameters->logger);
+	}
 }
 
 // Function to run the simulation
-void simulator_run_simulation(Simulation *sim) {
-	if (strcmp("mimic", sim->parameters->strategy) == 0) {
-		printf("  Starting mimic table session ...\n");
-		table_session_mimic(sim->table);
-		printf("  Ending mimic table session ...\n");
-	} else {
-		printf("  Starting table session ...\n");
-		table_session(sim->table);
-		printf("  Ending table session ...\n");
-	}
+void simulatorRunSimulation(Simulation *sim) {
+    char buffer[256];
+
+	sprintf(buffer, "    Starting %s table session ...\n", sim->parameters->strategy);
+	Logger_simulation(sim->parameters->logger, buffer);
+	tableSession(sim->table, strcmp("mimic", sim->parameters->strategy) == 0);
+	sprintf(buffer, "    Ending %s table session ...\n", sim->parameters->strategy);
+	Logger_simulation(sim->parameters->logger, buffer);
 
 	sim->report.total_bet += sim->table->player->report.total_bet;
 	sim->report.total_won += sim->table->player->report.total_won;
@@ -90,7 +110,7 @@ void simulator_run_simulation(Simulation *sim) {
 }
 
 // Function to insert a simulation into the database (HTTP POST)
-void simulator_insert(SimulationDatabaseTable *sdt, const char *playbook) {
+void simulatorInsert(SimulationDatabaseTable *sdt, const char *playbook, Logger *logger) {
 	CURL *curl;
 	CURLcode res;
 	struct curl_slist *headers = NULL;
@@ -105,7 +125,7 @@ void simulator_insert(SimulationDatabaseTable *sdt, const char *playbook) {
 	if (curl) {
 		// Set URL
 		char url[256];
-		snprintf(url, sizeof(url), "http://%s/%s/%s/%s", get_simulation_url(), sdt->simulator, playbook, sdt->guid);
+		snprintf(url, sizeof(url), "http://%s/%s/%s/%s", getSimulationUrl(), sdt->simulator, playbook, sdt->guid);
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 
 		// Set headers
@@ -117,11 +137,26 @@ void simulator_insert(SimulationDatabaseTable *sdt, const char *playbook) {
 		cJSON_AddStringToObject(json, "playbook", sdt->playbook);
 		cJSON_AddStringToObject(json, "guid", sdt->guid);
 		cJSON_AddStringToObject(json, "simulator", sdt->simulator);
+		cJSON_AddStringToObject(json, "summary", "no");
+		cJSON_AddStringToObject(json, "simulations", "1");
+		cJSON_AddStringToObject(json, "rounds", sdt->rounds);
+		cJSON_AddStringToObject(json, "hands", sdt->hands);
+		cJSON_AddStringToObject(json, "total_bet", sdt->total_bet);
+		cJSON_AddStringToObject(json, "total_won", sdt->total_won);
+		cJSON_AddStringToObject(json, "advantage", sdt->advantage);
+		cJSON_AddStringToObject(json, "total_time", sdt->total_time);
+		cJSON_AddStringToObject(json, "average_time", sdt->average_time);
+		cJSON_AddStringToObject(json, "parameters", sdt->parameters);
+		cJSON_AddStringToObject(json, "payload", "n/a");
 		// Add remaining fields...
 		char *jsonStr = cJSON_Print(json);
 
 		// Set POST fields
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStr);
+
+    	char buffer[2048];
+		sprintf(buffer, "curl -X POST %s -H \"Content-Type: application/json\" -d %s\n\n", url, jsonStr);
+		Logger_insert(logger, buffer);
 
 		// Perform the request
 		res = curl_easy_perform(curl);
@@ -139,30 +174,5 @@ void simulator_insert(SimulationDatabaseTable *sdt, const char *playbook) {
 	}
 
 	curl_global_cleanup();
-}
-
-// Function to serialize the struct to JSON
-char* serialize_parameters(Parameters* parameters) {
-	cJSON *json = cJSON_CreateObject();
-
-	cJSON_AddStringToObject(json, "guid", parameters->guid);
-	cJSON_AddStringToObject(json, "processor", parameters->processor);
-	cJSON_AddStringToObject(json, "timestamp", parameters->timestamp);
-	cJSON_AddStringToObject(json, "decks", parameters->decks);
-	cJSON_AddStringToObject(json, "strategy", parameters->strategy);
-	cJSON_AddStringToObject(json, "playbook", parameters->playbook);
-	cJSON_AddStringToObject(json, "blackjack_pays", parameters->blackjack_pays);
-	cJSON_AddNumberToObject(json, "tables", parameters->tables);
-	cJSON_AddNumberToObject(json, "rounds", parameters->rounds);
-	cJSON_AddNumberToObject(json, "number_of_decks", parameters->number_of_decks);
-	cJSON_AddNumberToObject(json, "penetration", parameters->penetration);
-
-	// Convert the cJSON object to a string
-	char *json_string = cJSON_Print(json);
-
-	// Free the cJSON object
-	cJSON_Delete(json);
-
-	return json_string;
 }
 

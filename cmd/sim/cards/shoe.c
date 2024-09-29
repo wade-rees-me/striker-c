@@ -1,9 +1,11 @@
-#include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 #include "shoe.h"
+#include "rank.h"
+#include "card.h"
 
 // Define the suits array
 const char* suits[4] = {"spades", "diamonds", "clubs", "hearts"};
@@ -25,138 +27,103 @@ Rank ranks[13] = {
 	{"ace", 11, 12}
 };
 
-// Create a new shoe of cards
-Shoe* new_shoe(int number_of_decks, float penetration) {
+// Helper function to shuffle the deck (Fisher-Yates algorithm)
+static void shuffleRandom(Shoe* shoe) {
+    int i;
+    srand(time(NULL));  // Seed the random number generator
+    for (i = shoe->last_discard - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        Card* temp = shoe->cards[i];
+        shoe->cards[i] = shoe->cards[j];
+        shoe->cards[j] = temp;
+    }
+    shoe->next_card = 1;  // Start drawing from the second card (burn the first)
+}
+
+// Initialize the shoe with multiple decks
+Shoe* newShoe(int number_of_decks, float penetration) {
 	Shoe* shoe = (Shoe*)malloc(sizeof(Shoe));
 	if (!shoe) {
 		printf("Memory allocation failed for shoe\n");
 		exit(1);
 	}
 
-	shoe->number_of_decks = number_of_decks;
-	shoe->number_of_cards = 0;
-	shoe->cards_not_in_play = 0;
-	shoe->cards_in_play = 0;
-	shoe->cards_in_discard = 0;
+    shoe->number_of_cards = number_of_decks * 52; // 52 cards per deck
+    shoe->cards = (Card**)malloc(shoe->number_of_cards * sizeof(Card*));
 
-	for (int i = 0; i < number_of_decks; i++) {
-		for (int j = 0; j < 4; j++) {
-			for (int k = 0; k < 13; k++) {
+    int card_index = 0;
+    for (int i = 0; i < number_of_decks; i++) {
+        for (int suit = 0; suit < 4; suit++) {
+            for (int rank = 0; rank < 13; rank++) {
 				Card* card = (Card*)malloc(sizeof(Card));
 				if (!card) {
 					printf("Memory allocation failed for card\n");
 					exit(1);
 				}
 
-				card->suit = suits[j];
-				card->rank = ranks[k].rank;
-				card->value = ranks[k].value;
-				card->offset = ranks[k].offset;
-				card->index = shoe->number_of_cards;
-				shoe->discards[shoe->number_of_cards] = card;
-				shoe->number_of_cards++;
-			}
-		}
-	}
-	shoe->cards_in_discard = shoe->number_of_cards;
+				card->suit = suits[suit];
+				card->rank = ranks[rank].rank;
+				card->value = ranks[rank].value;
+				card->offset = ranks[rank].offset;
+                shoe->cards[card_index] = card;
+                card_index++;
+            }
+        }
+    }
 
-	shoe->cut_card = (int)(shoe->number_of_cards * penetration);
-	shoe->number_of_shuffles = 0;
-	shoe->number_out_of_cards = 0;
-	shoe->force_shuffle = false;
-	
+    shoe->next_card = 0;
+    shoe->last_discard = shoe->number_of_cards;
+    shoe->cut_card = (int)(shoe->number_of_cards * penetration);
+    shoe->force_shuffle = false;
+
+    //shoeShuffle(shoe);  // Shuffle the cards
 	return shoe;
 }
 
-void shoe_shuffle(Shoe* shoe) {
-	for (int i = 0; i < shoe->cards_not_in_play; i++) {
-		shoe->discards[shoe->cards_in_discard] = shoe->cards[i];
-		shoe->cards_in_discard++;
-	}
-	shoe->cards_not_in_play = 0;
-	for (int i = 0; i < shoe->cards_in_play; i++) {
-		shoe->discards[shoe->cards_in_discard] = shoe->inplay[i];
-		shoe->cards_in_discard++;
-	}
-	shoe->cards_in_play = 0;
-
-	shoe->force_shuffle = false;
-	shoe_shuffle_fisher_yates(shoe->discards, shoe->cards_in_discard);
-
-	for (int i = shoe->cards_in_discard - 1; i >= 0; i--) {
-		shoe->cards[shoe->cards_not_in_play] = shoe->discards[i];
-		shoe->cards_not_in_play++;
-	}
-	shoe->cards_in_discard = 0;
+// Cleanup the shoe and free allocated memory
+void shoeCleanup(Shoe* shoe) {
+    //for (int i = 0; i < shoe->number_of_cards; i++) {
+        //cardDestroy(shoe->cards[i]);  // Card_destroy should properly free card resources
+    //}
+    free(shoe->cards);  // Free the memory allocated for the cards array
 }
 
-// Fisher-Yates shuffle algorithm for shuffling cards
-void shoe_shuffle_fisher_yates(Card* cards[MAX_NUMBER_OF_DECKS * NUMBER_OF_CARDS], int num_cards) {
-	for (int i = num_cards - 1; i > 0; i--) {
-		int j = rand() % (i + 1);
-		Card* temp = cards[i];
-		cards[i] = cards[j];
-		cards[j] = temp;
-	}
-}
-
-// Shuffle discards and reset the shoe
-void shoe_shuffle_discard(Shoe* shoe) {
-	shoe->force_shuffle = true;
-	shoe->number_out_of_cards++;
-
-	// Shuffle using Fisher-Yates algorithm
-	shoe_shuffle_fisher_yates(shoe->discards, shoe->cards_in_discard);
-
-	// Reset the cards and inplay arrays
-	for (int i = shoe->cards_in_discard - 1; i >= 0; i--) {
-		shoe->discards[i] = shoe->cards[shoe->cards_not_in_play];
-		shoe->cards_not_in_play++;
-	}
-	shoe->cards_in_discard = 0;
-
-	// Burn a card
-	shoe_discard_card(shoe, shoe_draw_card(shoe));
-
-	shoe->number_of_shuffles++;
+// Shuffle the shoe of cards
+void shoeShuffle(Shoe* shoe) {
+    shoe->last_discard = shoe->number_of_cards;
+    shoe->force_shuffle = false;
+    shuffleRandom(shoe);
 }
 
 // Draw a card from the shoe
-Card* shoe_draw_card(Shoe* shoe) {
-	if (shoe->cards_not_in_play == 0) {
-		shoe_shuffle_discard(shoe); // If no cards in the discard pile, shuffle the discards back
-	}
-
-	// Draw the top card
-	Card* card = shoe->cards[0];
-
-	shoe->inplay[shoe->cards_in_play] = card;
-	shoe->cards_in_play++;
-
-	// Shift the remaining cards down
-	for (int i = 0; i < shoe->cards_not_in_play - 1; i++) {
-		shoe->cards[i] = shoe->cards[i + 1];
-	}
-	shoe->cards_not_in_play--;
-
-	return card;
-}
-
-// Discard a card into the discard pile
-void shoe_discard_card(Shoe* shoe, Card* card) {
-	shoe->discards[shoe->cards_in_discard] = card;
-	shoe->cards_in_discard++;
+Card* shoeDrawCard(Shoe* shoe) {
+    if (shoe->next_card >= shoe->number_of_cards) {
+        shoe->force_shuffle = true;
+        shoeShuffle(shoe);
+    }
+    Card* card = shoe->cards[shoe->next_card];
+    shoe->next_card++;
+    return card;
 }
 
 // Check if the shoe should be shuffled
-bool shoe_should_shuffle(Shoe* shoe) {
-	if (shoe->cards_not_in_play < (shoe->number_of_cards - shoe->cut_card) || shoe->force_shuffle) {
-		return true;
-	}
-	return false;
+bool shoeShouldShuffle(Shoe* shoe) {
+    shoe->last_discard = shoe->next_card;
+    return (shoe->next_card >= shoe->cut_card) || shoe->force_shuffle;
 }
 
-bool card_is_ace(Card* card) {
+// Check if a card is an ace
+bool  cardIsAce(const Card* card) {
 	return card->value == 11;
+}
+
+// Display the shoe of cards (for debugging purposes)
+void shoeDisplay(Shoe* shoe) {
+    printf("--------------------------------------------------------------------------------\n");
+    for (int i = 0; i < shoe->number_of_cards; i++) {
+        printf("%03d: ", i);
+        //cardDisplay(shoe->cards[i]);  // Card_display should output the card information
+    }
+    printf("--------------------------------------------------------------------------------\n");
 }
 

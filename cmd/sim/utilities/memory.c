@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <curl/curl.h>
 #include "memory.h"
 
 // Callback function for libcurl to write data
-size_t write_memory_callback(void *contents, size_t size, size_t nmemb, void *userp) {
+size_t writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
 	size_t realsize = size * nmemb;
 	struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 

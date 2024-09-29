@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -I/usr/include -I/usr/local/include
 
 # Directories
-SRC_DIRS = arguments cards constants rules simulator
+SRC_DIRS = arguments cards constants rules simulator utilities logger
 INCLUDE_DIRS = $(SRC_DIRS)
 
 # Include all directories for header files
@@ -16,7 +16,7 @@ SRC_FILES = $(wildcard main.c $(foreach dir, $(SRC_DIRS), $(dir)/*.c))
 OBJ_FILES = $(SRC_FILES:.c=.o)
 
 # Output binary
-TARGET = bin/striker
+TARGET = bin/strikerC
 
 # Default target
 all: $(TARGET)

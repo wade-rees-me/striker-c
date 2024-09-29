@@ -2,7 +2,7 @@
 #define HAND_H
 
 #include <stdbool.h>
-#include "shoe.h"
+#include "card.h"
 
 // Define the Hand struct
 typedef struct {
@@ -11,20 +11,20 @@ typedef struct {
 	int hand_total;		// Total value of the hand
 	int soft_ace;		// Number of aces valued as 11
 	bool surrender;		// Whether the hand has surrendered
+	int have_cards[13];
 } Hand;
 
 // Function declarations
-void hand_reset(Hand* hand);
-Card* hand_draw_card(Hand* hand, Card* card);
-bool hand_is_blackjack(Hand* hand);
-bool hand_is_pair(Hand* hand);
-bool hand_is_pair_of_aces(Hand* hand);
-bool hand_is_busted(Hand* hand);
-bool hand_is_soft(Hand* hand);
-int hand_total(Hand* hand);
-bool hand_is_soft_17(Hand* hand);
-Card* hand_split_pair(Hand* hand);
-void hand_calculate_total(Hand* hand);
+void handReset(Hand* hand);
+Card* handDrawCard(Hand* hand, Card* card);
+bool handIsBlackjack(Hand* hand);
+bool handIsPair(Hand* hand);
+bool handIsPairOfAces(Hand* hand);
+bool handIsBusted(Hand* hand);
+bool handIsSoft(Hand* hand);
+int handTotal(Hand* hand);
+bool handIsSoft17(Hand* hand);
+Card* handSplitPair(Hand* hand);
+int* getHaveCards(Hand* hand);
 
 #endif // HAND_H
-

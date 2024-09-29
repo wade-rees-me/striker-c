@@ -1,73 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "wager.h"
+#include "constants.h"
 
 // Reset the wager to its initial state
-void wager_reset(Wager* wager) {
-	hand_reset(&wager->hand);  // Reset the associated hand
+void wagerReset(Wager* wager) {
+	handReset(&wager->hand);  // Reset the associated hand
 	wager->amount_bet = 0;
 	wager->amount_won = 0;
-	wager->double_bet = 0;
-	wager->double_won = 0;
 	wager->insurance_bet = 0;
 	wager->insurance_won = 0;
 }
 
+//
+static inline int64_t min(int64_t a, int64_t b) {
+	return (a < b) ? a : b;
+}
+
+//
+static inline int64_t max(int64_t a, int64_t b) {
+	return (a > b) ? a : b;
+}
+
 // Split the wager
-void wager_split(Wager* wager, Wager* split) {
-	wager_reset(split);
+void wagerSplit(Wager* wager, Wager* split) {
+	wagerReset(split);
 	split->amount_bet = wager->amount_bet;
-	hand_draw_card(&split->hand, hand_split_pair(&wager->hand));  // Draw the split card into the new wager's hand
+	handDrawCard(&split->hand, handSplitPair(&wager->hand));  // Draw the split card into the new wager's hand
 }
 
 // Place a bet (must be a multiple of 2)
-void wager_place_bet(Wager* wager, int64_t bet) {
-	if (bet % 2 != 0) {
-		printf("Error: All bets must be in multiples of 2.\n");
-		return;
-	}
-	wager->amount_bet = bet;
+void wagerPlaceBet(Wager* wager, int64_t bet) {
+	wager->amount_bet = (min(MAXIMUM_BET, max(MINIMUM_BET, bet)) + 1) / 2 * 2;
 }
 
 // Double the bet
-void wager_double_bet(Wager* wager) {
-	wager->double_bet = wager->amount_bet;
+void wagerDoubleBet(Wager* wager) {
+	wager->amount_bet *= 2;
 }
 
 // Check if the wager's hand is a blackjack
-bool wager_is_blackjack(Wager* wager) {
-	return hand_is_blackjack(&wager->hand);
+bool wagerIsBlackjack(Wager* wager) {
+	return handIsBlackjack(&wager->hand);
 }
 
 // Calculate the winnings for a blackjack
-void wager_won_blackjack(Wager* wager, int64_t pays, int64_t bet) {
+void wagerWonBlackjack(Wager* wager, int64_t pays, int64_t bet) {
 	wager->amount_won = (wager->amount_bet * pays) / bet;
 }
 
 // Mark the wager as won
-void wager_won(Wager* wager) {
+void wagerWon(Wager* wager) {
 	wager->amount_won = wager->amount_bet;
-	wager->double_won = wager->double_bet;
 }
 
 // Mark the wager as lost
-void wager_lost(Wager* wager) {
+void wagerLost(Wager* wager) {
 	wager->amount_won = -wager->amount_bet;
-	wager->double_won = -wager->double_bet;
 }
 
 // Push the wager (no win, no loss)
-void wager_push(Wager* wager) {
+void wagerPush(Wager* wager) {
 	// No action needed for a push in this case
 }
 
 // Mark insurance as won
-void wager_won_insurance(Wager* wager) {
+void wagerWonInsurance(Wager* wager) {
 	wager->insurance_won = wager->insurance_bet * 2;
 }
 
 // Mark insurance as lost
-void wager_lost_insurance(Wager* wager) {
+void wagerLostInsurance(Wager* wager) {
 	wager->insurance_won = -wager->insurance_bet;
 }
 

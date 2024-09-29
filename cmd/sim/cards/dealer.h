@@ -1,18 +1,20 @@
 #ifndef DEALER_H
 #define DEALER_H
 
+#include <stdbool.h>
+#include "shoe.h"
 #include "hand.h"
 
 // Define the Dealer struct
 typedef struct {
-    Hand hand;
+	Hand hand;
+	bool hit_soft_17;
 } Dealer;
 
 // Function declarations
-Dealer* new_dealer();
-void dealer_reset(Dealer* dealer);
-void dealer_play(Dealer* dealer, Shoe* shoe);
-Card* dealer_draw_card(Dealer* dealer, Card* card);
+Dealer* newDealer(bool hit_soft_17);
+void dealerReset(Dealer* dealer);
+void dealerPlay(Dealer* dealer, Shoe* shoe);
+Card* dealerDrawCard(Dealer* dealer, Card* card);
 
 #endif // DEALER_H
-
