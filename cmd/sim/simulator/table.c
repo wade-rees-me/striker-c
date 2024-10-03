@@ -30,7 +30,7 @@ Table* newTable(Parameters *parameters, Rules *rules) {
 void tableSession(Table *table, bool mimic) {
     char buffer[256];
 
-	sprintf(buffer, "      Starting table hands: %s\n", addCommas(table->parameters->number_of_hands));
+	sprintf(buffer, "      Start: table, playing %s hands\n", addCommas(table->parameters->number_of_hands));
 	Logger_simulation(table->parameters->logger, buffer);
 
 	table->report.start = time(NULL);
@@ -64,7 +64,7 @@ void tableSession(Table *table, bool mimic) {
 
 	table->report.end = time(NULL);
 	table->report.duration = table->report.end - table->report.start;
-	sprintf(buffer, "\n      Ending table: total elapsed time: %lld seconds\n", table->report.duration);
+	sprintf(buffer, "\n      End: table\n");
 	Logger_simulation(table->parameters->logger, buffer);
 }
 
@@ -94,7 +94,7 @@ void status(int64_t round, int64_t hand, Logger *logger) {
 		Logger_simulation(logger, ".");
     }
     if((round + 1) % STATUS_LINE == 0) {
-        sprintf(buffer, "%s (rounds), %s (hands)\n", addCommas((round + 1)), addCommas(hand));
+        sprintf(buffer, " : %s (rounds), %s (hands)\n", addCommas((round + 1)), addCommas(hand));
 		Logger_simulation(logger, buffer);
 		Logger_simulation(logger, "        ");
     }

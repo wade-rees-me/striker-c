@@ -116,27 +116,27 @@ double parseAuxDouble(cJSON *json, char* tag, double value) {
 void printRules(Rules* rules, Logger *logger) {
 	char buffer[256];
 
-	sprintf(buffer, "    %-24s:\n", "Rules");
+	sprintf(buffer, "    %-24s\n", "Rules");
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "  Table", rules->playbook);
+	sprintf(buffer, "      %-24s: %s\n", "Table", rules->playbook);
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "  Hit soft 17", boolToString(rules->hit_soft_17));
+	sprintf(buffer, "      %-24s: %s\n", "Hit soft 17", boolToString(rules->hit_soft_17));
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "  Surrender", boolToString(rules->surrender));
+	sprintf(buffer, "      %-24s: %s\n", "Surrender", boolToString(rules->surrender));
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "  Double any two cards", boolToString(rules->double_any_two_cards));
+	sprintf(buffer, "      %-24s: %s\n", "Double any two cards", boolToString(rules->double_any_two_cards));
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "  Double after split", boolToString(rules->double_after_split));
+	sprintf(buffer, "      %-24s: %s\n", "Double after split", boolToString(rules->double_after_split));
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "  Resplit aces", boolToString(rules->resplit_aces));
+	sprintf(buffer, "      %-24s: %s\n", "Resplit aces", boolToString(rules->resplit_aces));
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "  Hit split aces", boolToString(rules->hit_split_aces));
+	sprintf(buffer, "      %-24s: %s\n", "Hit split aces", boolToString(rules->hit_split_aces));
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %d\n", "  Blackjack bets", rules->blackjack_bets);
+	sprintf(buffer, "      %-24s: %d\n", "Blackjack bets", rules->blackjack_bets);
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %d\n", "  Blackjack pays", rules->blackjack_pays);
+	sprintf(buffer, "      %-24s: %d\n", "Blackjack pays", rules->blackjack_pays);
 	Logger_simulation(logger, buffer);
-	sprintf(buffer, "    %-24s: %.2f\n", "  Penetration", rules->penetration);
+	sprintf(buffer, "      %-24s: %0.3f %%\n", "Penetration", rules->penetration);
 	Logger_simulation(logger, buffer);
 }
 

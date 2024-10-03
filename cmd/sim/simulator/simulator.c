@@ -33,10 +33,10 @@ void simulatorRunOnce(Simulation *s) {
 	SimulationDatabaseTable tbs;
     char buffer[256];
 
-	sprintf(buffer, "  Starting %s simulation(%s) ...\n", STRIKER_WHO_AM_I, s->parameters->name);
+	sprintf(buffer, "  Start: simulation(%s)\n", s->parameters->name);
 	Logger_simulation(s->parameters->logger, buffer);
 	simulatorRunSimulation(s);
-	sprintf(buffer, "  Ending %s simulation(%s) ...\n", STRIKER_WHO_AM_I, s->parameters->name);
+	sprintf(buffer, "  End: simulation\n");
 	Logger_simulation(s->parameters->logger, buffer);
 
 	// Populate the rest of the SimulationDatabaseTable
@@ -62,7 +62,7 @@ void simulatorRunOnce(Simulation *s) {
 	sprintf(tbs.total_won, "%lld", s->report.total_won);
 	sprintf(tbs.total_time, "%lld", s->report.duration);
 	sprintf(tbs.average_time, "%06.2f seconds", (float)s->report.duration * (float)1000000 / (float)s->report.total_hands);
-	sprintf(tbs.advantage, "%+04.3f%%", ((double)s->report.total_won / s->report.total_bet) * 100);
+	sprintf(tbs.advantage, "%+04.3f %%", ((double)s->report.total_won / s->report.total_bet) * 100);
 
 	// Print out the results
     Logger_simulation(s->parameters->logger, "\n  -- results ---------------------------------------------------------------------\n");
@@ -91,10 +91,10 @@ void simulatorRunOnce(Simulation *s) {
 void simulatorRunSimulation(Simulation *sim) {
     char buffer[256];
 
-	sprintf(buffer, "    Starting %s table session ...\n", sim->parameters->strategy);
+	sprintf(buffer, "    Start: %s table session\n", sim->parameters->strategy);
 	Logger_simulation(sim->parameters->logger, buffer);
 	tableSession(sim->table, strcmp("mimic", sim->parameters->strategy) == 0);
-	sprintf(buffer, "    Ending %s table session ...\n", sim->parameters->strategy);
+	sprintf(buffer, "    End: table session\n");
 	Logger_simulation(sim->parameters->logger, buffer);
 
 	sim->report.total_bet += sim->table->player->report.total_bet;

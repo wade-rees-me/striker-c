@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 	Parameters params;
 	initParameters(name, &params, &rules, &logger, getDecks(&arguments), getStrategy(&arguments), getNumberOfDecks(&arguments), arguments.hands);
 
-	sprintf(buffer, "Starting: %s ...\n\n", name);
+	sprintf(buffer, "Start: %s\n\n", STRIKER_WHO_AM_I);
 	Logger_simulation(&logger, buffer);
 	Logger_simulation(&logger, "  -- arguments -------------------------------------------------------------------\n");
 	printParameters(&params);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 	simulatorRunOnce(sim);
 	simulationDelete(sim);
 
-	sprintf(buffer, "\nComplete: %s ...\n\n", name);
+	sprintf(buffer, "\nEnd: %s\n\n", STRIKER_WHO_AM_I);
 	Logger_simulation(&logger, buffer);
 	return 0;
 }
