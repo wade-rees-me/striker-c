@@ -45,10 +45,10 @@ void parseArguments(Arguments *args, int argc, char *argv[]) {
 			args->double_deck_flag = 1;
 		} else if (strcmp(argv[i], "-6") == 0 || strcmp(argv[i], "--six-shoe") == 0) {
 			args->six_shoe_flag = 1;
-		} else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+		} else if (strcmp(argv[i], "--help") == 0) {
 			printHelpMessage();
 			exit(EXIT_SUCCESS);
-		} else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
+		} else if (strcmp(argv[i], "--version") == 0) {
 			printVersion();
 			exit(EXIT_SUCCESS);
 		} else {

@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -O3 -Wall -I/usr/include -I/usr/local/include
 
 # Directories
-SRC_DIRS = arguments cards constants rules simulator utilities logger
+SRC_DIRS = arguments cards constants table simulator utilities logger
 INCLUDE_DIRS = $(SRC_DIRS)
 
 # Include all directories for header files
