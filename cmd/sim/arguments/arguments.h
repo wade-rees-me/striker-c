@@ -5,7 +5,7 @@
 
 // Define the structure to hold arguments
 typedef struct {
-	long long rounds;
+	long long hands;
 	bool mimic_flag;
 	bool basic_flag;
 	bool linear_flag;

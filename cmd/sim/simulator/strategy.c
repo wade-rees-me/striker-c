@@ -19,6 +19,8 @@ static char* urlSurrender;
 static char* urlDouble;
 static char* urlSplit;
 static char* urlStand;
+static char* urlPlay;
+static CURL *curl_handle = NULL;
 
 //
 void initStrategy() {
@@ -39,6 +41,9 @@ void initStrategy() {
 
 	urlStand = malloc(256);
 	sprintf(urlStand, "http://%s/%s", getStrategyUrl(), "stand");
+
+	urlPlay = malloc(256);
+	sprintf(urlPlay, "http://%s/%s", getStrategyUrl(), "play");
 }
 
 // Function to get bet value
@@ -55,23 +60,40 @@ bool playerGetInsurance(Player *p) {
 
 // Function to get surrender decision
 bool playerGetSurrender(Player *p, const int *have, Card* up) {
-	httpGet(urlSurrender, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->do_play) {
+		httpGet(urlSurrender, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	}
 	return aux.do_surrender;
 }
 
 bool playerGetDouble(Player *p, const int *have, Card* up) {
-	httpGet(urlDouble, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->do_play) {
+		httpGet(urlDouble, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	}
 	return aux.do_double;
 }
 
 bool playerGetSplit(Player *p, Card* pair, Card* up) {
-	httpGet(urlSplit, buildParams(p->seen_cards, NULL, pair, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->do_play) {
+		httpGet(urlSplit, buildParams(p->seen_cards, NULL, pair, p->parameters->playbook, p->number_of_cards, up));
+	}
 	return aux.do_split;
 }
 
 bool playerGetStand(Player *p, const int *have, Card* up) {
-	httpGet(urlStand, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->do_play) {
+		httpGet(urlStand, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	}
 	return aux.do_stand;
+}
+
+void playerGetPlay(Player *p, const int *have, Card* pair, Card* up) {
+	p->do_play = true;
+	httpGet(urlStand, buildParams(p->seen_cards, have, pair, p->parameters->playbook, p->number_of_cards, up));
+}
+
+void playerClear(Player *p) {
+	p->do_play = false;
 }
 
 // Function to build the URL
@@ -152,7 +174,6 @@ void parseAuxData(const char *response) {
 // Function to perform HTTP GET request
 void httpGet(const char* url, const char* params) {
 	struct MemoryStruct chunk;
-	CURL *curl_handle;
 	CURLcode res;
 	char fullUrl[256];
 	sprintf(fullUrl, "%s?%s", url, params);
@@ -162,15 +183,16 @@ void httpGet(const char* url, const char* params) {
 	chunk.size = 0;			// No data at this point
 
 	curl_global_init(CURL_GLOBAL_ALL);
-	curl_handle = curl_easy_init();
-
-	if (!curl_handle) {
-		curl_global_cleanup();
-		exit(1);
+	if(!curl_handle) {
+		curl_handle = curl_easy_init();
+		if (!curl_handle) {
+			curl_global_cleanup();
+			exit(1);
+		}
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback);
 	}
 
 	curl_easy_setopt(curl_handle, CURLOPT_URL, fullUrl);
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback);
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&chunk);
 
 	res = curl_easy_perform(curl_handle);
@@ -178,10 +200,12 @@ void httpGet(const char* url, const char* params) {
 		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		exit(1);
 	}
-	curl_easy_cleanup(curl_handle);
-	curl_global_cleanup();
 
-//printf("%s\n", chunk.memory);
+
+//curl_easy_cleanup(curl_handle);
+//curl_global_cleanup();
+
+
 	parseAuxData(chunk.memory);
 	free(chunk.memory);
 }

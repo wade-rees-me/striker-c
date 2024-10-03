@@ -23,6 +23,8 @@ bool playerGetSurrender(Player *p, const int *have, Card* up);
 bool playerGetDouble(Player *p, const int *have, Card* up);
 bool playerGetSplit(Player *p, Card* pair, Card* up);
 bool playerGetStand(Player *p, const int *have, Card* up);
+void playerGetPlay(Player *p, const int *have, Card* pair, Card* up);
+void playerClear(Player *p);
 char* buildUrl(const char *baseUrl, const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up);
 char* buildParams(const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up);
 char *urlEncode(const char *str);

@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -I/usr/include -I/usr/local/include
+CFLAGS = -O3 -Wall -I/usr/include -I/usr/local/include
 
 # Directories
 SRC_DIRS = arguments cards constants rules simulator utilities logger

@@ -6,11 +6,12 @@
 #include "table.h"
 #include "strategy.h"
 #include "shoe.h"
+#include "utilities.h"
 
 const int STATUS_DOT = 25000;
 const int STATUS_LINE = 1000000;
 
-void status(int64_t round, Logger *logger);
+void status(int64_t round, int64_t hand, Logger *logger);
 
 // Function to create a new table
 Table* newTable(Parameters *parameters, Rules *rules) {
@@ -29,16 +30,15 @@ Table* newTable(Parameters *parameters, Rules *rules) {
 void tableSession(Table *table, bool mimic) {
     char buffer[256];
 
-	sprintf(buffer, "      Starting table rounds: %lld\n", table->parameters->rounds);
+	sprintf(buffer, "      Starting table hands: %s\n", addCommas(table->parameters->number_of_hands));
 	Logger_simulation(table->parameters->logger, buffer);
 
 	table->report.start = time(NULL);
-	table->report.total_rounds = table->parameters->rounds;
-
-	for (int64_t i = 0; i < table->parameters->rounds; i++) {
-		status(i, table->parameters->logger);
+	while (table->report.total_hands < table->parameters->number_of_hands) {
+		status(table->report.total_rounds, table->report.total_hands, table->parameters->logger);
 		shoeShuffle(table->shoe);
 		playerShuffle(table->player);
+		table->report.total_rounds++;
 
 		while (!shoeShouldShuffle(table->shoe)) {
 			table->report.total_hands++;
@@ -84,23 +84,19 @@ void tableShow(Table *table, Card *card) {
 }
 
 //
-void status(int64_t round, Logger *logger) {
+void status(int64_t round, int64_t hand, Logger *logger) {
     char buffer[256];
 
     if(round == 0) {
-		Logger_simulation(logger, "      ");
-		//fflush(stdout);
+		Logger_simulation(logger, "        ");
     }
     if((round + 1) % STATUS_DOT == 0) {
 		Logger_simulation(logger, ".");
-        //printf(".");
-		//fflush(stdout);
     }
     if((round + 1) % STATUS_LINE == 0) {
-        sprintf(buffer, "%12lld\n", (round + 1));
+        sprintf(buffer, "%s (rounds), %s (hands)\n", addCommas((round + 1)), addCommas(hand));
 		Logger_simulation(logger, buffer);
-		Logger_simulation(logger, "      ");
-		//fflush(stdout);
+		Logger_simulation(logger, "        ");
     }
 }
 

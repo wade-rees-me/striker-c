@@ -6,24 +6,28 @@
 #include <cjson/cJSON.h>
 #include "parameters.h"
 #include "constants.h"
+#include "utilities.h"
 
 // Initialize the Parameters struct
-void initParameters(Parameters *params, Rules *rules, Logger *logger, const char *d, const char *s, int n, int64_t r) {
+void initParameters(const char* name, Parameters *params, Rules *rules, Logger *logger, const char *d, const char *s, int n, int64_t number_of_hands) {
+	params->name = name;
 	params->rules = rules;
 	params->logger = logger;
 	snprintf(params->decks, MAX_STRING_SIZE, "%s", d);
 	snprintf(params->strategy, MAX_STRING_SIZE, "%s", s);
 	params->number_of_decks = n;
-	params->rounds = r;
+	params->number_of_hands = number_of_hands;
 	snprintf(params->playbook, MAX_STRING_SIZE, "%s-%s", params->decks, params->strategy);
-	generateUUID(params->guid);
 	snprintf(params->processor, MAX_STRING_SIZE, "%s", STRIKER_WHO_AM_I);
 	getCurrentTime(params->timestamp);
 }
 
 // Print the Parameters struct
 void printParameters(const Parameters *params) {
-	char buffer[256];
+	char buffer[MAX_STRING_SIZE];
+
+	sprintf(buffer, "    %-24s: %s\n", "Name", params->name);
+	Logger_simulation(params->logger, buffer);
 
 	sprintf(buffer, "    %-24s: %s\n", "Playbook", params->playbook);
 	Logger_simulation(params->logger, buffer);
@@ -31,21 +35,14 @@ void printParameters(const Parameters *params) {
 	sprintf(buffer, "    %-24s: %s\n", "Processor", params->processor);
 	Logger_simulation(params->logger, buffer);
 
-	sprintf(buffer, "    %-24s: %lld\n", "Number of rounds", params->rounds);
+	sprintf(buffer, "    %-24s: %s\n", "Version", STRIKER_VERSION);
+	Logger_simulation(params->logger, buffer);
+
+	sprintf(buffer, "    %-24s: %s\n", "Number of hands", addCommas(params->number_of_hands));
 	Logger_simulation(params->logger, buffer);
 
 	sprintf(buffer, "    %-24s: %s\n", "Timestamp", params->timestamp);
 	Logger_simulation(params->logger, buffer);
-
-	sprintf(buffer, "    %-24s: %s\n", "Guid", params->guid);
-	Logger_simulation(params->logger, buffer);
-}
-
-// Function to generate a UUID
-void generateUUID(char *buffer) {
-	uuid_t uuid;
-	uuid_generate(uuid);
-	uuid_unparse(uuid, buffer);  // This function fills the buffer with the UUID string
 }
 
 // Function to get the current time and format it
@@ -59,12 +56,12 @@ char* serializeParameters(Parameters *parameters) {
 	cJSON* json = cJSON_CreateObject();
 
 	cJSON_AddStringToObject(json, "playbook", parameters->playbook);
-	cJSON_AddStringToObject(json, "guid", parameters->guid);
+	cJSON_AddStringToObject(json, "name", parameters->name);
 	cJSON_AddStringToObject(json, "processor", parameters->processor);
 	cJSON_AddStringToObject(json, "timestamp", parameters->timestamp);
 	cJSON_AddStringToObject(json, "decks", parameters->decks);
 	cJSON_AddStringToObject(json, "strategy", parameters->strategy);
-	cJSON_AddNumberToObject(json, "rounds", parameters->rounds);
+	cJSON_AddNumberToObject(json, "hands", parameters->number_of_hands);
 	cJSON_AddNumberToObject(json, "number_of_decks", parameters->number_of_decks);
 
 	cJSON_AddStringToObject(json, "hit_soft_17", parameters->rules->hit_soft_17 ? "true" : "false");

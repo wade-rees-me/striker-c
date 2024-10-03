@@ -10,10 +10,6 @@
 #include "parameters.h"
 
 typedef struct {
-    char name[100];
-    int year;
-    int month;
-    int day;
     Parameters* parameters;
     Rules* rules;
     Table* table;
@@ -36,10 +32,10 @@ typedef struct {
     char parameters[2048];
 } SimulationDatabaseTable;
 
-extern Simulation* newSimulation(Parameters *parameters, Rules *rules);
-extern void simulationDelete(Simulation* sim);
-extern void simulatorRunOnce(Simulation *simulation);
-extern void simulatorRunSimulation(Simulation *sim);
-extern void simulatorInsert(SimulationDatabaseTable *sdt, const char *playbook, Logger *logger);
+Simulation* newSimulation(Parameters *parameters, Rules *rules);
+void simulationDelete(Simulation* sim);
+void simulatorRunOnce(Simulation *simulation);
+void simulatorRunSimulation(Simulation *sim);
+void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *playbook, Logger *logger);
 
 #endif // SIMULATOR_H

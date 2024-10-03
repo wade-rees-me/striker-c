@@ -16,6 +16,7 @@ Player* newPlayer(Parameters* parameters, Rules *rules, int number_of_cards) {
 	p->parameters = parameters;
 	p->rules = rules;
 	p->number_of_cards = number_of_cards;
+	p->do_play = false;
 
 	reportInit(&p->report);
 
@@ -58,13 +59,16 @@ void playerPlay(Player* p, Shoe* s, Card* up, bool mimic) {
     }
 
 	// Check for surrender
+	//playerGetPlay(p, getHaveCards(&p->wager.hand), handIsPair(&p->wager.hand) ? p->wager.hand.cards[0] : NULL, up);
 	if (p->rules->surrender && playerGetSurrender(p, getHaveCards(&p->wager.hand), up)) {
+		playerClear(p);
 		p->wager.hand.surrender = true;
 		return;
 	}
 
 	// Check for double
 	if ((p->rules->double_any_two_cards || (handTotal(&p->wager.hand) == 10 || handTotal(&p->wager.hand) == 11)) && playerGetDouble(p, getHaveCards(&p->wager.hand), up)) {
+		playerClear(p);
 		wagerDoubleBet(&p->wager);
 		playerDrawCard(p, &p->wager.hand, s);
 		return;
@@ -72,6 +76,7 @@ void playerPlay(Player* p, Shoe* s, Card* up, bool mimic) {
 
 	// Check for splitting
 	if (handIsPair(&p->wager.hand) && playerGetSplit(p, p->wager.hand.cards[0], up)) {
+		playerClear(p);
 		Wager* split = &p->splits[p->split_count];
 		p->split_count++;
 		
@@ -94,6 +99,7 @@ void playerPlay(Player* p, Shoe* s, Card* up, bool mimic) {
 
 	// Handle the stand logic
 	bool doStand = playerGetStand(p, getHaveCards(&p->wager.hand), up);
+	playerClear(p);
 	while (!handIsBusted(&p->wager.hand) && !doStand) {
 		playerDrawCard(p, &p->wager.hand, s);
 		doStand = playerGetStand(p, getHaveCards(&p->wager.hand), up);

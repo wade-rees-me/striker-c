@@ -56,7 +56,6 @@ bool rulesFetchTable(Rules *rules, const char *url) {
 		}
 
 		cJSON *itemPayload = cJSON_GetObjectItemCaseSensitive(json, "payload");
-printf("%s\n", itemPayload->valuestring);
 		json = cJSON_Parse(itemPayload->valuestring);
 		if(json == NULL) {
 			printf("Error parsing JSON response\n");

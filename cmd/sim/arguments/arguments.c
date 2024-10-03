@@ -6,7 +6,7 @@
 
 // Parse command-line flags for simulation
 void parseArguments(Arguments *args, int argc, char *argv[]) {
-	args->rounds = MINIMUM_NUMBER_OF_ROUNDS;
+	args->hands = MINIMUM_NUMBER_OF_HANDS;
 	args->mimic_flag = false;
 	args->basic_flag = false;
 	args->linear_flag = false;
@@ -19,10 +19,10 @@ void parseArguments(Arguments *args, int argc, char *argv[]) {
 	args->six_shoe_flag = false;
 
 	for (int i = 1; i < argc; ++i) {
-		if ((strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--number-of-rounds") == 0) && i + 1 < argc) {
-			args->rounds = atoll(argv[++i]);
-			if (args->rounds < MINIMUM_NUMBER_OF_ROUNDS || args->rounds > MAXIMUM_NUMBER_OF_ROUNDS) {
-				fprintf(stderr, "Number of rounds must be between %lld and %lld\n", MINIMUM_NUMBER_OF_ROUNDS, MAXIMUM_NUMBER_OF_ROUNDS);
+		if ((strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--number-of-hands") == 0) && i + 1 < argc) {
+			args->hands = atoll(argv[++i]);
+			if (args->hands < MINIMUM_NUMBER_OF_HANDS || args->hands > MAXIMUM_NUMBER_OF_HANDS) {
+				fprintf(stderr, "Number of hands must be between %lld and %lld\n", MINIMUM_NUMBER_OF_HANDS, MAXIMUM_NUMBER_OF_HANDS);
 				exit(EXIT_FAILURE);
 			}
 		} else if (strcmp(argv[i], "-M") == 0 || strcmp(argv[i], "--mimic") == 0) {
@@ -67,19 +67,19 @@ void printVersion() {
 void printHelpMessage() {
 	printf("Usage: strikerC [options]\n"
 		   "Options:\n"
-		   "  -h, --help									Show this help message\n"
-		   "  -v, --version									Display the program version\n"
-		   "  -r, --number-of-rounds <number of rounds>		The number of rounds to play in this simulation\n"
-		   "  -M, --mimic									Use the mimic dealer player strategy\n"
-		   "  -B, --basic									Use the basic player strategy\n"
-		   "  -L, --linear									Use the liner regression player strategy\n"
-		   "  -P, --polynomial								Use the polynomial regression player strategy\n"
-		   "  -H, --high-low								Use the high low count player strategy\n"
-		   "  -W, --wong									Use the Wong count player strategy\n"
-		   "  -S, --striker									Use the Striker machine learning player strategy\n"
-		   "  -1, --single-deck								Use a single deck of cards and rules\n"
-		   "  -2, --double-deck								Use a double deck of cards and rules\n"
-		   "  -6, --six-shoe								Use a six deck shoe of cards and rules\n");
+		   "  -h, --help                                Show this help message\n"
+		   "  -v, --version                             Display the program version\n"
+		   "  -r, --number-of-hands <number of hands>   The number of hands to play in this simulation\n"
+		   "  -M, --mimic                               Use the mimic dealer player strategy\n"
+		   "  -B, --basic                               Use the basic player strategy\n"
+		   "  -L, --linear                              Use the liner regression player strategy\n"
+		   "  -P, --polynomial                          Use the polynomial regression player strategy\n"
+		   "  -H, --high-low                            Use the high low count player strategy\n"
+		   "  -W, --wong                                Use the Wong count player strategy\n"
+		   "  -S, --striker                             Use the Striker machine learning player strategy\n"
+		   "  -1, --single-deck                         Use a single deck of cards and rules\n"
+		   "  -2, --double-deck                         Use a double deck of cards and rules\n"
+		   "  -6, --six-shoe                            Use a six deck shoe of cards and rules\n");
 }
 
 // Get the current strategy as a string

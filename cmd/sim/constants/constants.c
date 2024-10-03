@@ -24,9 +24,3 @@ const char* getSimulationDirectory() {
 	return getenv("STRIKER_SIMULATIONS");
 }
 
-int64_t getDatabaseMinimumRounds() {
-	char* str = getenv("STRIKER_MINIMUM_ROUNDS");
-	char* end;
-	return strtol(str, &end, 10);
-}
-

@@ -22,6 +22,7 @@ typedef struct {
 	Parameters* parameters;
 	Rules* rules;
 	Report report;
+	bool do_play;
 } Player;
 
 //
