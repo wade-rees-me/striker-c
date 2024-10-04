@@ -116,7 +116,7 @@ double parseAuxDouble(cJSON *json, char* tag, double value) {
 void printRules(Rules* rules, Logger *logger) {
 	char buffer[256];
 
-	sprintf(buffer, "    %-24s\n", "Rules");
+	sprintf(buffer, "    %-24s\n", "Table Rules");
 	Logger_simulation(logger, buffer);
 	sprintf(buffer, "      %-24s: %s\n", "Table", rules->playbook);
 	Logger_simulation(logger, buffer);

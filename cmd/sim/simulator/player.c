@@ -59,7 +59,7 @@ void playerPlay(Player* p, Shoe* s, Card* up, bool mimic) {
     }
 
 	// Check for surrender
-	//playerGetPlay(p, getHaveCards(&p->wager.hand), handIsPair(&p->wager.hand) ? p->wager.hand.cards[0] : NULL, up);
+	playerGetPlay(p, getHaveCards(&p->wager.hand), handIsPair(&p->wager.hand) ? p->wager.hand.cards[0] : NULL, up);
 	if (p->rules->surrender && playerGetSurrender(p, getHaveCards(&p->wager.hand), up)) {
 		playerClear(p);
 		p->wager.hand.surrender = true;
