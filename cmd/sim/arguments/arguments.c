@@ -67,8 +67,8 @@ void printVersion() {
 void printHelpMessage() {
 	printf("Usage: strikerC [options]\n"
 		   "Options:\n"
-		   "  -h, --help                                Show this help message\n"
-		   "  -v, --version                             Display the program version\n"
+		   "  --help                                    Show this help message\n"
+		   "  --version                                 Display the program version\n"
 		   "  -r, --number-of-hands <number of hands>   The number of hands to play in this simulation\n"
 		   "  -M, --mimic                               Use the mimic dealer player strategy\n"
 		   "  -B, --basic                               Use the basic player strategy\n"
