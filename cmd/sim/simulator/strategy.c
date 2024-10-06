@@ -25,25 +25,25 @@ static CURL *curl_handle = NULL;
 //
 void initStrategy() {
 	urlBet = malloc(256);
-	sprintf(urlBet, "http://%s/%s", getStrategyUrl(), "bet");
+	sprintf(urlBet, "http://%s/%s", getStrategyUrl(), BET);
 
 	urlInsurance = malloc(256);
-	sprintf(urlInsurance, "http://%s/%s", getStrategyUrl(), "insurance");
+	sprintf(urlInsurance, "http://%s/%s", getStrategyUrl(), INSURANCE);
 
 	urlSurrender = malloc(256);
-	sprintf(urlSurrender, "http://%s/%s", getStrategyUrl(), "surrender");
+	sprintf(urlSurrender, "http://%s/%s", getStrategyUrl(), SURRENDER);
 
 	urlDouble = malloc(256);
-	sprintf(urlDouble, "http://%s/%s", getStrategyUrl(), "double");
+	sprintf(urlDouble, "http://%s/%s", getStrategyUrl(), DOUBLE);
 
 	urlSplit = malloc(256);
-	sprintf(urlSplit, "http://%s/%s", getStrategyUrl(), "split");
+	sprintf(urlSplit, "http://%s/%s", getStrategyUrl(), SPLIT);
 
 	urlStand = malloc(256);
-	sprintf(urlStand, "http://%s/%s", getStrategyUrl(), "stand");
+	sprintf(urlStand, "http://%s/%s", getStrategyUrl(), STAND);
 
 	urlPlay = malloc(256);
-	sprintf(urlPlay, "http://%s/%s", getStrategyUrl(), "play");
+	sprintf(urlPlay, "http://%s/%s", getStrategyUrl(), PLAY);
 }
 
 // Function to get bet value
@@ -157,16 +157,16 @@ void parseAuxData(const char *response) {
 		exit(1);
 	}
 
-	cJSON *betItem = cJSON_GetObjectItem(json, "bet");
+	cJSON *betItem = cJSON_GetObjectItem(json, BET);
 	if (betItem != NULL) {
-		aux.bet = cJSON_GetObjectItem(json, "bet")->valueint;
+		aux.bet = cJSON_GetObjectItem(json, BET)->valueint;
 	}
 
-	aux.do_insurance = parseAuxTag(json, "insurance", false);
-	aux.do_double = parseAuxTag(json, "double", false);
-	aux.do_split = parseAuxTag(json, "split", false);
-	aux.do_surrender = parseAuxTag(json, "surrender", false);
-	aux.do_stand = parseAuxTag(json, "stand", true);
+	aux.do_insurance = parseAuxTag(json, INSURANCE, false);
+	aux.do_double = parseAuxTag(json, DOUBLE, false);
+	aux.do_split = parseAuxTag(json, SPLIT, false);
+	aux.do_surrender = parseAuxTag(json, SURRENDER, false);
+	aux.do_stand = parseAuxTag(json, STAND, true);
 
 	cJSON_Delete(json);
 }

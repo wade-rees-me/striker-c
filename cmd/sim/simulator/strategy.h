@@ -5,6 +5,14 @@
 #include "player.h"
 #include "shoe.h"
 
+#define BET "bet"
+#define INSURANCE "insurance"
+#define SURRENDER "surrender"
+#define DOUBLE "double"
+#define SPLIT "split"
+#define STAND "stand"
+#define PLAY "play"
+
 // Struct to hold aux data
 struct AuxData {
 	int bet;
