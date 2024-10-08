@@ -4,6 +4,27 @@
 #include <stdbool.h>
 #include "card.h"
 
+//
+#define SPADES "spades"
+#define DIAMONDS "diamonds"
+#define CLUBS "clubs"
+#define HEARTS "hearts"
+
+//
+#define TWO "two"
+#define THREE "three"
+#define FOUR "four"
+#define FIVE "five"
+#define SIX "six"
+#define SEVEN "seven"
+#define EIGHT "eight"
+#define NINE "nine"
+#define TEN "ten"
+#define JACK "jack"
+#define QUEEN "queen"
+#define KING "king"
+#define ACE "ace"
+
 // Shoe structure to hold cards and state of the shoe
 typedef struct {
     Card** cards;          // Array of card pointers

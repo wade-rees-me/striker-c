@@ -4,28 +4,9 @@
 #include <time.h>
 #include <string.h>
 #include "shoe.h"
-#include "rank.h"
 #include "card.h"
 
-// Define the suits array
-const char* suits[4] = {"spades", "diamonds", "clubs", "hearts"};
-
-// Define the card ranks and values
-Rank ranks[13] = {
-	{"two", 2, 0},
-	{"three", 3, 1},
-	{"four", 4, 2},
-	{"five", 5, 3},
-	{"six", 6, 4},
-	{"seven", 7, 5},
-	{"eight", 8, 6},
-	{"nine", 9, 7},
-	{"ten", 10, 8},
-	{"jack", 10, 9},
-	{"queen", 10, 10},
-	{"king", 10, 11},
-	{"ace", 11, 12}
-};
+const char* suits[4] = {SPADES, DIAMONDS, CLUBS, HEARTS};
 
 // Helper function to shuffle the deck (Fisher-Yates algorithm)
 static void shuffleRandom(Shoe* shoe) {
@@ -54,20 +35,19 @@ Shoe* newShoe(int number_of_decks, float penetration) {
     int card_index = 0;
     for (int i = 0; i < number_of_decks; i++) {
         for (int suit = 0; suit < 4; suit++) {
-            for (int rank = 0; rank < 13; rank++) {
-				Card* card = (Card*)malloc(sizeof(Card));
-				if (!card) {
-					printf("Memory allocation failed for card\n");
-					exit(1);
-				}
-
-				card->suit = suits[suit];
-				card->rank = ranks[rank].rank;
-				card->value = ranks[rank].value;
-				card->offset = ranks[rank].offset;
-                shoe->cards[card_index] = card;
-                card_index++;
-            }
+            shoe->cards[card_index++] = newCard(suits[suit], TWO, 2, 0);
+            shoe->cards[card_index++] = newCard(suits[suit], THREE, 3, 1);
+            shoe->cards[card_index++] = newCard(suits[suit], FOUR, 4, 2);
+            shoe->cards[card_index++] = newCard(suits[suit], FIVE, 5, 3);
+            shoe->cards[card_index++] = newCard(suits[suit], SIX, 6, 4);
+            shoe->cards[card_index++] = newCard(suits[suit], SEVEN, 7, 5);
+            shoe->cards[card_index++] = newCard(suits[suit], EIGHT, 8, 6);
+            shoe->cards[card_index++] = newCard(suits[suit], NINE, 9, 7);
+            shoe->cards[card_index++] = newCard(suits[suit], TEN, 10, 8);
+            shoe->cards[card_index++] = newCard(suits[suit], JACK, 10, 9);
+            shoe->cards[card_index++] = newCard(suits[suit], QUEEN, 10, 10);
+            shoe->cards[card_index++] = newCard(suits[suit], KING, 10, 11);
+            shoe->cards[card_index++] = newCard(suits[suit], ACE, 11, 12);
         }
     }
 
