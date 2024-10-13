@@ -6,7 +6,6 @@
 #include "report.h"
 #include "memory.h"
 #include "rules.h"
-#include "logger.h"
 #include "parameters.h"
 
 typedef struct {
@@ -36,6 +35,6 @@ Simulation* newSimulation(Parameters *parameters, Rules *rules);
 void simulationDelete(Simulation* sim);
 void simulatorRunOnce(Simulation *simulation);
 void simulatorRunSimulation(Simulation *sim);
-void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *playbook, Logger *logger);
+void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *playbook);
 
 #endif // SIMULATOR_H

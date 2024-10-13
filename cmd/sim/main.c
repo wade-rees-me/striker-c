@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "arguments.h"
-#include "logger.h"
 #include "rules.h"
 #include "parameters.h"
 #include "simulator.h"
@@ -14,34 +13,28 @@ void generateName(char* buffer, size_t buffer_size);
 //
 int main(int argc, char* argv[]) {
     char name[256];
-    char buffer[256];
     generateName(name, sizeof(name));
 	Arguments arguments;
 	parseArguments(&arguments, argc, argv);
-
-	Logger logger;
-    Logger_init(&logger, name, true);
 
 	Rules rules;
 	loadRules(&rules, getDecks(&arguments));
 
 	Parameters params;
-	initParameters(name, &params, &rules, &logger, getDecks(&arguments), getStrategy(&arguments), getNumberOfDecks(&arguments), arguments.hands);
+	initParameters(name, &params, &rules, getDecks(&arguments), getStrategy(&arguments), getNumberOfDecks(&arguments), arguments.hands);
 
-	sprintf(buffer, "Start: %s\n\n", STRIKER_WHO_AM_I);
-	Logger_simulation(&logger, buffer);
-	Logger_simulation(&logger, "  -- arguments -------------------------------------------------------------------\n");
+	printf("Start: %s\n\n", STRIKER_WHO_AM_I);
+	printf("  -- arguments -------------------------------------------------------------------\n");
 	printParameters(&params);
-	printRules(&rules, &logger);
-	Logger_simulation(&logger, "  --------------------------------------------------------------------------------\n");
+	printRules(&rules);
+	printf("  --------------------------------------------------------------------------------\n"); fflush(stdout);
 
 	Simulation* sim = newSimulation(&params, &rules);
 	initStrategy();
 	simulatorRunOnce(sim);
 	simulationDelete(sim);
 
-	sprintf(buffer, "\nEnd: %s\n\n", STRIKER_WHO_AM_I);
-	Logger_simulation(&logger, buffer);
+	printf("\nEnd: %s\n\n", STRIKER_WHO_AM_I);
 	return 0;
 }
 

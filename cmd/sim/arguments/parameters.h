@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <time.h>
 #include "rules.h"
-#include "logger.h"
 
 // Define the maximum size for string fields
 #define MAX_STRING_SIZE 128
@@ -12,7 +11,6 @@
 // Parameters struct to store simulation parameters
 typedef struct {
 	Rules *rules;
-	Logger *logger;
 
 	const char* name;
 	char playbook[MAX_STRING_SIZE];
@@ -25,7 +23,7 @@ typedef struct {
 } Parameters;
 
 // Function prototypes
-void initParameters(const char* name, Parameters *params, Rules *rules, Logger *logger, const char *d, const char *s, int n, int64_t r);
+void initParameters(const char* name, Parameters *params, Rules *rules, const char *d, const char *s, int n, int64_t r);
 void printParameters(const Parameters *params);
 void generateUUID(char *buffer);
 void getCurrentTime(char *buffer);

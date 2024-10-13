@@ -11,7 +11,7 @@
 const int STATUS_DOT = 25000;
 const int STATUS_LINE = 1000000;
 
-void status(int64_t round, int64_t hand, Logger *logger);
+void status(int64_t round, int64_t hand);
 
 // Function to create a new table
 Table* newTable(Parameters *parameters, Rules *rules) {
@@ -28,14 +28,11 @@ Table* newTable(Parameters *parameters, Rules *rules) {
 }
 
 void tableSession(Table *table, bool mimic) {
-    char buffer[256];
-
-	sprintf(buffer, "      Start: table, playing %s hands\n", addCommas(table->parameters->number_of_hands));
-	Logger_simulation(table->parameters->logger, buffer);
+	printf("      Start: table, playing %s hands\n", addCommas(table->parameters->number_of_hands));
 
 	table->report.start = time(NULL);
 	while (table->report.total_hands < table->parameters->number_of_hands) {
-		status(table->report.total_rounds, table->report.total_hands, table->parameters->logger);
+		status(table->report.total_rounds, table->report.total_hands);
 		shoeShuffle(table->shoe);
 		playerShuffle(table->player);
 		table->report.total_rounds++;
@@ -64,8 +61,7 @@ void tableSession(Table *table, bool mimic) {
 
 	table->report.end = time(NULL);
 	table->report.duration = table->report.end - table->report.start;
-	sprintf(buffer, "\n      End: table\n");
-	Logger_simulation(table->parameters->logger, buffer);
+	printf("\n      End: table\n");
 }
 
 // Function to deal cards
@@ -84,19 +80,17 @@ void tableShow(Table *table, Card *card) {
 }
 
 //
-void status(int64_t round, int64_t hand, Logger *logger) {
-    char buffer[256];
-
+void status(int64_t round, int64_t hand) {
     if(round == 0) {
-		Logger_simulation(logger, "        ");
+		printf("        ");
     }
     if((round + 1) % STATUS_DOT == 0) {
-		Logger_simulation(logger, ".");
+		printf(".");
     }
     if((round + 1) % STATUS_LINE == 0) {
-        sprintf(buffer, " : %s (rounds), %s (hands)\n", addCommas((round + 1)), addCommas(hand));
-		Logger_simulation(logger, buffer);
-		Logger_simulation(logger, "        ");
+        printf(" : %s (rounds), %s (hands)\n", addCommas((round + 1)), addCommas(hand));
+		printf("        ");
     }
+	fflush(stdout);
 }
 

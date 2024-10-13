@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
 #include <uuid/uuid.h>
@@ -9,10 +10,9 @@
 #include "utilities.h"
 
 // Initialize the Parameters struct
-void initParameters(const char* name, Parameters *params, Rules *rules, Logger *logger, const char *d, const char *s, int n, int64_t number_of_hands) {
+void initParameters(const char* name, Parameters *params, Rules *rules, const char *d, const char *s, int n, int64_t number_of_hands) {
 	params->name = name;
 	params->rules = rules;
-	params->logger = logger;
 	snprintf(params->decks, MAX_STRING_SIZE, "%s", d);
 	snprintf(params->strategy, MAX_STRING_SIZE, "%s", s);
 	params->number_of_decks = n;
@@ -24,25 +24,12 @@ void initParameters(const char* name, Parameters *params, Rules *rules, Logger *
 
 // Print the Parameters struct
 void printParameters(const Parameters *params) {
-	char buffer[MAX_STRING_SIZE];
-
-	sprintf(buffer, "    %-24s: %s\n", "Name", params->name);
-	Logger_simulation(params->logger, buffer);
-
-	sprintf(buffer, "    %-24s: %s\n", "Playbook", params->playbook);
-	Logger_simulation(params->logger, buffer);
-
-	sprintf(buffer, "    %-24s: %s\n", "Processor", params->processor);
-	Logger_simulation(params->logger, buffer);
-
-	sprintf(buffer, "    %-24s: %s\n", "Version", STRIKER_VERSION);
-	Logger_simulation(params->logger, buffer);
-
-	sprintf(buffer, "    %-24s: %s\n", "Number of hands", addCommas(params->number_of_hands));
-	Logger_simulation(params->logger, buffer);
-
-	sprintf(buffer, "    %-24s: %s\n", "Timestamp", params->timestamp);
-	Logger_simulation(params->logger, buffer);
+	printf("    %-24s: %s\n", "Name", params->name);
+	printf("    %-24s: %s\n", "Playbook", params->playbook);
+	printf("    %-24s: %s\n", "Processor", params->processor);
+	printf("    %-24s: %s\n", "Version", STRIKER_VERSION);
+	printf("    %-24s: %s\n", "Number of hands", addCommas(params->number_of_hands));
+	printf("    %-24s: %s\n", "Timestamp", params->timestamp);
 }
 
 // Function to get the current time and format it

@@ -2,7 +2,6 @@
 #define RULES_H
 
 #include <stdbool.h>
-#include "logger.h"
 
 // Struct to hold table rules
 typedef struct {
@@ -20,6 +19,6 @@ typedef struct {
 
 // Function declarations
 void loadRules(Rules *rules, const char *decks);
-void printRules(Rules* rules, Logger *logger);
+void printRules(Rules* rules);
 
 #endif // RULES_H

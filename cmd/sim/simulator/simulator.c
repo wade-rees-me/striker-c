@@ -5,7 +5,6 @@
 #include <cjson/cJSON.h>
 #include "table.h"
 #include "player.h"
-#include "logger.h"
 #include "simulator.h"
 #include "utilities.h"
 
@@ -31,13 +30,10 @@ void simulationDelete(Simulation* sim) {
 // The SimulatorProcess function
 void simulatorRunOnce(Simulation *s) {
 	SimulationDatabaseTable tbs;
-    char buffer[256];
 
-	sprintf(buffer, "  Start: simulation(%s)\n", s->parameters->name);
-	Logger_simulation(s->parameters->logger, buffer);
+	printf("  Start: simulation(%s)\n", s->parameters->name);
 	simulatorRunSimulation(s);
-	sprintf(buffer, "  End: simulation\n");
-	Logger_simulation(s->parameters->logger, buffer);
+	printf("  End: simulation\n");
 
 	// Populate the rest of the SimulationDatabaseTable
 	strcpy(tbs.playbook, s->parameters->playbook);
@@ -65,37 +61,26 @@ void simulatorRunOnce(Simulation *s) {
 	sprintf(tbs.advantage, "%+04.3f %%", ((double)s->report.total_won / s->report.total_bet) * 100);
 
 	// Print out the results
-    Logger_simulation(s->parameters->logger, "\n  -- results ---------------------------------------------------------------------\n");
-	sprintf(buffer, "    %-24s: %s\n", "Number of hands", addCommas(s->report.total_hands));
-	Logger_simulation(s->parameters->logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "Number of rounds", addCommas(s->report.total_rounds));
-	Logger_simulation(s->parameters->logger, buffer);
-	sprintf(buffer, "    %-24s: %s %+04.3f average bet per hand\n", "Total bet", addCommas(s->report.total_bet), (double)s->report.total_bet / s->report.total_hands);
-	Logger_simulation(s->parameters->logger, buffer);
-	sprintf(buffer, "    %-24s: %s %+04.3f average win per hand\n", "Total won", addCommas(s->report.total_won), (double)s->report.total_won / s->report.total_hands);
-	Logger_simulation(s->parameters->logger, buffer);
-	sprintf(buffer, "    %-24s: %s seconds\n", "Total time", tbs.total_time);
-	Logger_simulation(s->parameters->logger, buffer);
-	sprintf(buffer, "    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.average_time);
-	Logger_simulation(s->parameters->logger, buffer);
-	sprintf(buffer, "    %-24s: %s\n", "Player advantage", tbs.advantage);
-	Logger_simulation(s->parameters->logger, buffer);
-    Logger_simulation(s->parameters->logger, "  --------------------------------------------------------------------------------\n");
+    printf("\n  -- results ---------------------------------------------------------------------\n");
+	printf("    %-24s: %s\n", "Number of hands", addCommas(s->report.total_hands));
+	printf("    %-24s: %s\n", "Number of rounds", addCommas(s->report.total_rounds));
+	printf("    %-24s: %s %+04.3f average bet per hand\n", "Total bet", addCommas(s->report.total_bet), (double)s->report.total_bet / s->report.total_hands);
+	printf("    %-24s: %s %+04.3f average win per hand\n", "Total won", addCommas(s->report.total_won), (double)s->report.total_won / s->report.total_hands);
+	printf("    %-24s: %s seconds\n", "Total time", tbs.total_time);
+	printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.average_time);
+	printf("    %-24s: %s\n", "Player advantage", tbs.advantage);
+    printf("  --------------------------------------------------------------------------------\n");
 
 	if(s->report.total_hands >= DATABASE_NUMBER_OF_HANDS) {
-		simulatorInsert(s, &tbs, s->parameters->playbook, s->parameters->logger);
+		simulatorInsert(s, &tbs, s->parameters->playbook);
 	}
 }
 
 // Function to run the simulation
 void simulatorRunSimulation(Simulation *sim) {
-    char buffer[256];
-
-	sprintf(buffer, "    Start: %s table session\n", sim->parameters->strategy);
-	Logger_simulation(sim->parameters->logger, buffer);
+	printf("    Start: %s table session\n", sim->parameters->strategy);
 	tableSession(sim->table, strcmp("mimic", sim->parameters->strategy) == 0);
-	sprintf(buffer, "    End: table session\n");
-	Logger_simulation(sim->parameters->logger, buffer);
+	printf("    End: table session\n");
 
 	sim->report.total_bet += sim->table->player->report.total_bet;
 	sim->report.total_won += sim->table->player->report.total_won;
@@ -105,7 +90,7 @@ void simulatorRunSimulation(Simulation *sim) {
 }
 
 // Function to insert a simulation into the database (HTTP POST)
-void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *playbook, Logger *logger) {
+void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *playbook) {
 	CURL *curl;
 	CURLcode res;
 	struct curl_slist *headers = NULL;
@@ -121,7 +106,7 @@ void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *
 		// Set URL
 		char url[256];
 		snprintf(url, sizeof(url), "http://%s/%s/%s/%s", getSimulationUrl(), sdt->simulator, playbook, sdt->guid);
-    	Logger_simulation(sim->parameters->logger, "\n  -- insert ----------------------------------------------------------------------\n");
+    	printf("\n  -- insert ----------------------------------------------------------------------\n");
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
 		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
@@ -151,10 +136,7 @@ void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *
 
 		// Set POST fields
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStr);
-
-    	char buffer[2048];
-		sprintf(buffer, "curl -X POST %s -H \"Content-Type: application/json\" -d %s\n\n", url, jsonStr);
-		Logger_insert(logger, buffer);
+		//printf("curl -X POST %s -H \"Content-Type: application/json\" -d %s\n\n", url, jsonStr);
 
 		// Perform the request
 		res = curl_easy_perform(curl);
@@ -169,7 +151,7 @@ void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *
 		free(chunk.memory);
 		cJSON_Delete(json);
 		free(jsonStr);
-    	Logger_simulation(sim->parameters->logger, "\n  --------------------------------------------------------------------------------\n");
+    	printf("\n  --------------------------------------------------------------------------------\n");
 	}
 
 	curl_global_cleanup();
