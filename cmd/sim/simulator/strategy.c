@@ -176,6 +176,8 @@ void httpGet(const char* url, const char* params) {
 	struct MemoryStruct chunk;
 	CURLcode res;
 	char fullUrl[256];
+    long http_code = 0;
+
 	sprintf(fullUrl, "%s?%s", url, params);
 
 //printf("httpGet(%s)\n", fullUrl);
@@ -201,10 +203,14 @@ void httpGet(const char* url, const char* params) {
 		exit(1);
 	}
 
+    curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &http_code);
+    if (http_code != 200) {
+        fprintf(stderr, "HTTP Status Code: %ld\n", http_code);
+		exit(1);
+    }
 
 //curl_easy_cleanup(curl_handle);
 //curl_global_cleanup();
-
 
 	parseAuxData(chunk.memory);
 	free(chunk.memory);
