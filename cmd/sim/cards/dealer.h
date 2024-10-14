@@ -11,7 +11,7 @@ typedef struct {
 	bool hit_soft_17;
 } Dealer;
 
-// Function declarations
+// Global functions
 Dealer* newDealer(bool hit_soft_17);
 void dealerReset(Dealer* dealer);
 void dealerPlay(Dealer* dealer, Shoe* shoe);

@@ -5,6 +5,7 @@
 #include "player.h"
 #include "shoe.h"
 
+//
 #define BET "bet"
 #define INSURANCE "insurance"
 #define SURRENDER "surrender"
@@ -13,18 +14,8 @@
 #define STAND "stand"
 #define PLAY "play"
 
-// Struct to hold aux data
-struct AuxData {
-	int bet;
-	bool do_insurance;
-	bool do_double;
-	bool do_split;
-	bool do_surrender;
-	bool do_stand;
-};
-
+// Global functions
 void initStrategy();
-
 int playerGetBet(Player *p);
 bool playerGetInsurance(Player *p);
 bool playerGetSurrender(Player *p, const int *have, Card* up);
@@ -33,10 +24,5 @@ bool playerGetSplit(Player *p, Card* pair, Card* up);
 bool playerGetStand(Player *p, const int *have, Card* up);
 void playerGetPlay(Player *p, const int *have, Card* pair, Card* up);
 void playerClear(Player *p);
-char* buildUrl(const char *baseUrl, const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up);
-char* buildParams(const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up);
-char *urlEncode(const char *str);
-void removeSpaces(char *str);
-void parseAuxData(const char *response);
 
 #endif // PLAYER_STRATEGY_H

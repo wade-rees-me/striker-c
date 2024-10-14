@@ -4,25 +4,31 @@
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
 #include "rules.h"
-#include "memory.h"
-#include "constants.h"
 
 //
 bool rulesFetchTable(Rules *rules, const char *url);
-const char* boolToString(bool b);
-int parseAuxBool(cJSON *json, char* tag, int value);
+bool parseAuxBool(cJSON *json, char* tag, bool value);
 int parseAuxInt(cJSON *json, char* tag, int value);
 double parseAuxDouble(cJSON *json, char* tag, double value);
 
 // Function to load table rules by calling FetchRulesTable
-void loadRules(Rules *rules, const char *decks) {
-	char url[256];
-	snprintf(url, sizeof(url), "%s/%s", getRulesUrl(), decks);
+Rules* newRules(const char *decks) {
+    Rules *rules = (Rules*)malloc(sizeof(Rules));
+
+	char url[MAX_BUFFER_SIZE];
+	snprintf(url, MAX_BUFFER_SIZE, "%s/%s", getRulesUrl(), decks);
 
 	if (!rulesFetchTable(rules, url)) {
 		printf("Error fetching rules table.\n");
 		exit(1);
 	}
+
+	return rules;
+}
+
+//
+void rulesDelete(Rules* rules) {
+	free(rules);
 }
 
 // Function to fetch rules table using libcurl
@@ -31,8 +37,7 @@ bool rulesFetchTable(Rules *rules, const char *url) {
 	CURLcode res;
 
 	struct MemoryStruct chunk;
-	chunk.memory = malloc(1);  // Will be grown as needed by realloc
-	chunk.size = 0;			// No data at this point
+	chunk.size = 0;
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	curl_handle = curl_easy_init();
@@ -65,12 +70,12 @@ bool rulesFetchTable(Rules *rules, const char *url) {
 		// Extract data from JSON into TableRules struct
 		cJSON *playbook = cJSON_GetObjectItemCaseSensitive(json, "playbook");
 		if (playbook) strcpy(rules->playbook, playbook->valuestring);
-		rules->hit_soft_17 = parseAuxBool(json, "hitSoft17", 0);
-		rules->surrender = parseAuxBool(json, "surrender", 0);
-		rules->double_any_two_cards = parseAuxBool(json, "doubleAnyTwoCards", 0);
-		rules->double_after_split = parseAuxBool(json, "doubleAfterSplit", 0);
-		rules->resplit_aces = parseAuxBool(json, "resplitAces", 0);
-		rules->hit_split_aces = parseAuxBool(json, "hitSplitAces", 0);
+		rules->hit_soft_17 = parseAuxBool(json, "hitSoft17", false);
+		rules->surrender = parseAuxBool(json, "surrender", false);
+		rules->double_any_two_cards = parseAuxBool(json, "doubleAnyTwoCards", false);
+		rules->double_after_split = parseAuxBool(json, "doubleAfterSplit", false);
+		rules->resplit_aces = parseAuxBool(json, "resplitAces", false);
+		rules->hit_split_aces = parseAuxBool(json, "hitSplitAces", false);
 		rules->blackjack_bets = parseAuxInt(json, "blackjackBets", 0);
 		rules->blackjack_pays = parseAuxInt(json, "blackjackPays", 0);
 		rules->penetration = parseAuxDouble(json, "penetration", 0.50);
@@ -78,38 +83,10 @@ bool rulesFetchTable(Rules *rules, const char *url) {
 		// Cleanup
 		cJSON_Delete(json);
 		curl_easy_cleanup(curl_handle);
-		free(chunk.memory);
 		curl_global_cleanup();
 		return true;
 	}
 	return false;
-}
-
-//
-int parseAuxBool(cJSON *json, char* tag, int value) {
-	cJSON *item = cJSON_GetObjectItem(json, tag);
-	if (item != NULL) {
-		return item->valueint == 1;
-	}
-	return value;
-}
-
-//
-int parseAuxInt(cJSON *json, char* tag, int value) {
-	cJSON *item = cJSON_GetObjectItem(json, tag);
-	if (item != NULL) {
-		return item->valueint;
-	}
-	return value;
-}
-
-//
-double parseAuxDouble(cJSON *json, char* tag, double value) {
-	cJSON *item = cJSON_GetObjectItem(json, tag);
-	if (item != NULL) {
-		return item->valuedouble;
-	}
-	return value;
 }
 
 //
@@ -127,8 +104,23 @@ void printRules(Rules* rules) {
 	printf("      %-24s: %0.3f %%\n", "Penetration", rules->penetration);
 }
 
-// Function to convert bool to string
-const char* boolToString(bool b) {
-	return b ? "true" : "false";
+//
+void serializeRules(Rules *rules, char* buffer, int buffer_size) {
+	cJSON* json = cJSON_CreateObject();
+
+	cJSON_AddStringToObject(json, "hit_soft_17", rules->hit_soft_17 ? "true" : "false");
+	cJSON_AddStringToObject(json, "surrender", rules->surrender ? "true" : "false");
+	cJSON_AddStringToObject(json, "double_any_two_cards", rules->double_any_two_cards ? "true" : "false");
+	cJSON_AddStringToObject(json, "double_after_split", rules->double_after_split ? "true" : "false");
+	cJSON_AddStringToObject(json, "resplit_aces", rules->resplit_aces ? "true" : "false");
+	cJSON_AddStringToObject(json, "hit_split_aces", rules->hit_split_aces ? "true" : "false");
+	cJSON_AddNumberToObject(json, "blackjack_bets", rules->blackjack_bets);
+	cJSON_AddNumberToObject(json, "blackjack_pays", rules->blackjack_pays);
+	cJSON_AddNumberToObject(json, "penetration", rules->penetration);
+
+	char* jsonString = cJSON_Print(json);
+    snprintf(buffer, buffer_size, "%s", jsonString);
+	free(jsonString);
+	cJSON_Delete(json);
 }
 

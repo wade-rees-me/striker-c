@@ -7,34 +7,39 @@
 #include "memory.h"
 #include "rules.h"
 #include "parameters.h"
+#include "constants.h"
 
+//
 typedef struct {
     Parameters* parameters;
     Rules* rules;
     Table* table;
     Report report;
-} Simulation;
+} Simulator;
 
+//
 typedef struct {
-    char playbook[128];
-    char guid[128];
+    char playbook[MAX_STRING_SIZE];
+    char guid[MAX_STRING_SIZE];
     const char* simulator;
     const char* summary;
     const char* simulations;
-    char rounds[128];
-    char hands[128];
-    char total_bet[128];
-    char total_won[128];
-    char advantage[128];
-    char total_time[128];
-    char average_time[128];
-    char parameters[2048];
+    char rounds[MAX_STRING_SIZE];
+    char hands[MAX_STRING_SIZE];
+    char total_bet[MAX_STRING_SIZE];
+    char total_won[MAX_STRING_SIZE];
+    char advantage[MAX_STRING_SIZE];
+    char total_time[MAX_STRING_SIZE];
+    char average_time[MAX_STRING_SIZE];
+    char parameters[MAX_BUFFER_SIZE];
+    char rules[MAX_BUFFER_SIZE];
 } SimulationDatabaseTable;
 
-Simulation* newSimulation(Parameters *parameters, Rules *rules);
-void simulationDelete(Simulation* sim);
-void simulatorRunOnce(Simulation *simulation);
-void simulatorRunSimulation(Simulation *sim);
-void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *playbook);
+// Global functions
+Simulator* newSimulator(Parameters *parameters, Rules *rules);
+void simulatorDelete(Simulator* sim);
+void simulatorRunOnce(Simulator *simulation);
+void simulatorRunSimulation(Simulator *sim);
+void simulatorInsert(Simulator *sim, SimulationDatabaseTable *sdt, const char *playbook);
 
 #endif // SIMULATOR_H

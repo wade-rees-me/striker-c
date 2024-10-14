@@ -1,6 +1,7 @@
 #ifndef CARD_H
 #define CARD_H
 
+//
 typedef struct {
 	const char* rank;	// Rank of the card (e.g., "ace")
 	const char* suit;	// Suit of the card (e.g., "hearts")
@@ -8,6 +9,7 @@ typedef struct {
 	int offset;			// Index of the card in a suit - 0 thru 12
 } Card;
 
+// Global functions
 Card* newCard(const char* suit, const char* rank, int value, int offset);
 
 #endif // CARD_H

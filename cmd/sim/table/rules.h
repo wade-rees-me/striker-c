@@ -2,10 +2,11 @@
 #define RULES_H
 
 #include <stdbool.h>
+#include "constants.h"
 
 // Struct to hold table rules
 typedef struct {
-	char playbook[64];
+	char playbook[MAX_STRING_SIZE];
 	bool hit_soft_17;
 	bool surrender;
 	bool double_any_two_cards;
@@ -17,8 +18,10 @@ typedef struct {
 	float penetration;
 } Rules;
 
-// Function declarations
-void loadRules(Rules *rules, const char *decks);
+// Global functions
+Rules* newRules(const char *decks);
+void rulesDelete(Rules* rules);
 void printRules(Rules* rules);
+void serializeRules(Rules *rules, char* buffer, int buffer_size);
 
 #endif // RULES_H

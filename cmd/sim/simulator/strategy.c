@@ -9,98 +9,102 @@
 #include "memory.h"
 #include "constants.h"
 
-void httpGet(const char* url, const char* params);
+//
+char* buildUrl(const char *baseUrl, const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up);
+char* buildParams(char* params, const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up);
+void parseAuxData(struct PlayData* aux, const char *response);
+void httpGet(const char* url, struct PlayData* aux, const char* params);
 
-struct AuxData aux;
-
-static char* urlBet;
-static char* urlInsurance;
-static char* urlSurrender;
-static char* urlDouble;
-static char* urlSplit;
-static char* urlStand;
-static char* urlPlay;
+//
+static char url[MAX_BUFFER_SIZE];
+static char urlBet[MAX_BUFFER_SIZE];
+static char urlInsurance[MAX_BUFFER_SIZE];
+static char urlSurrender[MAX_BUFFER_SIZE];
+static char urlDouble[MAX_BUFFER_SIZE];
+static char urlSplit[MAX_BUFFER_SIZE];
+static char urlStand[MAX_BUFFER_SIZE];
+static char urlPlay[MAX_BUFFER_SIZE];
 static CURL *curl_handle = NULL;
 
 //
 void initStrategy() {
-	urlBet = malloc(256);
-	sprintf(urlBet, "http://%s/%s", getStrategyUrl(), BET);
-
-	urlInsurance = malloc(256);
-	sprintf(urlInsurance, "http://%s/%s", getStrategyUrl(), INSURANCE);
-
-	urlSurrender = malloc(256);
-	sprintf(urlSurrender, "http://%s/%s", getStrategyUrl(), SURRENDER);
-
-	urlDouble = malloc(256);
-	sprintf(urlDouble, "http://%s/%s", getStrategyUrl(), DOUBLE);
-
-	urlSplit = malloc(256);
-	sprintf(urlSplit, "http://%s/%s", getStrategyUrl(), SPLIT);
-
-	urlStand = malloc(256);
-	sprintf(urlStand, "http://%s/%s", getStrategyUrl(), STAND);
-
-	urlPlay = malloc(256);
-	sprintf(urlPlay, "http://%s/%s", getStrategyUrl(), PLAY);
+	snprintf(url, MAX_BUFFER_SIZE, "http://%s", getStrategyUrl());
+	snprintf(urlBet, MAX_BUFFER_SIZE, "%s/%s", url, BET);
+	snprintf(urlInsurance, MAX_BUFFER_SIZE, "%s/%s", url, INSURANCE);
+	snprintf(urlSurrender, MAX_BUFFER_SIZE, "%s/%s", url, SURRENDER);
+	snprintf(urlDouble, MAX_BUFFER_SIZE, "%s/%s", url, DOUBLE);
+	snprintf(urlSplit, MAX_BUFFER_SIZE, "%s/%s", url, SPLIT);
+	snprintf(urlStand, MAX_BUFFER_SIZE, "%s/%s", url, STAND);
+	snprintf(urlPlay, MAX_BUFFER_SIZE, "%s/%s", url, PLAY);
 }
 
-// Function to get bet value
+//
 int playerGetBet(Player *p) {
-	httpGet(urlBet, buildParams(p->seen_cards, NULL, 0, p->parameters->playbook, p->number_of_cards, 0));
-	return aux.bet;
+	char params[MAX_MEMORY_SIZE];
+	httpGet(urlBet, &p->play, buildParams(params, p->seen_cards, NULL, 0, p->parameters->playbook, p->number_of_cards, 0));
+	return p->play.bet;
 }
 
-// Function to get insurance decision
+//
 bool playerGetInsurance(Player *p) {
-	httpGet(urlInsurance, buildParams(p->seen_cards, NULL, NULL, p->parameters->playbook, p->number_of_cards, NULL));
-	return aux.do_insurance;
+	char params[MAX_MEMORY_SIZE];
+	httpGet(urlInsurance, &p->play, buildParams(params, p->seen_cards, NULL, NULL, p->parameters->playbook, p->number_of_cards, NULL));
+	return p->play.do_insurance;
 }
 
-// Function to get surrender decision
+//
 bool playerGetSurrender(Player *p, const int *have, Card* up) {
-	if(!p->do_play) {
-		httpGet(urlSurrender, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->play.do_play) {
+		char params[MAX_MEMORY_SIZE];
+		httpGet(urlSurrender, &p->play, buildParams(params, p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
 	}
-	return aux.do_surrender;
+	return p->play.do_surrender;
 }
 
+//
 bool playerGetDouble(Player *p, const int *have, Card* up) {
-	if(!p->do_play) {
-		httpGet(urlDouble, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->play.do_play) {
+		char params[MAX_MEMORY_SIZE];
+		httpGet(urlDouble, &p->play, buildParams(params, p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
 	}
-	return aux.do_double;
+	return p->play.do_double;
 }
 
+//
 bool playerGetSplit(Player *p, Card* pair, Card* up) {
-	if(!p->do_play) {
-		httpGet(urlSplit, buildParams(p->seen_cards, NULL, pair, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->play.do_play) {
+		char params[MAX_MEMORY_SIZE];
+		httpGet(urlSplit, &p->play, buildParams(params, p->seen_cards, NULL, pair, p->parameters->playbook, p->number_of_cards, up));
 	}
-	return aux.do_split;
+	return p->play.do_split;
 }
 
+//
 bool playerGetStand(Player *p, const int *have, Card* up) {
-	if(!p->do_play) {
-		httpGet(urlStand, buildParams(p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
+	if(!p->play.do_play) {
+		char params[MAX_MEMORY_SIZE];
+		httpGet(urlStand, &p->play, buildParams(params, p->seen_cards, have, NULL, p->parameters->playbook, p->number_of_cards, up));
 	}
-	return aux.do_stand;
+	return p->play.do_stand;
 }
 
+//
 void playerGetPlay(Player *p, const int *have, Card* pair, Card* up) {
-	p->do_play = true;
-	httpGet(urlStand, buildParams(p->seen_cards, have, pair, p->parameters->playbook, p->number_of_cards, up));
+	char params[MAX_MEMORY_SIZE];
+	p->play.do_play = true;
+	httpGet(urlStand, &p->play, buildParams(params, p->seen_cards, have, pair, p->parameters->playbook, p->number_of_cards, up));
 }
 
+//
 void playerClear(Player *p) {
-	p->do_play = false;
+	p->play.do_play = false;
 }
 
-// Function to build the URL
-char* buildParams(const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up) {
-	char* params = malloc(512);
-	char tmp[128];
+//
+char* buildParams(char* params, const int *seenData, const int *haveData, Card* pair, const char *playbook, int cards, Card* up) {
+	char tmp[MAX_BUFFER_SIZE];
 
+	memset(params, '\0', MAX_MEMORY_SIZE);
 	strcat(params, "playbook=");
 	strcat(params, playbook);
 	strcat(params, "&cards=");
@@ -141,16 +145,7 @@ char* buildParams(const int *seenData, const int *haveData, Card* pair, const ch
 }
 
 //
-bool parseAuxTag(cJSON* json, const char* tag, bool missing) {
-	cJSON *item = cJSON_GetObjectItem(json, tag);
-	if (item != NULL) {
-		return cJSON_IsTrue(item);
-	}
-	return missing;
-}
-
-//
-void parseAuxData(const char *response) {
+void parseAuxData(struct PlayData* aux, const char *response) {
 	cJSON *json = cJSON_Parse(response);
 	if (json == NULL) {
 		printf("Failed to parse JSON\n");
@@ -159,30 +154,29 @@ void parseAuxData(const char *response) {
 
 	cJSON *betItem = cJSON_GetObjectItem(json, BET);
 	if (betItem != NULL) {
-		aux.bet = cJSON_GetObjectItem(json, BET)->valueint;
+		aux->bet = cJSON_GetObjectItem(json, BET)->valueint;
 	}
 
-	aux.do_insurance = parseAuxTag(json, INSURANCE, false);
-	aux.do_double = parseAuxTag(json, DOUBLE, false);
-	aux.do_split = parseAuxTag(json, SPLIT, false);
-	aux.do_surrender = parseAuxTag(json, SURRENDER, false);
-	aux.do_stand = parseAuxTag(json, STAND, true);
+	aux->do_insurance = parseAuxBool(json, INSURANCE, false);
+	aux->do_double = parseAuxBool(json, DOUBLE, false);
+	aux->do_split = parseAuxBool(json, SPLIT, false);
+	aux->do_surrender = parseAuxBool(json, SURRENDER, false);
+	aux->do_stand = parseAuxBool(json, STAND, true);
 
 	cJSON_Delete(json);
 }
 
 // Function to perform HTTP GET request
-void httpGet(const char* url, const char* params) {
-	struct MemoryStruct chunk;
+void httpGet(const char* url, struct PlayData* aux, const char* params) {
 	CURLcode res;
-	char fullUrl[256];
+	char fullUrl[MAX_BUFFER_SIZE];
     long http_code = 0;
 
-	sprintf(fullUrl, "%s?%s", url, params);
+	struct MemoryStruct chunk;
+	chunk.size = 0;
 
+	sprintf(fullUrl, "%s?%s", url, params);
 //printf("httpGet(%s)\n", fullUrl);
-	chunk.memory = malloc(1);  // Will be grown as needed by realloc
-	chunk.size = 0;			// No data at this point
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	if(!curl_handle) {
@@ -200,61 +194,16 @@ void httpGet(const char* url, const char* params) {
 	res = curl_easy_perform(curl_handle);
 	if (res != CURLE_OK) {
 		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		fprintf(stderr, "  httpGet(%s)\n", fullUrl);
 		exit(1);
 	}
 
     curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &http_code);
     if (http_code != 200) {
         fprintf(stderr, "HTTP Status Code: %ld\n", http_code);
+		fprintf(stderr, "  httpGet(%s)\n", fullUrl);
 		exit(1);
     }
-
-//curl_easy_cleanup(curl_handle);
-//curl_global_cleanup();
-
-	parseAuxData(chunk.memory);
-	free(chunk.memory);
+	parseAuxData(aux, chunk.memory);
 }
 
-// Function to URL-encode a string
-char *urlEncode(const char *str) {
-	const char *hex = "0123456789ABCDEF";  // Hexadecimal characters
-	char *encoded = malloc(strlen(str) * 3 + 1);  // Allocate memory (worst case: every character is encoded)
-	char *pencoded = encoded;
-
-	if (encoded == NULL) {
-		return NULL;  // Memory allocation failed
-	}
-
-	while (*str) {
-		if (isalnum((unsigned char)*str) || *str == '-' || *str == '_' || *str == '.' || *str == '~' || *str == '=') {
-			// Characters that don't need encoding
-			*pencoded++ = *str;
-		} else {
-			// Characters that need encoding
-			*pencoded++ = '%';
-			*pencoded++ = hex[(*str >> 4) & 0xF];  // First hex digit
-			*pencoded++ = hex[*str & 0xF];		 // Second hex digit
-		}
-		str++;
-	}
-
-	*pencoded = '\0';  // Null-terminate the encoded string
-	return encoded;
-}
-
-void removeSpaces(char *str) {
-	int i = 0, j = 0;
-	
-	// Iterate through the string
-	while (str[i]) {
-		// If the character is not a space, copy it to the current `j` index
-		if (str[i] != ' ') {
-			str[j++] = str[i];
-		}
-		i++;
-	}
-	
-	// Null-terminate the modified string
-	str[j] = '\0';
-}

@@ -6,11 +6,8 @@
 #include "table.h"
 #include "strategy.h"
 #include "shoe.h"
-#include "utilities.h"
 
-const int STATUS_DOT = 25000;
-const int STATUS_LINE = 1000000;
-
+//
 void status(int64_t round, int64_t hand);
 
 // Function to create a new table
@@ -22,13 +19,14 @@ Table* newTable(Parameters *parameters, Rules *rules) {
 	table->shoe = newShoe(parameters->number_of_decks, 0.75/*parameters->penetration*/);
 	table->dealer = newDealer(rules->hit_soft_17);
 	table->player = newPlayer(parameters, rules, table->shoe->number_of_cards);
-	reportInit(&table->report);
+	initReport(&table->report);
 
 	return table;
 }
 
+//
 void tableSession(Table *table, bool mimic) {
-	printf("      Start: table, playing %s hands\n", addCommas(table->parameters->number_of_hands));
+	printf("      Start: table, playing %lld hands\n", table->parameters->number_of_hands);
 
 	table->report.start = time(NULL);
 	while (table->report.total_hands < table->parameters->number_of_hands) {
@@ -88,7 +86,7 @@ void status(int64_t round, int64_t hand) {
 		printf(".");
     }
     if((round + 1) % STATUS_LINE == 0) {
-        printf(" : %s (rounds), %s (hands)\n", addCommas((round + 1)), addCommas(hand));
+        printf(" : %lld (rounds), %lld (hands)\n", (round + 1), hand);
 		printf("        ");
     }
 	fflush(stdout);

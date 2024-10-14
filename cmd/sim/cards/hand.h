@@ -14,7 +14,7 @@ typedef struct {
 	int have_cards[13];
 } Hand;
 
-// Function declarations
+// Global functions
 void handReset(Hand* hand);
 Card* handDrawCard(Hand* hand, Card* card);
 bool handIsBlackjack(Hand* hand);

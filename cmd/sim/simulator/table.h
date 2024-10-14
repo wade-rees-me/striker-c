@@ -2,12 +2,12 @@
 #define TABLE_H
 
 #include <stdbool.h>
-
 #include "player.h"
 #include "dealer.h"
 #include "report.h"
 #include "parameters.h"
 
+//
 typedef struct {
 	Parameters* parameters;
 	Rules* rules;
@@ -17,7 +17,7 @@ typedef struct {
 	Report report;
 } Table;
 
-// Function prototypes
+// Global functions
 Table* newTable(Parameters *parameters, Rules *rules);
 void tableSession(Table *table, bool mimic);
 Card* tableDealCards(Player* player, Hand* hand, Dealer* dealer, Shoe* shoe);

@@ -8,6 +8,8 @@
 #include "strategy.h"
 
 //
+void playerPayoffHand(Player *p, Wager *w, int dealer_blackjack, int dealer_busted, int dealer_total);
+void payoffSplit(Player *p, Wager *w, int dealer_busted, int dealer_total);
 bool mimicStand(Player* p);
 
 // Utility function to create a new Player object
@@ -16,9 +18,9 @@ Player* newPlayer(Parameters* parameters, Rules *rules, int number_of_cards) {
 	p->parameters = parameters;
 	p->rules = rules;
 	p->number_of_cards = number_of_cards;
-	p->do_play = false;
+	p->play.do_play = false;
 
-	reportInit(&p->report);
+	initReport(&p->report);
 
 	return p;
 }

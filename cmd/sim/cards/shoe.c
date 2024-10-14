@@ -6,6 +6,7 @@
 #include "shoe.h"
 #include "card.h"
 
+//
 const char* suits[4] = {SPADES, DIAMONDS, CLUBS, HEARTS};
 
 // Helper function to shuffle the deck (Fisher-Yates algorithm)

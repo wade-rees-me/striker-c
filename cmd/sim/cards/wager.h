@@ -14,7 +14,7 @@ typedef struct {
 	int64_t insurance_won;
 } Wager;
 
-// Function declarations
+// Global functions
 extern void wagerReset(Wager* wager);
 extern void wagerSplit(Wager* wager, Wager* split);
 extern void wagerPlaceBet(Wager* wager, int64_t bet);

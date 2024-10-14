@@ -3,6 +3,7 @@
 
 #include <time.h>
 
+//
 typedef struct {
 	int64_t total_rounds;
 	int64_t total_hands;
@@ -13,6 +14,7 @@ typedef struct {
 	int64_t duration;
 } Report;
 
-void reportInit(Report* report);
+// Global functions
+void initReport(Report* report);
 
 #endif // REPORT_H

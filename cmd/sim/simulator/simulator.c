@@ -6,32 +6,29 @@
 #include "table.h"
 #include "player.h"
 #include "simulator.h"
-#include "utilities.h"
-
-//
-char* serializeParameters(Parameters* parameters);
 
 // Function to create a new simulation
-Simulation* newSimulation(Parameters *parameters, Rules *rules) {
-	Simulation *s = (Simulation*)malloc(sizeof(Simulation));
+Simulator* newSimulator(Parameters *parameters, Rules *rules) {
+	Simulator *s = (Simulator*)malloc(sizeof(Simulator));
 
 	s->table = newTable(parameters, rules);
 	s->parameters = parameters;
 	s->rules = rules;
-	reportInit(&s->report);
+	initReport(&s->report);
 
 	return s;
 }
 
-void simulationDelete(Simulation* sim) {
+//
+void simulatorDelete(Simulator* sim) {
 	free(sim);
 }
 
 // The SimulatorProcess function
-void simulatorRunOnce(Simulation *s) {
+void simulatorRunOnce(Simulator *s) {
 	SimulationDatabaseTable tbs;
 
-	printf("  Start: simulation(%s)\n", s->parameters->name);
+	printf("\n  Start: simulation(%s)\n", s->parameters->name);
 	simulatorRunSimulation(s);
 	printf("  End: simulation\n");
 
@@ -41,7 +38,8 @@ void simulatorRunOnce(Simulation *s) {
 	tbs.simulator = STRIKER_WHO_AM_I;
 	tbs.summary = "no";
 	tbs.simulations = "1";
-	strcpy(tbs.parameters, serializeParameters(s->parameters));
+	serializeParameters(s->parameters, tbs.parameters, MAX_BUFFER_SIZE);
+	serializeRules(s->rules, tbs.rules, MAX_BUFFER_SIZE);
 
 	snprintf(tbs.rounds, 128, "%lld", s->report.total_rounds);
 	snprintf(tbs.hands, 128, "%lld", s->report.total_hands);
@@ -62,10 +60,10 @@ void simulatorRunOnce(Simulation *s) {
 
 	// Print out the results
     printf("\n  -- results ---------------------------------------------------------------------\n");
-	printf("    %-24s: %s\n", "Number of hands", addCommas(s->report.total_hands));
-	printf("    %-24s: %s\n", "Number of rounds", addCommas(s->report.total_rounds));
-	printf("    %-24s: %s %+04.3f average bet per hand\n", "Total bet", addCommas(s->report.total_bet), (double)s->report.total_bet / s->report.total_hands);
-	printf("    %-24s: %s %+04.3f average win per hand\n", "Total won", addCommas(s->report.total_won), (double)s->report.total_won / s->report.total_hands);
+	printf("    %-24s: %lld\n", "Number of hands", s->report.total_hands);
+	printf("    %-24s: %lld\n", "Number of rounds", s->report.total_rounds);
+	printf("    %-24s: %lld %+04.3f average bet per hand\n", "Total bet", s->report.total_bet, (double)s->report.total_bet / s->report.total_hands);
+	printf("    %-24s: %lld %+04.3f average win per hand\n", "Total won", s->report.total_won, (double)s->report.total_won / s->report.total_hands);
 	printf("    %-24s: %s seconds\n", "Total time", tbs.total_time);
 	printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.average_time);
 	printf("    %-24s: %s\n", "Player advantage", tbs.advantage);
@@ -77,7 +75,7 @@ void simulatorRunOnce(Simulation *s) {
 }
 
 // Function to run the simulation
-void simulatorRunSimulation(Simulation *sim) {
+void simulatorRunSimulation(Simulator *sim) {
 	printf("    Start: %s table session\n", sim->parameters->strategy);
 	tableSession(sim->table, strcmp("mimic", sim->parameters->strategy) == 0);
 	printf("    End: table session\n");
@@ -90,22 +88,17 @@ void simulatorRunSimulation(Simulation *sim) {
 }
 
 // Function to insert a simulation into the database (HTTP POST)
-void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *playbook) {
+void simulatorInsert(Simulator *sim, SimulationDatabaseTable *sdt, const char *playbook) {
+	struct curl_slist *headers = NULL;
 	CURL *curl;
 	CURLcode res;
-	struct curl_slist *headers = NULL;
-	struct MemoryStruct chunk;
-
-	chunk.memory = malloc(1);
-	chunk.size = 0;
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	curl = curl_easy_init();
 
 	if (curl) {
-		// Set URL
-		char url[256];
-		snprintf(url, sizeof(url), "http://%s/%s/%s/%s", getSimulationUrl(), sdt->simulator, playbook, sdt->guid);
+		char url[MAX_BUFFER_SIZE];
+		snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), sdt->simulator, playbook, sdt->guid);
     	printf("\n  -- insert ----------------------------------------------------------------------\n");
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
@@ -130,6 +123,7 @@ void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *
 		cJSON_AddStringToObject(json, "total_time", sdt->total_time);
 		cJSON_AddStringToObject(json, "average_time", sdt->average_time);
 		cJSON_AddStringToObject(json, "parameters", sdt->parameters);
+		cJSON_AddStringToObject(json, "rules", sdt->rules);
 		cJSON_AddStringToObject(json, "payload", "n/a");
 		// Add remaining fields...
 		char *jsonStr = cJSON_Print(json);
@@ -148,7 +142,6 @@ void simulatorInsert(Simulation *sim, SimulationDatabaseTable *sdt, const char *
 
 		// Cleanup
 		curl_easy_cleanup(curl);
-		free(chunk.memory);
 		cJSON_Delete(json);
 		free(jsonStr);
     	printf("\n  --------------------------------------------------------------------------------\n");

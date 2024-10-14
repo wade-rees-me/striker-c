@@ -4,63 +4,70 @@
 #include "arguments.h"
 #include "constants.h"
 
-// Parse command-line flags for simulation
-void parseArguments(Arguments *args, int argc, char *argv[]) {
-	args->hands = MINIMUM_NUMBER_OF_HANDS;
-	args->mimic_flag = false;
-	args->basic_flag = false;
-	args->linear_flag = false;
-	args->polynomial_flag = false;
-	args->high_low_flag = false;
-	args->wong_flag = false;
-	args->striker_flag = false;
-	args->single_deck_flag = false;
-	args->double_deck_flag = false;
-	args->six_shoe_flag = false;
+// Local functions
+void printHelpMessage();
+
+//
+Arguments* newArguments(int argc, char *argv[]) {
+    Arguments *arguments = (Arguments*)malloc(sizeof(Arguments));
+
+	arguments->number_of_hands = MINIMUM_NUMBER_OF_HANDS;
+	arguments->mimic_flag = false;
+	arguments->basic_flag = false;
+	arguments->linear_flag = false;
+	arguments->polynomial_flag = false;
+	arguments->high_low_flag = false;
+	arguments->wong_flag = false;
+	arguments->striker_flag = false;
+	arguments->single_deck_flag = false;
+	arguments->double_deck_flag = false;
+	arguments->six_shoe_flag = false;
 
 	for (int i = 1; i < argc; ++i) {
 		if ((strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--number-of-hands") == 0) && i + 1 < argc) {
-			args->hands = atoll(argv[++i]);
-			if (args->hands < MINIMUM_NUMBER_OF_HANDS || args->hands > MAXIMUM_NUMBER_OF_HANDS) {
+			arguments->number_of_hands = atoll(argv[++i]);
+			if (arguments->number_of_hands < MINIMUM_NUMBER_OF_HANDS || arguments->number_of_hands > MAXIMUM_NUMBER_OF_HANDS) {
 				fprintf(stderr, "Number of hands must be between %lld and %lld\n", MINIMUM_NUMBER_OF_HANDS, MAXIMUM_NUMBER_OF_HANDS);
 				exit(EXIT_FAILURE);
 			}
 		} else if (strcmp(argv[i], "-M") == 0 || strcmp(argv[i], "--mimic") == 0) {
-			args->mimic_flag = 1;
+			arguments->mimic_flag = 1;
 		} else if (strcmp(argv[i], "-B") == 0 || strcmp(argv[i], "--basic") == 0) {
-			args->basic_flag = 1;
+			arguments->basic_flag = 1;
 		} else if (strcmp(argv[i], "-L") == 0 || strcmp(argv[i], "--linear") == 0) {
-			args->linear_flag = 1;
+			arguments->linear_flag = 1;
 		} else if (strcmp(argv[i], "-P") == 0 || strcmp(argv[i], "--polynomial") == 0) {
-			args->polynomial_flag = 1;
+			arguments->polynomial_flag = 1;
 		} else if (strcmp(argv[i], "-H") == 0 || strcmp(argv[i], "--high-low") == 0) {
-			args->high_low_flag = 1;
+			arguments->high_low_flag = 1;
 		} else if (strcmp(argv[i], "-W") == 0 || strcmp(argv[i], "--wong") == 0) {
-			args->wong_flag = 1;
+			arguments->wong_flag = 1;
 		} else if (strcmp(argv[i], "-S") == 0 || strcmp(argv[i], "--striker") == 0) {
-			args->striker_flag = 1;
+			arguments->striker_flag = 1;
 		} else if (strcmp(argv[i], "-1") == 0 || strcmp(argv[i], "--single-deck") == 0) {
-			args->single_deck_flag = 1;
+			arguments->single_deck_flag = 1;
 		} else if (strcmp(argv[i], "-2") == 0 || strcmp(argv[i], "--double-deck") == 0) {
-			args->double_deck_flag = 1;
+			arguments->double_deck_flag = 1;
 		} else if (strcmp(argv[i], "-6") == 0 || strcmp(argv[i], "--six-shoe") == 0) {
-			args->six_shoe_flag = 1;
+			arguments->six_shoe_flag = 1;
 		} else if (strcmp(argv[i], "--help") == 0) {
 			printHelpMessage();
 			exit(EXIT_SUCCESS);
 		} else if (strcmp(argv[i], "--version") == 0) {
-			printVersion();
+			printf("%s: version: %s\n", STRIKER_WHO_AM_I, STRIKER_VERSION);
 			exit(EXIT_SUCCESS);
 		} else {
 			fprintf(stderr, "Error: Invalid argument: %s\n", argv[i]);
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	return arguments;
 }
 
-// Print version information
-void printVersion() {
-	printf("%s: version: %s\n", STRIKER_WHO_AM_I, STRIKER_VERSION);
+//
+void argumentsDelete(Arguments* arguments) {
+	free(arguments);
 }
 
 // Print help message

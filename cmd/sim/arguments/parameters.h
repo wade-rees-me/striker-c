@@ -3,16 +3,11 @@
 
 #include <stdint.h>
 #include <time.h>
-#include "rules.h"
+#include "constants.h"
 
-// Define the maximum size for string fields
-#define MAX_STRING_SIZE 128
-
-// Parameters struct to store simulation parameters
+//
 typedef struct {
-	Rules *rules;
-
-	const char* name;
+	char name[MAX_STRING_SIZE];
 	char playbook[MAX_STRING_SIZE];
 	char processor[MAX_STRING_SIZE];
 	char timestamp[MAX_STRING_SIZE];
@@ -22,11 +17,10 @@ typedef struct {
 	int64_t number_of_hands;
 } Parameters;
 
-// Function prototypes
-void initParameters(const char* name, Parameters *params, Rules *rules, const char *d, const char *s, int n, int64_t r);
+// Global functions
+Parameters* newParameters(const char *decks, const char *strategy, int number_of_decks, int64_t number_of_hands);
+void parametersDelete(Parameters* parameters);
 void printParameters(const Parameters *params);
-void generateUUID(char *buffer);
-void getCurrentTime(char *buffer);
-char* serializeParameters(Parameters *parameters);
+void serializeParameters(Parameters *parameters, char* buffer, int buffer_size);
 
 #endif // PARAMETERS_H

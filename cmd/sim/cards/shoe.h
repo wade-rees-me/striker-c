@@ -35,7 +35,7 @@ typedef struct {
     bool force_shuffle;    // Flag to force shuffle
 } Shoe;
 
-// Function prototypes
+// Global functions
 Shoe* newShoe(int number_of_decks, float penetration);
 void shoeCleanup(Shoe* shoe);
 Card* shoeDrawCard(Shoe* shoe);

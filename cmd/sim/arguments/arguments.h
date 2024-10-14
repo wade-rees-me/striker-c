@@ -3,9 +3,9 @@
 
 #include <stdbool.h>
 
-// Define the structure to hold arguments
+//
 typedef struct {
-	long long hands;
+	long long number_of_hands;
 	bool mimic_flag;
 	bool basic_flag;
 	bool linear_flag;
@@ -18,10 +18,9 @@ typedef struct {
 	bool six_shoe_flag;
 } Arguments;
 
-// Function prototypes
-void parseArguments(Arguments *args, int argc, char *argv[]);
-void printHelpMessage();
-void printVersion();
+// Global functions
+Arguments* newArguments(int argc, char *argv[]);
+void argumentsDelete(Arguments* arguments);
 const char* getStrategy(const Arguments *args);
 const char* getDecks(const Arguments *args);
 int getNumberOfDecks(const Arguments *args);
