@@ -26,13 +26,13 @@ void simulatorDelete(Simulator* sim) {
 
 // The SimulatorProcess function
 void simulatorRunOnce(Simulator *s) {
-	SimulationDatabaseTable tbs;
+	Simulation tbs;
 
 	printf("\n  Start: simulation(%s)\n", s->parameters->name);
 	simulatorRunSimulation(s);
 	printf("  End: simulation\n");
 
-	// Populate the rest of the SimulationDatabaseTable
+	// Populate the rest of the Simulation
 	strcpy(tbs.playbook, s->parameters->playbook);
 	strcpy(tbs.guid, s->parameters->name);
 	tbs.simulator = STRIKER_WHO_AM_I;
@@ -88,7 +88,7 @@ void simulatorRunSimulation(Simulator *sim) {
 }
 
 // Function to insert a simulation into the database (HTTP POST)
-void simulatorInsert(Simulator *sim, SimulationDatabaseTable *sdt, const char *playbook) {
+void simulatorInsert(Simulator *sim, Simulation *sdt, const char *playbook) {
 	struct curl_slist *headers = NULL;
 	CURL *curl;
 	CURLcode res;
@@ -108,7 +108,7 @@ void simulatorInsert(Simulator *sim, SimulationDatabaseTable *sdt, const char *p
 		headers = curl_slist_append(headers, "Content-Type: application/json");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-		// Convert SimulationDatabaseTable to JSON
+		// Convert Simulation to JSON
 		cJSON *json = cJSON_CreateObject();
 		cJSON_AddStringToObject(json, "playbook", sdt->playbook);
 		cJSON_AddStringToObject(json, "guid", sdt->guid);
