@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <unistd.h>
 #include "table.h"
 #include "strategy.h"
 #include "shoe.h"

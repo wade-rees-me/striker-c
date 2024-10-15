@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "wager.h"
 #include "constants.h"
 

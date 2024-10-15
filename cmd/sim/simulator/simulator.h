@@ -1,7 +1,6 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
-#include <time.h>
 #include "table.h"
 #include "report.h"
 #include "rules.h"

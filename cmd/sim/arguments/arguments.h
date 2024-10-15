@@ -2,6 +2,7 @@
 #define ARGUMENTS_H
 
 #include <stdbool.h>
+#include "constants.h"
 
 //
 typedef struct {
