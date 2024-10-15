@@ -5,9 +5,6 @@
 
 //
 bool rulesFetchTable(Rules *rules, const char *url);
-bool parseAuxBool(cJSON *json, char* tag, bool value);
-int parseAuxInt(cJSON *json, char* tag, int value);
-double parseAuxDouble(cJSON *json, char* tag, double value);
 
 // Function to load table rules by calling FetchRulesTable
 Rules* newRules(const char *decks) {
