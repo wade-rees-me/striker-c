@@ -6,12 +6,13 @@
 #include "simulator.h"
 
 // Function to create a new simulation
-Simulator* newSimulator(Parameters *parameters, Rules *rules) {
-	Simulator *s = (Simulator*)malloc(sizeof(Simulator));
+Simulator* newSimulator(Parameters* parameters, Rules* rules, Strategy* strategy) {
+	Simulator* s = (Simulator*)malloc(sizeof(Simulator));
 
-	s->table = newTable(parameters, rules);
+	s->table = newTable(parameters, rules, strategy);
 	s->parameters = parameters;
 	s->rules = rules;
+	s->strategy = strategy;
 	initReport(&s->report);
 
 	return s;

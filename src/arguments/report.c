@@ -1,7 +1,7 @@
 #include "report.h"
 
 //
-void initReport(Report* report) {
+void initReport(Report *report) {
 	report->total_rounds = 0;
 	report->total_hands = 0;
 	report->total_bet = 0;

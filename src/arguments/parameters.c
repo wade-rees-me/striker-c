@@ -4,11 +4,11 @@
 
 // Local functions
 void getCurrentTime(char *buffer);
-void generateName(char* buffer);
+void generateName(char *buffer);
 
 //
-Parameters* newParameters(const char *decks, const char *strategy, int number_of_decks, int64_t number_of_hands) {
-    Parameters *parameters = (Parameters*)malloc(sizeof(Parameters));
+Parameters *newParameters(const char *decks, const char *strategy, int number_of_decks, int64_t number_of_hands) {
+	Parameters *parameters = (Parameters*)malloc(sizeof(Parameters));
 
 	generateName(parameters->name);
 	snprintf(parameters->decks, MAX_STRING_SIZE, "%s", decks);
@@ -23,23 +23,23 @@ Parameters* newParameters(const char *decks, const char *strategy, int number_of
 }
 
 //
-void parametersDelete(Parameters* parameters) {
+void parametersDelete(Parameters *parameters) {
 	free(parameters);
 }
 
 // Print the Parameters struct
-void printParameters(const Parameters *params) {
-	printf("    %-24s: %s\n", "Name", params->name);
-	printf("    %-24s: %s\n", "Playbook", params->playbook);
-	printf("    %-24s: %s\n", "Processor", params->processor);
+void printParameters(const Parameters *parameters) {
+	printf("    %-24s: %s\n", "Name", parameters->name);
+	printf("    %-24s: %s\n", "Playbook", parameters->playbook);
+	printf("    %-24s: %s\n", "Processor", parameters->processor);
 	printf("    %-24s: %s\n", "Version", STRIKER_VERSION);
-	printf("    %-24s: %lld\n", "Number of hands", params->number_of_hands);
-	printf("    %-24s: %s\n", "Timestamp", params->timestamp);
+	printf("    %-24s: %lld\n", "Number of hands", parameters->number_of_hands);
+	printf("    %-24s: %s\n", "Timestamp", parameters->timestamp);
 }
 
 //
-void serializeParameters(Parameters *parameters, char* buffer, int buffer_size) {
-	cJSON* json = cJSON_CreateObject();
+void serializeParameters(Parameters *parameters, char *buffer, int buffer_size) {
+	cJSON *json = cJSON_CreateObject();
 
 	cJSON_AddStringToObject(json, "playbook", parameters->playbook);
 	cJSON_AddStringToObject(json, "name", parameters->name);
@@ -50,7 +50,7 @@ void serializeParameters(Parameters *parameters, char* buffer, int buffer_size) 
 	cJSON_AddNumberToObject(json, "hands", parameters->number_of_hands);
 	cJSON_AddNumberToObject(json, "number_of_decks", parameters->number_of_decks);
 
-	char* jsonString = cJSON_Print(json);
+	char *jsonString = cJSON_Print(json);
     snprintf(buffer, buffer_size, "%s", jsonString);
 	free(jsonString);
 	cJSON_Delete(json);
@@ -64,7 +64,7 @@ void getCurrentTime(char *buffer) {
 }
 
 //
-void generateName(char* buffer) {
+void generateName(char *buffer) {
     time_t t = time(NULL);
     struct tm* tm_info = localtime(&t);
 

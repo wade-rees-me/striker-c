@@ -4,10 +4,10 @@
 #include "hand.h"
 
 //
-void handCalculateTotal(Hand* hand);
+void handCalculateTotal(Hand *hand);
 
 // Reset the hand
-void handReset(Hand* hand) {
+void handReset(Hand *hand) {
 	hand->card_count = 0;
 	hand->hand_total = 0;
 	hand->soft_ace = 0;
@@ -15,7 +15,7 @@ void handReset(Hand* hand) {
 }
 
 // Draw a card into the hand
-Card* handDrawCard(Hand* hand, Card* card) {
+Card *handDrawCard(Hand *hand, Card *card) {
 	hand->cards[hand->card_count] = card;
 	hand->card_count++;
 	handCalculateTotal(hand);  // Recalculate hand total
@@ -23,42 +23,42 @@ Card* handDrawCard(Hand* hand, Card* card) {
 }
 
 // Check if the hand is a blackjack
-bool handIsBlackjack(Hand* hand) {
+bool handIsBlackjack(Hand *hand) {
 	return hand->card_count == 2 && hand->hand_total == 21;
 }
 
 // Check if the hand is a pair
-bool handIsPair(Hand* hand) {
+bool handIsPair(Hand *hand) {
 	return hand->card_count == 2 && strcmp(hand->cards[0]->rank, hand->cards[1]->rank) == 0;
 }
 
 // Check if the hand is a pair of aces
-bool handIsPairOfAces(Hand* hand) {
+bool handIsPairOfAces(Hand *hand) {
 	return handIsPair(hand) && strcmp(hand->cards[0]->rank, "ace") == 0;
 }
 
 // Check if the hand is busted (over 21)
-bool handIsBusted(Hand* hand) {
+bool handIsBusted(Hand *hand) {
 	return hand->hand_total > 21;
 }
 
 // Check if the hand has a soft ace
-bool handIsSoft(Hand* hand) {
+bool handIsSoft(Hand *hand) {
 	return hand->soft_ace > 0;
 }
 
 // Get the total value of the hand
-int handTotal(Hand* hand) {
+int handTotal(Hand *hand) {
 	return hand->hand_total;
 }
 
 // Check if the hand is a soft 17
-bool handIsSoft17(Hand* hand) {
+bool handIsSoft17(Hand *hand) {
 	return hand->hand_total == 17 && handIsSoft(hand);
 }
 
 // Split a pair from the hand
-Card* handSplitPair(Hand* hand) {
+Card *handSplitPair(Hand *hand) {
 	if (handIsPair(hand)) {
 		Card* split_card = hand->cards[1];
 		hand->card_count = 1;
@@ -71,12 +71,12 @@ Card* handSplitPair(Hand* hand) {
 }
 
 //
-int* getHaveCards(Hand* hand) {
+int *getHaveCards(Hand *hand) {
 	return hand->have_cards;
 }
 
 // Recalculate the total value of the hand
-void handCalculateTotal(Hand* hand) {
+void handCalculateTotal(Hand *hand) {
 	hand->hand_total = 0;
 	hand->soft_ace = 0;
 	memset(hand->have_cards, 0, sizeof(hand->have_cards));

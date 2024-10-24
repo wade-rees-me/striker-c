@@ -9,7 +9,7 @@ void printHelpMessage();
 
 //
 Arguments* newArguments(int argc, char *argv[]) {
-    Arguments *arguments = (Arguments*)malloc(sizeof(Arguments));
+	Arguments *arguments = (Arguments*)malloc(sizeof(Arguments));
 
 	arguments->number_of_hands = MINIMUM_NUMBER_OF_HANDS;
 	arguments->mimic_flag = false;
@@ -66,7 +66,7 @@ Arguments* newArguments(int argc, char *argv[]) {
 }
 
 //
-void argumentsDelete(Arguments* arguments) {
+void argumentsDelete(Arguments *arguments) {
 	free(arguments);
 }
 
@@ -90,7 +90,7 @@ void printHelpMessage() {
 }
 
 // Get the current strategy as a string
-const char* getStrategy(const Arguments *args) {
+const char *getStrategy(const Arguments *args) {
 	if (args->mimic_flag) {
 		return "mimic";
 	}
@@ -113,7 +113,7 @@ const char* getStrategy(const Arguments *args) {
 }
 
 // Get the type of deck being used
-const char* getDecks(const Arguments *args) {
+const char *getDecks(const Arguments *args) {
 	if (args->double_deck_flag) {
 		return "double-deck";
 	}

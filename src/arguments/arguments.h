@@ -20,10 +20,10 @@ typedef struct {
 } Arguments;
 
 // Global functions
-Arguments* newArguments(int argc, char *argv[]);
-void argumentsDelete(Arguments* arguments);
-const char* getStrategy(const Arguments *args);
-const char* getDecks(const Arguments *args);
+Arguments *newArguments(int argc, char *argv[]);
+void argumentsDelete(Arguments *arguments);
+const char *getStrategy(const Arguments *args);
+const char *getDecks(const Arguments *args);
 int getNumberOfDecks(const Arguments *args);
 
 #endif // ARGUMENTS_H

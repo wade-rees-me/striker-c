@@ -7,6 +7,7 @@
 #include "report.h"
 #include "parameters.h"
 #include "rules.h"
+#include "strategy.h"
 #include "constants.h"
 
 //
@@ -31,12 +32,13 @@ typedef struct {
 	int seen_cards[13];
 	Parameters* parameters;
 	Rules* rules;
+	Strategy* strategy;
 	Report report;
 	struct PlayData play;
 } Player;
 
 // Global functions
-Player* newPlayer(Parameters* parameters, Rules *rules, int number_of_cards);
+Player* newPlayer(Parameters* parameters, Rules *rules, Strategy* strategy, int number_of_cards);
 void playerShuffle(Player* p);
 void playerPlaceBet(Player* p, bool bet);
 void playerInsurance(Player* p);

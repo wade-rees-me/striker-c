@@ -4,84 +4,47 @@
 #include "rules.h"
 
 //
-bool rulesFetchTable(Rules *rules, const char *url);
+void rulesFetchTable(cJSON *json, Rules *rules);
 
 // Function to load table rules by calling FetchRulesTable
-Rules* newRules(const char *decks) {
+Rules *newRules(const char *decks) {
     Rules *rules = (Rules*)malloc(sizeof(Rules));
 
 	char url[MAX_BUFFER_SIZE];
 	snprintf(url, MAX_BUFFER_SIZE, "%s/%s", getRulesUrl(), decks);
 
-	if (!rulesFetchTable(rules, url)) {
-		printf("Error fetching rules table.\n");
-		exit(1);
-	}
+	requestFetchJson(&rules->request, url);
+	rulesFetchTable(rules->request.jsonResponse, rules);
 
 	return rules;
 }
 
 //
-void rulesDelete(Rules* rules) {
+void rulesDelete(Rules *rules) {
 	free(rules);
 }
 
 // Function to fetch rules table using libcurl
-bool rulesFetchTable(Rules *rules, const char *url) {
-	CURL *curl_handle;
-	CURLcode res;
-
-	struct MemoryStruct chunk;
-	chunk.size = 0;
-
-	curl_global_init(CURL_GLOBAL_ALL);
-	curl_handle = curl_easy_init();
-
-	if(curl_handle) {
-		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback);
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-
-		res = curl_easy_perform(curl_handle);
-		if(res != CURLE_OK) {
-			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-			return false;
-		}
-
-		// Process the JSON response
-		cJSON *json = cJSON_Parse(chunk.memory);
-		if(json == NULL) {
-			printf("Error parsing JSON response\n");
-			return false;
-		}
-
-		cJSON *itemPayload = cJSON_GetObjectItemCaseSensitive(json, "payload");
-		json = cJSON_Parse(itemPayload->valuestring);
-		if(json == NULL) {
-			printf("Error parsing JSON response\n");
-			return false;
-		}
-
-		// Extract data from JSON into TableRules struct
-		cJSON *playbook = cJSON_GetObjectItemCaseSensitive(json, "playbook");
-		if (playbook) strcpy(rules->playbook, playbook->valuestring);
-		rules->hit_soft_17 = parseAuxBool(json, "hitSoft17", false);
-		rules->surrender = parseAuxBool(json, "surrender", false);
-		rules->double_any_two_cards = parseAuxBool(json, "doubleAnyTwoCards", false);
-		rules->double_after_split = parseAuxBool(json, "doubleAfterSplit", false);
-		rules->resplit_aces = parseAuxBool(json, "resplitAces", false);
-		rules->hit_split_aces = parseAuxBool(json, "hitSplitAces", false);
-		rules->blackjack_bets = parseAuxInt(json, "blackjackBets", 0);
-		rules->blackjack_pays = parseAuxInt(json, "blackjackPays", 0);
-		rules->penetration = parseAuxDouble(json, "penetration", 0.50);
-
-		// Cleanup
-		cJSON_Delete(json);
-		curl_easy_cleanup(curl_handle);
-		curl_global_cleanup();
-		return true;
+void rulesFetchTable(cJSON *json, Rules *rules) {
+	cJSON *itemPayload = cJSON_GetObjectItemCaseSensitive(json, "payload");
+	cJSON *jsonPayload = cJSON_Parse(itemPayload->valuestring);
+	if(jsonPayload == NULL) {
+		printf("Error parsing JSON response\n");
+		exit(0);
 	}
-	return false;
+
+	// Extract data from JSON into TableRules struct
+	cJSON *playbook = cJSON_GetObjectItemCaseSensitive(jsonPayload, "playbook");
+	if (playbook) strcpy(rules->playbook, playbook->valuestring);
+	rules->hit_soft_17 = parseAuxBool(jsonPayload, "hitSoft17", false);
+	rules->surrender = parseAuxBool(jsonPayload, "surrender", false);
+	rules->double_any_two_cards = parseAuxBool(jsonPayload, "doubleAnyTwoCards", false);
+	rules->double_after_split = parseAuxBool(jsonPayload, "doubleAfterSplit", false);
+	rules->resplit_aces = parseAuxBool(jsonPayload, "resplitAces", false);
+	rules->hit_split_aces = parseAuxBool(jsonPayload, "hitSplitAces", false);
+	rules->blackjack_bets = parseAuxInt(jsonPayload, "blackjackBets", 0);
+	rules->blackjack_pays = parseAuxInt(jsonPayload, "blackjackPays", 0);
+	rules->penetration = parseAuxDouble(jsonPayload, "penetration", 0.50);
 }
 
 //
@@ -100,7 +63,7 @@ void printRules(Rules* rules) {
 }
 
 //
-void serializeRules(Rules *rules, char* buffer, int buffer_size) {
+void serializeRules(Rules *rules, char *buffer, int buffer_size) {
 	cJSON* json = cJSON_CreateObject();
 
 	cJSON_AddStringToObject(json, "hit_soft_17", rules->hit_soft_17 ? "true" : "false");

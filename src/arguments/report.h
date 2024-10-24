@@ -15,6 +15,6 @@ typedef struct {
 } Report;
 
 // Global functions
-void initReport(Report* report);
+void initReport(Report *report);
 
 #endif // REPORT_H

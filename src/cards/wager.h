@@ -15,16 +15,16 @@ typedef struct {
 } Wager;
 
 // Global functions
-extern void wagerReset(Wager* wager);
-extern void wagerSplit(Wager* wager, Wager* split);
-extern void wagerPlaceBet(Wager* wager, int64_t bet);
-extern void wagerDoubleBet(Wager* wager);
-extern bool wagerIsBlackjack(Wager* wager);
-extern void wagerWonBlackjack(Wager* wager, int64_t pays, int64_t bet);
-extern void wagerWon(Wager* wager);
-extern void wagerLost(Wager* wager);
-extern void wagerPush(Wager* wager);
-extern void wagerWonInsurance(Wager* wager);
-extern void wagerLostInsurance(Wager* wager);
+extern void wagerReset(Wager *wager);
+extern void wagerSplit(Wager *wager, Wager *split);
+extern void wagerPlaceBet(Wager *wager, int64_t bet);
+extern void wagerDoubleBet(Wager *wager);
+extern bool wagerIsBlackjack(Wager *wager);
+extern void wagerWonBlackjack(Wager *wager, int64_t pays, int64_t bet);
+extern void wagerWon(Wager *wager);
+extern void wagerLost(Wager *wager);
+extern void wagerPush(Wager *wager);
+extern void wagerWonInsurance(Wager *wager);
+extern void wagerLostInsurance(Wager *wager);
 
 #endif // WAGER_H
