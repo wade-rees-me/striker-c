@@ -19,7 +19,7 @@
 #define MAX_MEMORY_SIZE 1048576
 
 // Simulation constants
-#define MAXIMUM_NUMBER_OF_HANDS 1000000000LL
+#define MAXIMUM_NUMBER_OF_HANDS 25000000000LL
 #define MINIMUM_NUMBER_OF_HANDS 100LL
 #define DEFAULT_NUMBER_OF_HANDS 1000000LL
 #define DATABASE_NUMBER_OF_HANDS 250000000LL
@@ -37,7 +37,6 @@
 const char *getStrategyUrl();
 const char *getRulesUrl();
 const char *getSimulationUrl();
-void removeSpaces(char *str);
 const char *boolToString(bool b);
 bool parseAuxBool(cJSON *json, char *tag, bool value);
 int parseAuxInt(cJSON *json, char *tag, int value);

@@ -17,19 +17,6 @@ const char *getSimulationUrl() {
 	return getenv("STRIKER_URL_SIMULATION");
 }
 
-//
-void removeSpaces(char *str) {
-    int i = 0, j = 0;
-
-    while (str[i]) {
-        if (str[i] != ' ') {
-            str[j++] = str[i];
-        }
-        i++;
-    }
-    str[j] = '\0';
-}
-
 // Function to convert bool to string
 const char* boolToString(bool b) {
     return b ? "true" : "false";

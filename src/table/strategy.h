@@ -22,8 +22,6 @@ typedef struct {
 	char PairSplit[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
 	char SoftStand[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
 	char HardStand[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
-	char HardSurrender[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
-	char SoftSurrender[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
 
 	int number_of_cards;
 } Strategy;
@@ -32,7 +30,6 @@ typedef struct {
 Strategy *newStrategy(const char *decks, const char *strategy, int number_of_cards);
 int strategyGetBet(Strategy *strat, const int *seenCards);
 bool strategyGetInsurance(Strategy *strat, const int *seenCards);
-bool strategyGetSurrender(Strategy *strat, const int *seenCards, const int total, bool soft, Card *up);
 bool strategyGetDouble(Strategy *strat, const int *seenCards, const int total, bool soft, Card *up);
 bool strategyGetSplit(Strategy *strat, const int *seenCards, Card *pair, Card *up);
 bool strategyGetStand(Strategy *strat, const int *seenCards, const int total, bool soft, Card *up);

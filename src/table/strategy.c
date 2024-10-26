@@ -5,9 +5,9 @@
 #include "constants.h"
 #include "cjson/cJSON.h"
 
-
 //
 void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, Strategy *table);
+void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE]);
 int getRunningCount(Strategy *strat, const int *seenCards);
 int getTrueCount(Strategy *strat, const int *seenCards, int runningCount);
 bool processValue(const char *value, int trueCount, bool missing_value);
@@ -31,9 +31,6 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 		cJSON *handJson = cJSON_GetObjectItem(item, "hand");
 
 		if (playbookJson != NULL && handJson != NULL && strcmp(decks, playbookJson->valuestring) == 0 && strcmp(strategy, handJson->valuestring) == 0) {
-//printf("playbook: %s\n", playbookJson->valuestring);
-//printf("hand: %s\n", handJson->valuestring);
-
 			cJSON *payloadJson = cJSON_GetObjectItem(item, "payload");
 			if (payloadJson == NULL) {
 				printf("Error fetching strategy table payload\n");
@@ -80,41 +77,6 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 			if (insurance != NULL) {
 				strncpy(table->Insurance, insurance->valuestring, MAX_STRING_SIZE);
 			}
-
-			// Set SoftSurrenderthis applies to all maps similarly)
-			cJSON *softSurrender = cJSON_GetObjectItem(payload, "soft-surrender");
-			if (softSurrender == NULL) {
-				cJSON *key;
-				cJSON *valueArray;
-				cJSON_ArrayForEach(key, softSurrender) {
-					valueArray = cJSON_GetObjectItem(softSurrender, key->string);
-					if (valueArray != NULL) {
-						cJSON *valueItem;
-						int index = 0;
-						cJSON_ArrayForEach(valueItem, valueArray) {
-							strcpy(table->SoftSurrender[atoi(key->string)][index++], valueItem->valuestring);
-						}
-					}
-				}
-			}
-
-			// Set HardSurrenderthis applies to all maps similarly)
-			cJSON *hardSurrender = cJSON_GetObjectItem(payload, "hard-surrender");
-			if (hardSurrender == NULL) {
-				cJSON *key;
-				cJSON *valueArray;
-				cJSON_ArrayForEach(key, hardSurrender) {
-					valueArray = cJSON_GetObjectItem(hardSurrender, key->string);
-					if (valueArray != NULL) {
-						cJSON *valueItem;
-						int index = 0;
-						cJSON_ArrayForEach(valueItem, valueArray) {
-							strcpy(table->HardSurrender[atoi(key->string)][index++], valueItem->valuestring);
-						}
-					}
-				}
-			}
-
 
 			// Set SoftDouble (this applies to all maps similarly)
 			cJSON *softDouble = cJSON_GetObjectItem(payload, "soft-double");
@@ -167,7 +129,10 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 				}
 			}
 
+strategyLoadTable(cJSON_GetObjectItem(payload, "soft-stand"), table->SoftStand);
+strategyLoadTable(cJSON_GetObjectItem(payload, "hard-stand"), table->HardStand);
 
+/*
 			// Set SoftStand (this applies to all maps similarly)
 			cJSON *softStand = cJSON_GetObjectItem(payload, "soft-stand");
 			if (softStand != NULL) {
@@ -201,6 +166,7 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 					}
 				}
 			}
+*/
 
 			cJSON_Delete(payload);
 			break; // We've found and processed the relevant item, no need to loop further
@@ -210,6 +176,22 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 	cJSON_Delete(json);
 }
 
+void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE]) {
+	if (strategy != NULL) {
+		cJSON *key;
+		cJSON *valueArray;
+		cJSON_ArrayForEach(key, strategy) {
+			valueArray = cJSON_GetObjectItem(strategy, key->string);
+			if (valueArray != NULL) {
+				cJSON *valueItem;
+				int index = 0;
+				cJSON_ArrayForEach(valueItem, valueArray) {
+					strcpy(values[atoi(key->string)][index++], valueItem->valuestring);
+				}
+			}
+		}
+	}
+}
 
 // Get a bet based on seen cards
 int strategyGetBet(Strategy* strategy, const int* seenCards) {
@@ -221,15 +203,6 @@ int strategyGetBet(Strategy* strategy, const int* seenCards) {
 bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
 	return processValue(strategy->Insurance, trueCount, false);
-}
-
-// Determine whether to surrender
-bool strategyGetSurrender(Strategy* strategy, const int* seenCards, int total, bool soft, Card* up) {
-	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	if (soft) {
-		return processValue(strategy->SoftSurrender[total][cardGetOffset(up)], trueCount, false);
-	}
-	return processValue(strategy->HardSurrender[total][cardGetOffset(up)], trueCount, false);
 }
 
 // Determine whether to double

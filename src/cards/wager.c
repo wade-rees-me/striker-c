@@ -10,18 +10,6 @@ void wagerReset(Wager *wager) {
 	wager->insurance_won = 0;
 }
 
-//
-/*
-static inline int64_t min(int64_t a, int64_t b) {
-	return (a < b) ? a : b;
-}
-
-//
-static inline int64_t max(int64_t a, int64_t b) {
-	return (a > b) ? a : b;
-}
-*/
-
 // Split the wager
 void wagerSplit(Wager *wager, Wager *split) {
 	wagerReset(split);

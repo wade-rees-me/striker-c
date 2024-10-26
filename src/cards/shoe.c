@@ -9,9 +9,9 @@ const char *suits[4] = {SPADES, DIAMONDS, CLUBS, HEARTS};
 
 // Helper function to shuffle the deck (Fisher-Yates algorithm)
 static void shuffleRandom(Shoe *shoe) {
-	int i;
-	srand(time(NULL));  // Seed the random number generator
-	for (i = shoe->last_discard - 1; i > 0; i--) {
+	//int i;
+	//srand(time(NULL));
+	for (int i = shoe->last_discard - 1; i > 0; i--) {
 		int j = rand() % (i + 1);
 		Card* temp = shoe->cards[i];
 		shoe->cards[i] = shoe->cards[j];
@@ -28,6 +28,7 @@ Shoe *newShoe(int number_of_decks, float penetration) {
 		exit(1);
 	}
 
+	srand(time(NULL));
 	shoe->number_of_cards = number_of_decks * 52; // 52 cards per deck
 	shoe->cards = (Card**)malloc(shoe->number_of_cards * sizeof(Card*));
 

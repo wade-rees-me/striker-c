@@ -16,7 +16,6 @@ struct PlayData {
 	bool do_insurance;
 	bool do_double;
 	bool do_split;
-	bool do_surrender;
 	bool do_stand;
 	bool do_play;
 };

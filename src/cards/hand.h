@@ -10,7 +10,6 @@ typedef struct {
 	int card_count;		// Number of cards in the hand
 	int hand_total;		// Total value of the hand
 	int soft_ace;		// Number of aces valued as 11
-	bool surrender;		// Whether the hand has surrendered
 	int have_cards[13];
 } Hand;
 

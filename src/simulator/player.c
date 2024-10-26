@@ -59,12 +59,6 @@ void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
         return;
     }
 
-	// Check for surrender
-	if (player->rules->surrender && strategyGetSurrender(player->strategy, getHaveCards(&player->wager.hand), player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up)) {
-		player->wager.hand.surrender = true;
-		return;
-	}
-
 	// Check for double
 	if ((player->rules->double_any_two_cards || (handTotal(&player->wager.hand) == 10 || handTotal(&player->wager.hand) == 11)) && strategyGetDouble(player->strategy, getHaveCards(&player->wager.hand), player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up)) {
 		wagerDoubleBet(&player->wager);
@@ -72,18 +66,15 @@ void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
 		return;
 	}
 
-	// Check for splitting
 	if (handIsPair(&player->wager.hand) && strategyGetSplit(player->strategy, player->seen_cards, player->wager.hand.cards[0], up)) {
 		Wager* split = &player->splits[player->split_count];
 		player->split_count++;
 		
 		if (handIsPairOfAces(&player->wager.hand)) {
-			if (!player->rules->resplit_aces && !player->rules->hit_split_aces) {
-				wagerSplit(&player->wager, split);
-				playerDrawCard(player, &player->wager.hand, s);
-				playerDrawCard(player, &split->hand, s);
-				return;
-			}
+			wagerSplit(&player->wager, split);
+			playerDrawCard(player, &player->wager.hand, s);
+			playerDrawCard(player, &split->hand, s);
+			return;
 		}
 
 		wagerSplit(&player->wager, split);
@@ -106,48 +97,23 @@ void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
 
 // Simulate a split action
 void playerPlaySplit(Player* p, Wager* w, Shoe* s, Card* up) {
-	// Check if player can double after split
-	if (p->rules->double_after_split && strategyGetDouble(p->strategy, getHaveCards(&p->wager.hand), p->wager.hand.hand_total, handIsSoft(&p->wager.hand), up)) {
-		wagerDoubleBet(&p->wager);
+	if (handIsPair(&w->hand) && p->split_count < MAX_SPLIT_HANDS && strategyGetSplit(p->strategy, p->seen_cards, w->hand.cards[0], up)) {
+		Wager* split = &p->splits[p->split_count];
+		p->split_count++;
+
+		wagerSplit(w, split);
 		playerDrawCard(p, &w->hand, s);
+		playerPlaySplit(p, w, s, up);
+		playerDrawCard(p, &split->hand, s);
+		playerPlaySplit(p, split, s, up);
 		return;
 	}
 
-	// Check if the hand is a pair and the player can split
-	if (handIsPair(&w->hand) && p->split_count < 4) {  // Assuming 4 is the max number of split hands
-		if (strategyGetSplit(p->strategy, p->seen_cards, w->hand.cards[0], up)) {
-			Wager* split = &p->splits[p->split_count];
-			p->split_count++;
-
-			if (handIsPairOfAces(&w->hand)) {
-				if (!p->rules->resplit_aces && !p->rules->hit_split_aces) {
-					wagerSplit(w, split);
-					playerDrawCard(p, &w->hand, s);
-					playerDrawCard(p, &split->hand, s);
-					return;
-				}
-			}
-
-			wagerSplit(w, split);
-			playerDrawCard(p, &w->hand, s);
-			playerPlaySplit(p, w, s, up);
-			playerDrawCard(p, &split->hand, s);
-			playerPlaySplit(p, split, s, up);
-			return;
-		}
-	}
-
-	// Check if the hand contains a Blackjack Ace and if the rule allows hitting split Aces
-	if (w->hand.cards[0]->value == 11 && !p->rules->hit_split_aces) {
-		return;
-	}
-
-	// Implement stand logic
-	bool doStand = strategyGetStand(p->strategy, getHaveCards(&p->wager.hand), p->wager.hand.hand_total, handIsSoft(&p->wager.hand), up);
+	bool doStand = strategyGetStand(p->strategy, getHaveCards(&w->hand), w->hand.hand_total, handIsSoft(&w->hand), up);
 	while (!handIsBusted(&w->hand) && !doStand) {
 		playerDrawCard(p, &w->hand, s);
 		if (!handIsBusted(&w->hand)) {
-			doStand = strategyGetStand(p->strategy, getHaveCards(&p->wager.hand), p->wager.hand.hand_total, handIsSoft(&p->wager.hand), up);
+			doStand = strategyGetStand(p->strategy, getHaveCards(&w->hand), w->hand.hand_total, handIsSoft(&w->hand), up);
 		}
 	}
 }
@@ -199,28 +165,24 @@ void playerPayoffHand(Player *p, Wager *w, int dealer_blackjack, int dealer_bust
 		wagerLostInsurance(w);
 	}
 
-	if (w->hand.surrender) {
-		p->report.total_won -= w->amount_bet / 2;
-	} else {
-		if (dealer_blackjack) {
-			if (wagerIsBlackjack(w)) {
-				wagerPush(w);
-			} else {
-				wagerLost(w);
-			}
-		} else if (wagerIsBlackjack(w)) {
-			wagerWonBlackjack(w, p->rules->blackjack_pays, p->rules->blackjack_bets);
-		} else if (handIsBusted(&w->hand)) {
-			wagerLost(w);
-		} else if (dealer_busted || (w->hand.hand_total > dealer_total)) {
-			wagerWon(w);
-		} else if (dealer_total > w->hand.hand_total) {
-			wagerLost(w);
-		} else {
+	if (dealer_blackjack) {
+		if (wagerIsBlackjack(w)) {
 			wagerPush(w);
+		} else {
+			wagerLost(w);
 		}
-		p->report.total_won += w->amount_won;
+	} else if (wagerIsBlackjack(w)) {
+		wagerWonBlackjack(w, p->rules->blackjack_pays, p->rules->blackjack_bets);
+	} else if (handIsBusted(&w->hand)) {
+		wagerLost(w);
+	} else if (dealer_busted || (w->hand.hand_total > dealer_total)) {
+		wagerWon(w);
+	} else if (dealer_total > w->hand.hand_total) {
+		wagerLost(w);
+	} else {
+		wagerPush(w);
 	}
+	p->report.total_won += w->amount_won;
 	p->report.total_bet += w->amount_bet + w->insurance_bet;
 }
 

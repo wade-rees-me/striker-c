@@ -11,7 +11,6 @@ void handReset(Hand *hand) {
 	hand->card_count = 0;
 	hand->hand_total = 0;
 	hand->soft_ace = 0;
-	hand->surrender = false;
 }
 
 // Draw a card into the hand
