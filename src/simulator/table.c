@@ -16,7 +16,7 @@ Table* newTable(Parameters* parameters, Rules* rules, Strategy* strategy) {
 	table->strategy = strategy;
 	table->shoe = newShoe(parameters->number_of_decks, 0.75/*parameters->penetration*/);
 	table->dealer = newDealer(rules->hit_soft_17);
-	table->player = newPlayer(parameters, rules, strategy, table->shoe->number_of_cards);
+	table->player = newPlayer(rules, strategy, table->shoe->number_of_cards);
 	initReport(&table->report);
 
 	return table;

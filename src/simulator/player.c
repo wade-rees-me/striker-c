@@ -11,9 +11,8 @@ void payoffSplit(Player *p, Wager *w, int dealer_busted, int dealer_total);
 bool mimicStand(Player* p);
 
 // Utility function to create a new Player object
-Player* newPlayer(Parameters* parameters, Rules *rules, Strategy* strategy, int number_of_cards) {
+Player* newPlayer(Rules *rules, Strategy* strategy, int number_of_cards) {
 	Player* p = (Player*)malloc(sizeof(Player));
-	p->parameters = parameters;
 	p->rules = rules;
 	p->strategy = strategy;
 	p->number_of_cards = number_of_cards;

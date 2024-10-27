@@ -18,8 +18,10 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 
 	strategy->number_of_cards = number_of_cards;
 
-	requestFetchJson(&strategy->request, "http://localhost:57910/striker/v1/strategy");
-	strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
+	if (strcasecmp("mimic", playbook) != 0) {
+		requestFetchJson(&strategy->request, "http://localhost:57910/striker/v1/strategy");
+		strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
+	}
 	return strategy;
 }
 

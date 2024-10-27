@@ -5,7 +5,6 @@
 #include "wager.h"
 #include "shoe.h"
 #include "report.h"
-#include "parameters.h"
 #include "rules.h"
 #include "strategy.h"
 #include "constants.h"
@@ -29,7 +28,6 @@ typedef struct {
 	int64_t blackjack_bets;
 	int number_of_cards;
 	int seen_cards[13];
-	Parameters* parameters;
 	Rules* rules;
 	Strategy* strategy;
 	Report report;
@@ -37,7 +35,7 @@ typedef struct {
 } Player;
 
 // Global functions
-Player* newPlayer(Parameters* parameters, Rules *rules, Strategy* strategy, int number_of_cards);
+Player* newPlayer(Rules *rules, Strategy* strategy, int number_of_cards);
 void playerShuffle(Player* p);
 void playerPlaceBet(Player* p, bool bet);
 void playerInsurance(Player* p);
