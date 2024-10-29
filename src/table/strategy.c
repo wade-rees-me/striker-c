@@ -80,6 +80,7 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 				strncpy(table->Insurance, insurance->valuestring, MAX_STRING_SIZE);
 			}
 
+/*
 			// Set SoftDouble (this applies to all maps similarly)
 			cJSON *softDouble = cJSON_GetObjectItem(payload, "soft-double");
 			if (softDouble != NULL) {
@@ -130,45 +131,13 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 					}
 				}
 			}
-
-strategyLoadTable(cJSON_GetObjectItem(payload, "soft-stand"), table->SoftStand);
-strategyLoadTable(cJSON_GetObjectItem(payload, "hard-stand"), table->HardStand);
-
-/*
-			// Set SoftStand (this applies to all maps similarly)
-			cJSON *softStand = cJSON_GetObjectItem(payload, "soft-stand");
-			if (softStand != NULL) {
-				cJSON *key;
-				cJSON *valueArray;
-				cJSON_ArrayForEach(key, softStand) {
-					valueArray = cJSON_GetObjectItem(softStand, key->string);
-					if (valueArray != NULL) {
-						cJSON *valueItem;
-						int index = 0;
-						cJSON_ArrayForEach(valueItem, valueArray) {
-							strcpy(table->SoftStand[atoi(key->string)][index++], valueItem->valuestring);
-						}
-					}
-				}
-			}
-
-			// Set HardStand (this applies to all maps similarly)
-			cJSON *hardStand = cJSON_GetObjectItem(payload, "hard-stand");
-			if (hardStand != NULL) {
-				cJSON *key;
-				cJSON *valueArray;
-				cJSON_ArrayForEach(key, hardStand) {
-					valueArray = cJSON_GetObjectItem(hardStand, key->string);
-					if (valueArray != NULL) {
-						cJSON *valueItem;
-						int index = 0;
-						cJSON_ArrayForEach(valueItem, valueArray) {
-							strcpy(table->HardStand[atoi(key->string)][index++], valueItem->valuestring);
-						}
-					}
-				}
-			}
 */
+
+			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-double"), table->SoftDouble);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-double"), table->HardDouble);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "pair-split"), table->PairSplit);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-stand"), table->SoftStand);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-stand"), table->HardStand);
 
 			cJSON_Delete(payload);
 			break; // We've found and processed the relevant item, no need to loop further
@@ -259,19 +228,15 @@ bool processValue(const char* value, int trueCount, bool missing_value) {
 	if (value == NULL || strlen(value) == 0) {
 		return missing_value;
 	}
-
 	if (strcasecmp(value, "yes") == 0 || strcasecmp(value, "y") == 0) {
 		return true;
 	}
-
 	if (strcasecmp(value, "no") == 0 || strcasecmp(value, "n") == 0) {
 		return false;
 	}
-
 	if (value[0] == 'R' || value[0] == 'r') {
 		return trueCount <= atoi(&value[1]);
 	}
-
 	return trueCount >= atoi(value);
 }
 

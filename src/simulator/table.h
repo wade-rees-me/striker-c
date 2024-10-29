@@ -10,19 +10,21 @@
 
 //
 typedef struct {
-	Parameters* parameters;
-	Rules* rules;
-	Strategy* strategy;
-	Shoe* shoe;
-	Dealer* dealer;
-	Player* player;
+	Parameters *parameters;
+	Rules *rules;
+	Strategy *strategy;
+	Shoe *shoe;
+	Dealer *dealer;
+	Player *player;
 	Report report;
+	Card *up;
+	Card *down;
 } Table;
 
 // Global functions
-Table* newTable(Parameters *parameters, Rules *rules, Strategy* strategy);
+Table *newTable(Parameters *parameters, Rules *rules, Strategy* strategy);
 void tableSession(Table *table, bool mimic);
-Card* tableDealCards(Player* player, Hand* hand, Dealer* dealer, Shoe* shoe);
+void tableDealCards(Table *table, Player *player, Hand *hand, Dealer *dealer, Shoe *shoe);
 void tableShow(Table *table, Card *up);
 
 #endif // TABLE_H

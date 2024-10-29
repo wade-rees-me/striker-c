@@ -10,7 +10,6 @@ typedef struct {
 	int card_count;		// Number of cards in the hand
 	int hand_total;		// Total value of the hand
 	int soft_ace;		// Number of aces valued as 11
-	int have_cards[13];
 } Hand;
 
 // Global functions
@@ -24,6 +23,5 @@ bool handIsSoft(Hand *hand);
 int handTotal(Hand *hand);
 bool handIsSoft17(Hand *hand);
 Card *handSplitPair(Hand *hand);
-int *getHaveCards(Hand *hand);
 
 #endif // HAND_H

@@ -37,21 +37,25 @@ void tableSession(Table *table, bool mimic) {
 			table->report.total_hands++;
 			dealerReset(table->dealer);
 			playerPlaceBet(table->player, mimic);
-			Card* up = tableDealCards(table->player, &table->player->wager.hand, table->dealer, table->shoe);
+			tableDealCards(table, table->player, &table->player->wager.hand, table->dealer, table->shoe);
 
-			if (!mimic && cardIsAce(up)) {
+			if (!mimic && cardIsAce(table->up)) {
 				playerInsurance(table->player);
 			}
 
 			if (!handIsBlackjack(&table->dealer->hand)) {
-				playerPlay(table->player, table->shoe, up, mimic);
+				playerPlay(table->player, table->shoe, table->up, mimic);
+				playerShowCard(table->player, table->down);
 				if (!playerBustedOrBlackjack(table->player)) {
-					dealerPlay(table->dealer, table->shoe);
+					while (!dealerStand(table->dealer)) {
+						Card *card = shoeDrawCard(table->shoe);
+						dealerDrawCard(table->dealer, card);
+						playerShowCard(table->player, card);
+					}
 				}
 			}
 
 			playerPayoff(table->player, handIsBlackjack(&table->dealer->hand), handIsBusted(&table->dealer->hand), table->dealer->hand.hand_total);
-			playerShowCard(table->player, up);
 		}
 	}
 
@@ -61,13 +65,15 @@ void tableSession(Table *table, bool mimic) {
 }
 
 // Function to deal cards
-Card* tableDealCards(Player* player, Hand* hand, Dealer* dealer, Shoe* shoe) {
+void tableDealCards(Table *table, Player *player, Hand *hand, Dealer *dealer, Shoe *shoe) {
 	playerDrawCard(player, hand, shoe);
-	Card* up = dealerDrawCard(dealer, shoeDrawCard(shoe));
+	table->up = shoeDrawCard(shoe);
+	dealerDrawCard(dealer, table->up);
+	playerShowCard(player, table->up);
+
 	playerDrawCard(player, hand, shoe);
-	dealerDrawCard(dealer, shoeDrawCard(shoe));
-	playerShowCard(player, up);
-	return up;
+	table->down = shoeDrawCard(shoe);
+	dealerDrawCard(dealer, table->down);
 }
 
 // Function to show cards

@@ -7,7 +7,7 @@
 #include "constants.h"
 
 //
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 	printf("Start: %s\n\n", STRIKER_WHO_AM_I);
 	Arguments *arguments = newArguments(argc, argv);
 	Parameters *parameters = newParameters(getDecks(arguments), getStrategy(arguments), getNumberOfDecks(arguments), arguments->number_of_hands);

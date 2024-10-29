@@ -3,7 +3,7 @@
 #include "dealer.h"
 
 //
-bool dealerStand(Dealer *dealer);
+//bool dealerStand(Dealer *dealer);
 
 // Create a new Dealer
 Dealer *newDealer(bool hit_soft_17) {

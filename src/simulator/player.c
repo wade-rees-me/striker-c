@@ -59,7 +59,7 @@ void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
     }
 
 	// Check for double
-	if ((player->rules->double_any_two_cards || (handTotal(&player->wager.hand) == 10 || handTotal(&player->wager.hand) == 11)) && strategyGetDouble(player->strategy, getHaveCards(&player->wager.hand), player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up)) {
+	if (strategyGetDouble(player->strategy, player->seen_cards, player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up)) {
 		wagerDoubleBet(&player->wager);
 		playerDrawCard(player, &player->wager.hand, s);
 		return;
@@ -85,11 +85,11 @@ void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
 	}
 
 	// Handle the stand logic
-	bool doStand = strategyGetStand(player->strategy, getHaveCards(&player->wager.hand), player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up);
+	bool doStand = strategyGetStand(player->strategy, player->seen_cards, player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up);
 	while (!handIsBusted(&player->wager.hand) && !doStand) {
 		playerDrawCard(player, &player->wager.hand, s);
 		if (!handIsBusted(&player->wager.hand)) {
-			doStand = strategyGetStand(player->strategy, getHaveCards(&player->wager.hand), player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up);
+			doStand = strategyGetStand(player->strategy, player->seen_cards, player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up);
 		}
 	}
 }
@@ -108,11 +108,11 @@ void playerPlaySplit(Player* p, Wager* w, Shoe* s, Card* up) {
 		return;
 	}
 
-	bool doStand = strategyGetStand(p->strategy, getHaveCards(&w->hand), w->hand.hand_total, handIsSoft(&w->hand), up);
+	bool doStand = strategyGetStand(p->strategy, p->seen_cards, w->hand.hand_total, handIsSoft(&w->hand), up);
 	while (!handIsBusted(&w->hand) && !doStand) {
 		playerDrawCard(p, &w->hand, s);
 		if (!handIsBusted(&w->hand)) {
-			doStand = strategyGetStand(p->strategy, getHaveCards(&w->hand), w->hand.hand_total, handIsSoft(&w->hand), up);
+			doStand = strategyGetStand(p->strategy, p->seen_cards, w->hand.hand_total, handIsSoft(&w->hand), up);
 		}
 	}
 }

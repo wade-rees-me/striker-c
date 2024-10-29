@@ -69,22 +69,15 @@ Card *handSplitPair(Hand *hand) {
 	}
 }
 
-//
-int *getHaveCards(Hand *hand) {
-	return hand->have_cards;
-}
-
 // Recalculate the total value of the hand
 void handCalculateTotal(Hand *hand) {
 	hand->hand_total = 0;
 	hand->soft_ace = 0;
-	memset(hand->have_cards, 0, sizeof(hand->have_cards));
 	for (int i = 0; i < hand->card_count; i++) {
 		hand->hand_total += hand->cards[i]->value;
 		if (hand->cards[i]->value == 11) {
 			hand->soft_ace++;
 		}
-		hand->have_cards[hand->cards[i]->offset]++;
 	}
 
 	// Adjust hand total if it's over 21 and there are soft aces
