@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include "dealer.h"
 
-//
-//bool dealerStand(Dealer *dealer);
-
 // Create a new Dealer
 Dealer *newDealer(bool hit_soft_17) {
 	Dealer *dealer = (Dealer*)malloc(sizeof(Dealer));
@@ -25,13 +22,6 @@ void dealerReset(Dealer *dealer) {
 // Dealer draws a card
 Card *dealerDrawCard(Dealer *dealer, Card *card) {
 	return handDrawCard(&dealer->hand, card);
-}
-
-// Dealer plays by drawing cards from the shoe until standing
-void dealerPlay(Dealer *dealer, Shoe *shoe) {
-	while (!dealerStand(dealer)) {
-		dealerDrawCard(dealer, shoeDrawCard(shoe));
-	}
 }
 
 // Determine if the dealer should stand

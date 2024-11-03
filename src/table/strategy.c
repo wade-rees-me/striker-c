@@ -25,6 +25,43 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 	return strategy;
 }
 
+// Get a bet based on seen cards
+int strategyGetBet(Strategy* strategy, const int* seenCards) {
+	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
+	//return (int)(min(MAXIMUM_BET, max(MINIMUM_BET, trueCount * 2)) + 1) / 2 * 2;
+	return trueCount * 2;
+}
+
+// Get insurance decision
+bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
+	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
+	return processValue(strategy->Insurance, trueCount, false);
+}
+
+// Determine whether to double
+bool strategyGetDouble(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
+	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
+	if (soft) {
+		return processValue(strategy->SoftDouble[total][cardGetOffset(up)], trueCount, false);
+	}
+	return processValue(strategy->HardDouble[total][cardGetOffset(up)], trueCount, false);
+}
+
+// Determine whether to split
+bool strategyGetSplit(Strategy* strategy, const int* seenCards, Card* pair, Card* up) {
+	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
+	return processValue(strategy->PairSplit[cardGetValue(pair)][cardGetOffset(up)], trueCount, false);
+}
+
+// Determine whether to stand
+bool strategyGetStand(Strategy* strategy, const int* seenCards, int total, bool soft, Card* up) {
+	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
+	if (soft) {
+		return processValue(strategy->SoftStand[total][cardGetOffset(up)], trueCount, false);
+	}
+	return processValue(strategy->HardStand[total][cardGetOffset(up)], trueCount, false);
+}
+
 //
 void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, Strategy *table) {
 	cJSON *item;
@@ -80,59 +117,6 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 				strncpy(table->Insurance, insurance->valuestring, MAX_STRING_SIZE);
 			}
 
-/*
-			// Set SoftDouble (this applies to all maps similarly)
-			cJSON *softDouble = cJSON_GetObjectItem(payload, "soft-double");
-			if (softDouble != NULL) {
-				cJSON *key;
-				cJSON *valueArray;
-				cJSON_ArrayForEach(key, softDouble) {
-					valueArray = cJSON_GetObjectItem(softDouble, key->string);
-					if (valueArray != NULL) {
-						cJSON *valueItem;
-						int index = 0;
-						cJSON_ArrayForEach(valueItem, valueArray) {
-							strcpy(table->SoftDouble[atoi(key->string)][index++], valueItem->valuestring);
-						}
-					}
-				}
-			}
-
-			// Set HardDouble (this applies to all maps similarly)
-			cJSON *hardDouble = cJSON_GetObjectItem(payload, "hard-double");
-			if (hardDouble != NULL) {
-				cJSON *key;
-				cJSON *valueArray;
-				cJSON_ArrayForEach(key, hardDouble) {
-					valueArray = cJSON_GetObjectItem(hardDouble, key->string);
-					if (valueArray != NULL) {
-						cJSON *valueItem;
-						int index = 0;
-						cJSON_ArrayForEach(valueItem, valueArray) {
-							strcpy(table->HardDouble[atoi(key->string)][index++], valueItem->valuestring);
-						}
-					}
-				}
-			}
-
-			// Set HardDouble (this applies to all maps similarly)
-			cJSON *pairSplit = cJSON_GetObjectItem(payload, "pair-split");
-			if (pairSplit != NULL) {
-				cJSON *key;
-				cJSON *valueArray;
-				cJSON_ArrayForEach(key, pairSplit) {
-					valueArray = cJSON_GetObjectItem(pairSplit, key->string);
-					if (valueArray != NULL) {
-						cJSON *valueItem;
-						int index = 0;
-						cJSON_ArrayForEach(valueItem, valueArray) {
-							strcpy(table->PairSplit[atoi(key->string)][index++], valueItem->valuestring);
-						}
-					}
-				}
-			}
-*/
-
 			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-double"), table->SoftDouble);
 			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-double"), table->HardDouble);
 			strategyLoadTable(cJSON_GetObjectItem(payload, "pair-split"), table->PairSplit);
@@ -162,42 +146,6 @@ void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX
 			}
 		}
 	}
-}
-
-// Get a bet based on seen cards
-int strategyGetBet(Strategy* strategy, const int* seenCards) {
-	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	return (int)(min(MAXIMUM_BET, max(MINIMUM_BET, trueCount * 2)) + 1) / 2 * 2;
-}
-
-// Get insurance decision
-bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
-	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	return processValue(strategy->Insurance, trueCount, false);
-}
-
-// Determine whether to double
-bool strategyGetDouble(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
-	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	if (soft) {
-		return processValue(strategy->SoftDouble[total][cardGetOffset(up)], trueCount, false);
-	}
-	return processValue(strategy->HardDouble[total][cardGetOffset(up)], trueCount, false);
-}
-
-// Determine whether to split
-bool strategyGetSplit(Strategy* strategy, const int* seenCards, Card* pair, Card* up) {
-	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	return processValue(strategy->PairSplit[cardGetValue(pair)][cardGetOffset(up)], trueCount, false);
-}
-
-// Determine whether to stand
-bool strategyGetStand(Strategy* strategy, const int* seenCards, int total, bool soft, Card* up) {
-	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	if (soft) {
-		return processValue(strategy->SoftStand[total][cardGetOffset(up)], trueCount, false);
-	}
-	return processValue(strategy->HardStand[total][cardGetOffset(up)], trueCount, false);
 }
 
 // Calculate running count

@@ -4,10 +4,6 @@
 #include <stdbool.h>
 #include <cjson/cJSON.h>
 
-//
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#define max(a,b) ((a) > (b) ? (a) : (b))
-
 // General constants
 #define STRIKER_WHO_AM_I "striker-c"
 #define STRIKER_VERSION "v2.01.01"	// Epoch.Major.Minor

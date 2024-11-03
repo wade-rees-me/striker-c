@@ -4,6 +4,7 @@
 #include "rules.h"
 #include "player.h"
 #include "strategy.h"
+#include "constants.h"
 
 //
 void playerPayoffHand(Player *p, Wager *w, int dealer_blackjack, int dealer_busted, int dealer_total);
@@ -19,6 +20,10 @@ Player* newPlayer(Rules *rules, Strategy* strategy, int number_of_cards) {
 	p->play.do_play = false;
 
 	initReport(&p->report);
+	initWager(&p->wager, MINIMUM_BET, MAXIMUM_BET);
+	for (int i = 0; i < MAX_SPLIT_HANDS; i++) {
+		initWager(&p->splits[i], MINIMUM_BET, MAXIMUM_BET);
+	}
 
 	return p;
 }

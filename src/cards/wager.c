@@ -1,5 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "wager.h"
-#include "constants.h"
+
+void initWager(Wager *wager, int minimum_bet, int maximum_bet) {
+	wager->minimum_bet = minimum_bet;
+	wager->maximum_bet = maximum_bet;
+}
 
 // Reset the wager to its initial state
 void wagerReset(Wager *wager) {
@@ -19,7 +25,7 @@ void wagerSplit(Wager *wager, Wager *split) {
 
 // Place a bet (must be a multiple of 2)
 void wagerPlaceBet(Wager *wager, int64_t bet) {
-	wager->amount_bet = (min(MAXIMUM_BET, max(MINIMUM_BET, bet)) + 1) / 2 * 2;
+	wager->amount_bet = (min(wager->maximum_bet, max(wager->minimum_bet, bet)) + 1) / 2 * 2;
 }
 
 // Double the bet
