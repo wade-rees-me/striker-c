@@ -45,7 +45,6 @@ void tableSession(Table *table, bool mimic) {
 
 			if (!handIsBlackjack(&table->dealer->hand)) {
 				playerPlay(table->player, table->shoe, table->up, mimic);
-				playerShowCard(table->player, table->down);
 				if (!playerBustedOrBlackjack(table->player)) {
 					while (!dealerStand(table->dealer)) {
 						Card *card = shoeDrawCard(table->shoe);
@@ -55,6 +54,7 @@ void tableSession(Table *table, bool mimic) {
 				}
 			}
 
+			playerShowCard(table->player, table->down);
 			playerPayoff(table->player, handIsBlackjack(&table->dealer->hand), handIsBusted(&table->dealer->hand), table->dealer->hand.hand_total);
 		}
 	}
@@ -76,10 +76,12 @@ void tableDealCards(Table *table, Player *player, Hand *hand, Dealer *dealer, Sh
 	dealerDrawCard(dealer, table->down);
 }
 
+/*
 // Function to show cards
 void tableShow(Table *table, Card *card) {
 	playerShowCard(table->player, card);
 }
+*/
 
 //
 void status(int64_t round, int64_t hand) {

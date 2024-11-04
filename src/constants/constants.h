@@ -24,6 +24,8 @@
 // Bettting constants
 #define MINIMUM_BET 2
 #define MAXIMUM_BET 80
+#define TRUE_COUNT_BET 2
+#define TRUE_COUNT_MULTIPLIER 26
 
 //
 #define STATUS_DOT 25000

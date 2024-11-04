@@ -26,7 +26,6 @@ Shoe *newShoe(int number_of_decks, float penetration) {
 		exit(1);
 	}
 
-	srand(time(NULL));
 	shoe->number_of_cards = number_of_decks * 52; // 52 cards per deck
 	shoe->cards = (Card**)malloc(shoe->number_of_cards * sizeof(Card*));
 
@@ -54,6 +53,7 @@ Shoe *newShoe(int number_of_decks, float penetration) {
 	shoe->cut_card = (int)(shoe->number_of_cards * penetration);
 	shoe->force_shuffle = false;
 
+	srand(time(NULL));
 	shoeShuffle(shoe);
 	return shoe;
 }

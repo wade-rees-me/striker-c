@@ -27,9 +27,7 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 
 // Get a bet based on seen cards
 int strategyGetBet(Strategy* strategy, const int* seenCards) {
-	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	//return (int)(min(MAXIMUM_BET, max(MINIMUM_BET, trueCount * 2)) + 1) / 2 * 2;
-	return trueCount * 2;
+	return getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards)) * TRUE_COUNT_BET;
 }
 
 // Get insurance decision
@@ -165,7 +163,7 @@ int getTrueCount(Strategy* strat, const int* seenCards, int runningCount) {
 	}
 
 	if (unseen > 0) {
-		return (int)((float)runningCount / ((float)unseen / (float)26));
+		return (int)((float)runningCount / ((float)unseen / (float)TRUE_COUNT_MULTIPLIER));
 	}
 
 	return 0;
