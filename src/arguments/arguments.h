@@ -13,7 +13,6 @@ typedef struct {
 	bool polynomial_flag;
 	bool high_low_flag;
 	bool wong_flag;
-	bool striker_flag;
 	bool single_deck_flag;
 	bool double_deck_flag;
 	bool six_shoe_flag;

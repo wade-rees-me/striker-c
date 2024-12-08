@@ -3,7 +3,7 @@
 #include "parameters.h"
 
 // Local functions
-void getCurrentTime(char *buffer);
+void getCurrentTime(char *buffer, long bufferSize);
 void generateName(char *buffer);
 
 //
@@ -17,7 +17,7 @@ Parameters *newParameters(const char *decks, const char *strategy, int number_of
 	parameters->number_of_hands = number_of_hands;
 	snprintf(parameters->playbook, MAX_STRING_SIZE, "%s-%s", parameters->decks, parameters->strategy);
 	snprintf(parameters->processor, MAX_STRING_SIZE, "%s", STRIKER_WHO_AM_I);
-	getCurrentTime(parameters->timestamp);
+	getCurrentTime(parameters->timestamp, sizeof(parameters->timestamp));
 
 	return parameters;
 }
@@ -56,11 +56,15 @@ void serializeParameters(Parameters *parameters, char *buffer, int buffer_size) 
 	cJSON_Delete(json);
 }
 
-// Function to get the current time and format it
-void getCurrentTime(char *buffer) {
-	time_t t = time(NULL);
-	struct tm *tm_info = localtime(&t);
-	strftime(buffer, MAX_STRING_SIZE, TIME_LAYOUT, tm_info);
+//
+void getCurrentTime(char *buffer, long bufferSize) {
+    time_t rawtime;
+    struct tm *timeinfo;
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer, bufferSize, TIME_LAYOUT, timeinfo);
 }
 
 //

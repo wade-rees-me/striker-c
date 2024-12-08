@@ -63,6 +63,12 @@ void simulatorRunOnce(Simulator *s) {
 	printf("    %-24s: %lld\n", "Number of rounds", s->report.total_rounds);
 	printf("    %-24s: %lld %+04.3f average bet per hand\n", "Total bet", s->report.total_bet, (double)s->report.total_bet / s->report.total_hands);
 	printf("    %-24s: %lld %+04.3f average win per hand\n", "Total won", s->report.total_won, (double)s->report.total_won / s->report.total_hands);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of blackjacks", s->report.total_blackjacks, (double)s->report.total_blackjacks / s->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of doubles", s->report.total_doubles, (double)s->report.total_doubles / s->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of splits", s->report.total_splits, (double)s->report.total_splits / s->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of wins", s->report.total_wins, (double)s->report.total_wins / s->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of pushes", s->report.total_pushes, (double)s->report.total_pushes / s->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of loses", s->report.total_loses, (double)s->report.total_loses / s->report.total_hands * 100.0);
 	printf("    %-24s: %s seconds\n", "Total time", tbs.total_time);
 	printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.average_time);
 	printf("    %-24s: %s\n", "Player advantage", tbs.advantage);
@@ -83,6 +89,12 @@ void simulatorRunSimulation(Simulator *sim) {
 	sim->report.total_won += sim->table->player->report.total_won;
 	sim->report.total_rounds += sim->table->report.total_rounds;
 	sim->report.total_hands += sim->table->report.total_hands;
+	sim->report.total_blackjacks += sim->table->player->report.total_blackjacks;
+	sim->report.total_doubles += sim->table->player->report.total_doubles;
+	sim->report.total_splits += sim->table->player->report.total_splits;
+	sim->report.total_wins += sim->table->player->report.total_wins;
+	sim->report.total_pushes += sim->table->player->report.total_pushes;
+	sim->report.total_loses += sim->table->player->report.total_loses;
 	sim->report.duration += sim->table->report.duration;
 }
 

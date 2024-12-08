@@ -18,7 +18,9 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 
 	strategy->number_of_cards = number_of_cards;
 
+//printf("playbook: %s\n", playbook); fflush(stdout);
 	if (strcasecmp("mimic", playbook) != 0) {
+//printf("fetch: %s\n", playbook); fflush(stdout);
 		requestFetchJson(&strategy->request, "http://localhost:57910/striker/v1/strategy");
 		strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
 	}
@@ -48,7 +50,7 @@ bool strategyGetDouble(Strategy *strategy, const int *seenCards, int total, bool
 // Determine whether to split
 bool strategyGetSplit(Strategy* strategy, const int* seenCards, Card* pair, Card* up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	return processValue(strategy->PairSplit[cardGetValue(pair)][cardGetOffset(up)], trueCount, false);
+	return processValue(strategy->PairSplit[cardGetOffset(pair) + 2][cardGetOffset(up)], trueCount, false);
 }
 
 // Determine whether to stand
@@ -57,16 +59,20 @@ bool strategyGetStand(Strategy* strategy, const int* seenCards, int total, bool 
 	if (soft) {
 		return processValue(strategy->SoftStand[total][cardGetOffset(up)], trueCount, false);
 	}
+
 	return processValue(strategy->HardStand[total][cardGetOffset(up)], trueCount, false);
 }
 
 //
 void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, Strategy *table) {
+printf("fetch: %s\n", decks); fflush(stdout);
 	cJSON *item;
 	cJSON_ArrayForEach(item, json) {
 		cJSON *playbookJson = cJSON_GetObjectItem(item, "playbook");
 		cJSON *handJson = cJSON_GetObjectItem(item, "hand");
 
+//printf("Fetch: %s\n", playbookJson->valuestring); fflush(stdout);
+//printf("Fetch: %s\n", handJson->valuestring); fflush(stdout);
 		if (playbookJson != NULL && handJson != NULL && strcmp(decks, playbookJson->valuestring) == 0 && strcmp(strategy, handJson->valuestring) == 0) {
 			cJSON *payloadJson = cJSON_GetObjectItem(item, "payload");
 			if (payloadJson == NULL) {
@@ -75,7 +81,7 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 				return;
 			}
 
-//printf("%s\n", payloadJson->valuestring); fflush(stdout);
+//printf("Payload: %s\n", payloadJson->valuestring); fflush(stdout);
 			cJSON *payload = cJSON_Parse(payloadJson->valuestring);
 			if (payload == NULL) {
 				printf("Error parsing payload\n");

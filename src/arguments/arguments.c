@@ -18,7 +18,6 @@ Arguments* newArguments(int argc, char *argv[]) {
 	arguments->polynomial_flag = false;
 	arguments->high_low_flag = false;
 	arguments->wong_flag = false;
-	arguments->striker_flag = false;
 	arguments->single_deck_flag = false;
 	arguments->double_deck_flag = false;
 	arguments->six_shoe_flag = false;
@@ -42,8 +41,6 @@ Arguments* newArguments(int argc, char *argv[]) {
 			arguments->high_low_flag = 1;
 		} else if (strcmp(argv[i], "-W") == 0 || strcmp(argv[i], "--wong") == 0) {
 			arguments->wong_flag = 1;
-		} else if (strcmp(argv[i], "-S") == 0 || strcmp(argv[i], "--striker") == 0) {
-			arguments->striker_flag = 1;
 		} else if (strcmp(argv[i], "-1") == 0 || strcmp(argv[i], "--single-deck") == 0) {
 			arguments->single_deck_flag = 1;
 		} else if (strcmp(argv[i], "-2") == 0 || strcmp(argv[i], "--double-deck") == 0) {
@@ -83,7 +80,6 @@ void printHelpMessage() {
 		   "  -P, --polynomial                          Use the polynomial regression player strategy\n"
 		   "  -H, --high-low                            Use the high low count player strategy\n"
 		   "  -W, --wong                                Use the Wong count player strategy\n"
-		   "  -S, --striker                             Use the Striker machine learning player strategy\n"
 		   "  -1, --single-deck                         Use a single deck of cards and rules\n"
 		   "  -2, --double-deck                         Use a double deck of cards and rules\n"
 		   "  -6, --six-shoe                            Use a six deck shoe of cards and rules\n");
@@ -105,9 +101,6 @@ const char *getStrategy(const Arguments *args) {
 	}
 	if (args->wong_flag) {
 		return "wong";
-	}
-	if (args->striker_flag) {
-		return "striker";
 	}
 	return "basic";
 }
