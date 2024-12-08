@@ -7,7 +7,7 @@
 
 //
 void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, Strategy *table);
-void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE]);
+void strategyLoadTable(cJSON *strategy, Chart *chart);
 int getRunningCount(Strategy *strat, const int *seenCards);
 int getTrueCount(Strategy *strat, const int *seenCards, int runningCount);
 bool processValue(const char *value, int trueCount, bool missing_value);
@@ -17,6 +17,11 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 	Strategy *strategy = (Strategy*)malloc(sizeof(Strategy));
 
 	strategy->number_of_cards = number_of_cards;
+	initChart(&strategy->SoftDouble, "SoftDouble");
+	initChart(&strategy->HardDouble, "HardDouble");
+	initChart(&strategy->PairSplit, "PairSplit");
+	initChart(&strategy->SoftStand, "SoftStand");
+	initChart(&strategy->HardStand, "HardStand");
 
 //printf("playbook: %s\n", playbook); fflush(stdout);
 	if (strcasecmp("mimic", playbook) != 0) {
@@ -24,6 +29,13 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 		requestFetchJson(&strategy->request, "http://localhost:57910/striker/v1/strategy");
 		strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
 	}
+
+	chartPrint(&strategy->SoftDouble);
+	chartPrint(&strategy->HardDouble);
+	chartPrint(&strategy->PairSplit);
+	chartPrint(&strategy->SoftStand);
+	chartPrint(&strategy->HardStand);
+
 	return strategy;
 }
 
@@ -40,27 +52,27 @@ bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
 
 // Determine whether to double
 bool strategyGetDouble(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
+ 	char key[6];
+    snprintf(key, sizeof(key), "%d", total);
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	if (soft) {
-		return processValue(strategy->SoftDouble[total][cardGetOffset(up)], trueCount, false);
-	}
-	return processValue(strategy->HardDouble[total][cardGetOffset(up)], trueCount, false);
+	const char *value = soft ? chartGetValue(&strategy->SoftDouble, key, cardGetOffset(up)) : chartGetValue(&strategy->HardDouble, key, cardGetOffset(up));
+	return processValue(value, trueCount, false);
 }
 
 // Determine whether to split
 bool strategyGetSplit(Strategy* strategy, const int* seenCards, Card* pair, Card* up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	return processValue(strategy->PairSplit[cardGetOffset(pair) + 2][cardGetOffset(up)], trueCount, false);
+	const char *value = chartGetValue(&strategy->PairSplit, cardGetKey(pair), cardGetOffset(up));
+	return processValue(value, trueCount, false);
 }
 
 // Determine whether to stand
 bool strategyGetStand(Strategy* strategy, const int* seenCards, int total, bool soft, Card* up) {
+ 	char key[6];
+    snprintf(key, sizeof(key), "%d", total);
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	if (soft) {
-		return processValue(strategy->SoftStand[total][cardGetOffset(up)], trueCount, false);
-	}
-
-	return processValue(strategy->HardStand[total][cardGetOffset(up)], trueCount, false);
+	const char *value = soft ? chartGetValue(&strategy->SoftStand, key, cardGetOffset(up)) : chartGetValue(&strategy->HardStand, key, cardGetOffset(up));
+	return processValue(value, trueCount, false);
 }
 
 //
@@ -121,11 +133,11 @@ printf("fetch: %s\n", decks); fflush(stdout);
 				strncpy(table->Insurance, insurance->valuestring, MAX_STRING_SIZE);
 			}
 
-			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-double"), table->SoftDouble);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-double"), table->HardDouble);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "pair-split"), table->PairSplit);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-stand"), table->SoftStand);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-stand"), table->HardStand);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-double"), &table->SoftDouble);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-double"), &table->HardDouble);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "pair-split"), &table->PairSplit);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-stand"), &table->SoftStand);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-stand"), &table->HardStand);
 
 			cJSON_Delete(payload);
 			break; // We've found and processed the relevant item, no need to loop further
@@ -135,7 +147,7 @@ printf("fetch: %s\n", decks); fflush(stdout);
 	cJSON_Delete(json);
 }
 
-void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE]) {
+void strategyLoadTable(cJSON *strategy, Chart *chart) {
 	if (strategy != NULL) {
 		cJSON *key;
 		cJSON *valueArray;
@@ -145,7 +157,7 @@ void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX
 				cJSON *valueItem;
 				int index = 0;
 				cJSON_ArrayForEach(valueItem, valueArray) {
-					strcpy(values[atoi(key->string)][index++], valueItem->valuestring);
+					chartInsert(chart, key->string, index++, valueItem->valuestring);
 				}
 			}
 		}

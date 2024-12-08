@@ -3,10 +3,11 @@
 
 #include <stdbool.h>
 #include "request.h"
+#include "chart.h"
 #include "card.h"
 
 #define MAX_VALUES 13
-#define MAX_ENTRIES 22
+//#define MAX_ENTRIES 22
 
 //
 typedef struct {
@@ -17,11 +18,11 @@ typedef struct {
 	int Bets[MAX_VALUES];
 	char Insurance[MAX_STRING_SIZE];
 
-	char SoftDouble[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
-	char HardDouble[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
-	char PairSplit[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
-	char SoftStand[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
-	char HardStand[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE];
+	Chart SoftDouble;
+	Chart HardDouble;
+	Chart PairSplit;
+	Chart SoftStand;
+	Chart HardStand;
 
 	int number_of_cards;
 } Strategy;

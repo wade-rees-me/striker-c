@@ -32,19 +32,19 @@ Shoe *newShoe(int number_of_decks, float penetration) {
 	int card_index = 0;
 	for (int i = 0; i < number_of_decks; i++) {
 		for (int suit = 0; suit < 4; suit++) {
-			shoe->cards[card_index++] = newCard(suits[suit], TWO, 2, 0);
-			shoe->cards[card_index++] = newCard(suits[suit], THREE, 3, 1);
-			shoe->cards[card_index++] = newCard(suits[suit], FOUR, 4, 2);
-			shoe->cards[card_index++] = newCard(suits[suit], FIVE, 5, 3);
-			shoe->cards[card_index++] = newCard(suits[suit], SIX, 6, 4);
-			shoe->cards[card_index++] = newCard(suits[suit], SEVEN, 7, 5);
-			shoe->cards[card_index++] = newCard(suits[suit], EIGHT, 8, 6);
-			shoe->cards[card_index++] = newCard(suits[suit], NINE, 9, 7);
-			shoe->cards[card_index++] = newCard(suits[suit], TEN, 10, 8);
-			shoe->cards[card_index++] = newCard(suits[suit], JACK, 10, 9);
-			shoe->cards[card_index++] = newCard(suits[suit], QUEEN, 10, 10);
-			shoe->cards[card_index++] = newCard(suits[suit], KING, 10, 11);
-			shoe->cards[card_index++] = newCard(suits[suit], ACE, 11, 12);
+			shoe->cards[card_index++] = newCard(suits[suit], TWO, "2", 2, 0);
+			shoe->cards[card_index++] = newCard(suits[suit], THREE, "3", 3, 1);
+			shoe->cards[card_index++] = newCard(suits[suit], FOUR, "4", 4, 2);
+			shoe->cards[card_index++] = newCard(suits[suit], FIVE, "5", 5, 3);
+			shoe->cards[card_index++] = newCard(suits[suit], SIX, "6", 6, 4);
+			shoe->cards[card_index++] = newCard(suits[suit], SEVEN, "7", 7, 5);
+			shoe->cards[card_index++] = newCard(suits[suit], EIGHT, "8", 8, 6);
+			shoe->cards[card_index++] = newCard(suits[suit], NINE, "9", 9, 7);
+			shoe->cards[card_index++] = newCard(suits[suit], TEN, "T", 10, 8);
+			shoe->cards[card_index++] = newCard(suits[suit], JACK, "J", 10, 9);
+			shoe->cards[card_index++] = newCard(suits[suit], QUEEN, "Q", 10, 10);
+			shoe->cards[card_index++] = newCard(suits[suit], KING, "K", 10, 11);
+			shoe->cards[card_index++] = newCard(suits[suit], ACE, "A", 11, 12);
 		}
 	}
 
