@@ -17,24 +17,33 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 	Strategy *strategy = (Strategy*)malloc(sizeof(Strategy));
 
 	strategy->number_of_cards = number_of_cards;
-	initChart(&strategy->SoftDouble, "SoftDouble");
-	initChart(&strategy->HardDouble, "HardDouble");
-	initChart(&strategy->PairSplit, "PairSplit");
-	initChart(&strategy->SoftStand, "SoftStand");
-	initChart(&strategy->HardStand, "HardStand");
+	initChart(&strategy->SoftDouble, "Soft Double");
+	initChart(&strategy->HardDouble, "Hard Double");
+	initChart(&strategy->PairSplit, "Pair Split");
+	initChart(&strategy->SoftStand, "Soft Stand");
+	initChart(&strategy->HardStand, "Hard Stand");
 
 //printf("playbook: %s\n", playbook); fflush(stdout);
 	if (strcasecmp("mimic", playbook) != 0) {
 //printf("fetch: %s\n", playbook); fflush(stdout);
 		requestFetchJson(&strategy->request, "http://localhost:57910/striker/v1/strategy");
 		strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
-	}
 
-	chartPrint(&strategy->SoftDouble);
-	chartPrint(&strategy->HardDouble);
-	chartPrint(&strategy->PairSplit);
-	chartPrint(&strategy->SoftStand);
-	chartPrint(&strategy->HardStand);
+		chartPrint(&strategy->SoftDouble);
+		chartPrint(&strategy->HardDouble);
+		chartPrint(&strategy->PairSplit);
+		chartPrint(&strategy->SoftStand);
+		chartPrint(&strategy->HardStand);
+
+		if(chartGetRowCount(&strategy->SoftDouble) != 10 ||
+		   chartGetRowCount(&strategy->HardDouble) != 18 ||
+		   chartGetRowCount(&strategy->PairSplit) != 13 ||
+		   chartGetRowCount(&strategy->SoftStand) != 10 ||
+		   chartGetRowCount(&strategy->HardStand) != 18) {
+			printf("Strategy tables are invalaid: playbook: %s\n", playbook);
+			exit(-2);
+		}
+	}
 
 	return strategy;
 }
@@ -52,10 +61,8 @@ bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
 
 // Determine whether to double
 bool strategyGetDouble(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
- 	char key[6];
-    snprintf(key, sizeof(key), "%d", total);
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	const char *value = soft ? chartGetValue(&strategy->SoftDouble, key, cardGetOffset(up)) : chartGetValue(&strategy->HardDouble, key, cardGetOffset(up));
+	const char *value = soft ? chartGetValueByTotal(&strategy->SoftDouble, total, cardGetOffset(up)) : chartGetValueByTotal(&strategy->HardDouble, total, cardGetOffset(up));
 	return processValue(value, trueCount, false);
 }
 
@@ -68,37 +75,35 @@ bool strategyGetSplit(Strategy* strategy, const int* seenCards, Card* pair, Card
 
 // Determine whether to stand
 bool strategyGetStand(Strategy* strategy, const int* seenCards, int total, bool soft, Card* up) {
- 	char key[6];
-    snprintf(key, sizeof(key), "%d", total);
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	const char *value = soft ? chartGetValue(&strategy->SoftStand, key, cardGetOffset(up)) : chartGetValue(&strategy->HardStand, key, cardGetOffset(up));
+	const char *value = soft ? chartGetValueByTotal(&strategy->SoftStand, total, cardGetOffset(up)) : chartGetValueByTotal(&strategy->HardStand, total, cardGetOffset(up));
 	return processValue(value, trueCount, false);
 }
 
 //
 void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, Strategy *table) {
-printf("fetch: %s\n", decks); fflush(stdout);
 	cJSON *item;
 	cJSON_ArrayForEach(item, json) {
 		cJSON *playbookJson = cJSON_GetObjectItem(item, "playbook");
 		cJSON *handJson = cJSON_GetObjectItem(item, "hand");
 
-//printf("Fetch: %s\n", playbookJson->valuestring); fflush(stdout);
-//printf("Fetch: %s\n", handJson->valuestring); fflush(stdout);
+printf("Fetch: %s\n", playbookJson->valuestring); fflush(stdout);
+printf("Fetch: %s\n", handJson->valuestring); fflush(stdout);
 		if (playbookJson != NULL && handJson != NULL && strcmp(decks, playbookJson->valuestring) == 0 && strcmp(strategy, handJson->valuestring) == 0) {
 			cJSON *payloadJson = cJSON_GetObjectItem(item, "payload");
 			if (payloadJson == NULL) {
 				printf("Error fetching strategy table payload\n");
 				cJSON_Delete(json);
-				return;
+				exit(-1);
 			}
 
-//printf("Payload: %s\n", payloadJson->valuestring); fflush(stdout);
+printf("Payload: %s\n", payloadJson->valuestring); fflush(stdout);
 			cJSON *payload = cJSON_Parse(payloadJson->valuestring);
 			if (payload == NULL) {
 				printf("Error parsing payload\n");
+				printf("Payload: %s\n", payloadJson->valuestring);
 				cJSON_Delete(json);
-				return;
+				exit(-1);
 			}
 
 			// Set Playbook
@@ -147,6 +152,7 @@ printf("fetch: %s\n", decks); fflush(stdout);
 	cJSON_Delete(json);
 }
 
+//
 void strategyLoadTable(cJSON *strategy, Chart *chart) {
 	if (strategy != NULL) {
 		cJSON *key;
@@ -204,14 +210,3 @@ bool processValue(const char* value, int trueCount, bool missing_value) {
 	return trueCount >= atoi(value);
 }
 
-// Free the Strategy struct
-void freeStrategy(Strategy* strat) {
-	if (strat) {
-		free(strat->Playbook);
-		free(strat->Insurance);
-		free(strat->Counts);
-		free(strat->Bets);
-		// Free other dynamically allocated memory if needed...
-		free(strat);
-	}
-}

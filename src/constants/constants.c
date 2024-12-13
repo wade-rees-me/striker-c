@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <ctype.h>
+
 #include "constants.h"
 
 //
@@ -20,6 +23,13 @@ const char *getSimulationUrl() {
 // Function to convert bool to string
 const char* boolToString(bool b) {
     return b ? "true" : "false";
+}
+
+//
+void toUpperString(char *str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        str[i] = toupper((unsigned char)str[i]);
+    }
 }
 
 //
