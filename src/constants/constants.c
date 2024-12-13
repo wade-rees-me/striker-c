@@ -7,7 +7,7 @@
 
 //
 const char *getStrategyUrl() {
-	return getenv("STRIKER_URL_ACE");
+	return getenv("STRIKER_URL_STRATEGY");
 }
 
 //

@@ -23,10 +23,8 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 	initChart(&strategy->SoftStand, "Soft Stand");
 	initChart(&strategy->HardStand, "Hard Stand");
 
-//printf("playbook: %s\n", playbook); fflush(stdout);
 	if (strcasecmp("mimic", playbook) != 0) {
-//printf("fetch: %s\n", playbook); fflush(stdout);
-		requestFetchJson(&strategy->request, "http://localhost:57910/striker/v1/strategy");
+		requestFetchJson(&strategy->request, getStrategyUrl());
 		strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
 
 		chartPrint(&strategy->SoftDouble);
@@ -34,15 +32,6 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 		chartPrint(&strategy->PairSplit);
 		chartPrint(&strategy->SoftStand);
 		chartPrint(&strategy->HardStand);
-
-		if(chartGetRowCount(&strategy->SoftDouble) != 10 ||
-		   chartGetRowCount(&strategy->HardDouble) != 18 ||
-		   chartGetRowCount(&strategy->PairSplit) != 13 ||
-		   chartGetRowCount(&strategy->SoftStand) != 10 ||
-		   chartGetRowCount(&strategy->HardStand) != 18) {
-			printf("Strategy tables are invalaid: playbook: %s\n", playbook);
-			exit(-2);
-		}
 	}
 
 	return strategy;
@@ -87,8 +76,6 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 		cJSON *playbookJson = cJSON_GetObjectItem(item, "playbook");
 		cJSON *handJson = cJSON_GetObjectItem(item, "hand");
 
-printf("Fetch: %s\n", playbookJson->valuestring); fflush(stdout);
-printf("Fetch: %s\n", handJson->valuestring); fflush(stdout);
 		if (playbookJson != NULL && handJson != NULL && strcmp(decks, playbookJson->valuestring) == 0 && strcmp(strategy, handJson->valuestring) == 0) {
 			cJSON *payloadJson = cJSON_GetObjectItem(item, "payload");
 			if (payloadJson == NULL) {
@@ -97,7 +84,6 @@ printf("Fetch: %s\n", handJson->valuestring); fflush(stdout);
 				exit(-1);
 			}
 
-printf("Payload: %s\n", payloadJson->valuestring); fflush(stdout);
 			cJSON *payload = cJSON_Parse(payloadJson->valuestring);
 			if (payload == NULL) {
 				printf("Error parsing payload\n");

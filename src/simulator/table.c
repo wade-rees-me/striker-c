@@ -8,13 +8,13 @@
 void status(int64_t round, int64_t hand);
 
 // Function to create a new table
-Table* newTable(Parameters* parameters, Rules* rules, Strategy* strategy) {
-	Table* table = (Table*)malloc(sizeof(Table));
+Table *newTable(Parameters *parameters, Rules *rules, Strategy *strategy) {
+	Table *table = (Table*)malloc(sizeof(Table));
 
 	table->parameters = parameters;
 	table->rules = rules;
 	table->strategy = strategy;
-	table->shoe = newShoe(parameters->number_of_decks, 0.75/*parameters->penetration*/);
+	table->shoe = newShoe(parameters->number_of_decks, rules->penetration);
 	table->dealer = newDealer(rules->hit_soft_17);
 	table->player = newPlayer(rules, strategy, table->shoe->number_of_cards);
 	initReport(&table->report);
@@ -75,13 +75,6 @@ void tableDealCards(Table *table, Player *player, Hand *hand, Dealer *dealer, Sh
 	table->down = shoeDrawCard(shoe);
 	dealerDrawCard(dealer, table->down);
 }
-
-/*
-// Function to show cards
-void tableShow(Table *table, Card *card) {
-	playerShowCard(table->player, card);
-}
-*/
 
 //
 void status(int64_t round, int64_t hand) {

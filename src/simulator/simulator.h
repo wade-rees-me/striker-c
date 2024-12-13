@@ -11,18 +11,18 @@
 
 //
 typedef struct {
-    Parameters* parameters;
-    Rules* rules;
-    Strategy* strategy;
-    Table* table;
+    Parameters *parameters;
+    Rules *rules;
+    Strategy *strategy;
+    Table *table;
     Report report;
 } Simulator;
 
 // Global functions
-Simulator* newSimulator(Parameters *parameters, Rules *rules, Strategy* strategy);
-void simulatorDelete(Simulator* sim);
-void simulatorRunOnce(Simulator *simulation);
-void simulatorRunSimulation(Simulator *sim);
-void simulatorInsert(Simulator *sim, Simulation *sdt, const char *playbook);
+Simulator *newSimulator(Parameters *parameters, Rules *rules, Strategy* strategy);
+void simulatorDelete(Simulator *simulator);
+void simulatorRunOnce(Simulator *simulator);
+void simulatorRunSimulation(Simulator *simulator);
+void simulatorInsert(Simulation *simulation, const char *playbook);
 
 #endif // SIMULATOR_H

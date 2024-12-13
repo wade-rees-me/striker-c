@@ -6,100 +6,100 @@
 #include "simulator.h"
 
 // Function to create a new simulation
-Simulator* newSimulator(Parameters* parameters, Rules* rules, Strategy* strategy) {
-	Simulator* s = (Simulator*)malloc(sizeof(Simulator));
+Simulator *newSimulator(Parameters *parameters, Rules *rules, Strategy *strategy) {
+	Simulator *simulator = (Simulator*)malloc(sizeof(Simulator));
 
-	s->table = newTable(parameters, rules, strategy);
-	s->parameters = parameters;
-	s->rules = rules;
-	s->strategy = strategy;
-	initReport(&s->report);
+	simulator->table = newTable(parameters, rules, strategy);
+	simulator->parameters = parameters;
+	simulator->rules = rules;
+	simulator->strategy = strategy;
+	initReport(&simulator->report);
 
-	return s;
+	return simulator;
 }
 
 //
-void simulatorDelete(Simulator* sim) {
-	free(sim);
+void simulatorDelete(Simulator *simulator) {
+	free(simulator);
 }
 
 // The SimulatorProcess function
-void simulatorRunOnce(Simulator *s) {
-	Simulation tbs;
+void simulatorRunOnce(Simulator *simulator) {
+	Simulation simulation;
 
-	printf("\n  Start: simulation(%s)\n", s->parameters->name);
-	simulatorRunSimulation(s);
+	printf("\n  Start: simulation(%s)\n", simulator->parameters->name);
+	simulatorRunSimulation(simulator);
 	printf("  End: simulation\n");
 
 	// Populate the rest of the Simulation
-	strcpy(tbs.playbook, s->parameters->playbook);
-	strcpy(tbs.guid, s->parameters->name);
-	tbs.simulator = STRIKER_WHO_AM_I;
-	tbs.summary = "no";
-	tbs.simulations = "1";
-	serializeParameters(s->parameters, tbs.parameters, MAX_BUFFER_SIZE);
-	serializeRules(s->rules, tbs.rules, MAX_BUFFER_SIZE);
+	strcpy(simulation.playbook, simulator->parameters->playbook);
+	strcpy(simulation.guid, simulator->parameters->name);
+	simulation.simulator = STRIKER_WHO_AM_I;
+	simulation.summary = "no";
+	simulation.simulations = "1";
+	serializeParameters(simulator->parameters, simulation.parameters, MAX_BUFFER_SIZE);
+	serializeRules(simulator->rules, simulation.rules, MAX_BUFFER_SIZE);
 
-	snprintf(tbs.rounds, 128, "%lld", s->report.total_rounds);
-	snprintf(tbs.hands, 128, "%lld", s->report.total_hands);
-	snprintf(tbs.total_bet, 128, "%lld", s->report.total_bet);
-	snprintf(tbs.total_won, 128, "%lld", s->report.total_won);
-	snprintf(tbs.total_time, 128, "%lld", s->report.duration);
-	snprintf(tbs.average_time, 128, "%06.2f seconds", (float)s->report.duration * 1000000 / (float)s->report.total_hands);
-	snprintf(tbs.advantage, 128, "%+04.3f%%", ((double)s->report.total_won / s->report.total_bet) * 100);
+	snprintf(simulation.rounds, 128, "%lld", simulator->report.total_rounds);
+	snprintf(simulation.hands, 128, "%lld", simulator->report.total_hands);
+	snprintf(simulation.total_bet, 128, "%lld", simulator->report.total_bet);
+	snprintf(simulation.total_won, 128, "%lld", simulator->report.total_won);
+	snprintf(simulation.total_time, 128, "%lld", simulator->report.duration);
+	snprintf(simulation.average_time, 128, "%06.2f seconds", (float)simulator->report.duration * 1000000 / (float)simulator->report.total_hands);
+	snprintf(simulation.advantage, 128, "%+04.3f%%", ((double)simulator->report.total_won / simulator->report.total_bet) * 100);
 
 	// Format the rounds, hands, and other values into strings
-	sprintf(tbs.rounds, "%lld", s->report.total_rounds);
-	sprintf(tbs.hands, "%lld", s->report.total_hands);
-	sprintf(tbs.total_bet, "%lld", s->report.total_bet);
-	sprintf(tbs.total_won, "%lld", s->report.total_won);
-	sprintf(tbs.total_time, "%lld", s->report.duration);
-	sprintf(tbs.average_time, "%06.2f seconds", (float)s->report.duration * (float)1000000 / (float)s->report.total_hands);
-	sprintf(tbs.advantage, "%+04.3f %%", ((double)s->report.total_won / s->report.total_bet) * 100);
+	sprintf(simulation.rounds, "%lld", simulator->report.total_rounds);
+	sprintf(simulation.hands, "%lld", simulator->report.total_hands);
+	sprintf(simulation.total_bet, "%lld", simulator->report.total_bet);
+	sprintf(simulation.total_won, "%lld", simulator->report.total_won);
+	sprintf(simulation.total_time, "%lld", simulator->report.duration);
+	sprintf(simulation.average_time, "%06.2f seconds", (float)simulator->report.duration * (float)1000000 / (float)simulator->report.total_hands);
+	sprintf(simulation.advantage, "%+04.3f %%", ((double)simulator->report.total_won / simulator->report.total_bet) * 100);
 
 	// Print out the results
     printf("\n  -- results ---------------------------------------------------------------------\n");
-	printf("    %-24s: %lld\n", "Number of hands", s->report.total_hands);
-	printf("    %-24s: %lld\n", "Number of rounds", s->report.total_rounds);
-	printf("    %-24s: %lld %+04.3f average bet per hand\n", "Total bet", s->report.total_bet, (double)s->report.total_bet / s->report.total_hands);
-	printf("    %-24s: %lld %+04.3f average win per hand\n", "Total won", s->report.total_won, (double)s->report.total_won / s->report.total_hands);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of blackjacks", s->report.total_blackjacks, (double)s->report.total_blackjacks / s->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of doubles", s->report.total_doubles, (double)s->report.total_doubles / s->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of splits", s->report.total_splits, (double)s->report.total_splits / s->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of wins", s->report.total_wins, (double)s->report.total_wins / s->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of pushes", s->report.total_pushes, (double)s->report.total_pushes / s->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of loses", s->report.total_loses, (double)s->report.total_loses / s->report.total_hands * 100.0);
-	printf("    %-24s: %s seconds\n", "Total time", tbs.total_time);
-	printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.average_time);
-	printf("    %-24s: %s\n", "Player advantage", tbs.advantage);
+	printf("    %-24s: %lld\n", "Number of hands", simulator->report.total_hands);
+	printf("    %-24s: %lld\n", "Number of rounds", simulator->report.total_rounds);
+	printf("    %-24s: %lld %+04.3f average bet per hand\n", "Total bet", simulator->report.total_bet, (double)simulator->report.total_bet / simulator->report.total_hands);
+	printf("    %-24s: %lld %+04.3f average win per hand\n", "Total won", simulator->report.total_won, (double)simulator->report.total_won / simulator->report.total_hands);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of blackjacks", simulator->report.total_blackjacks, (double)simulator->report.total_blackjacks / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of doubles", simulator->report.total_doubles, (double)simulator->report.total_doubles / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of splits", simulator->report.total_splits, (double)simulator->report.total_splits / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of wins", simulator->report.total_wins, (double)simulator->report.total_wins / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of pushes", simulator->report.total_pushes, (double)simulator->report.total_pushes / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of loses", simulator->report.total_loses, (double)simulator->report.total_loses / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %s seconds\n", "Total time", simulation.total_time);
+	printf("    %-24s: %s per 1,000,000 hands\n", "Average time", simulation.average_time);
+	printf("    %-24s: %s\n", "Player advantage", simulation.advantage);
     printf("  --------------------------------------------------------------------------------\n");
 
-	if(s->report.total_hands >= DATABASE_NUMBER_OF_HANDS) {
-		simulatorInsert(s, &tbs, s->parameters->playbook);
+	if(simulator->report.total_hands >= DATABASE_NUMBER_OF_HANDS) {
+		simulatorInsert(&simulation, simulator->parameters->playbook);
 	}
 }
 
 // Function to run the simulation
-void simulatorRunSimulation(Simulator *sim) {
-	printf("    Start: %s table session\n", sim->parameters->strategy);
-	tableSession(sim->table, strcmp("mimic", sim->parameters->strategy) == 0);
+void simulatorRunSimulation(Simulator *simulator) {
+	printf("    Start: %s table session\n", simulator->parameters->strategy);
+	tableSession(simulator->table, strcmp("mimic", simulator->parameters->strategy) == 0);
 	printf("    End: table session\n");
 
-	sim->report.total_bet += sim->table->player->report.total_bet;
-	sim->report.total_won += sim->table->player->report.total_won;
-	sim->report.total_rounds += sim->table->report.total_rounds;
-	sim->report.total_hands += sim->table->report.total_hands;
-	sim->report.total_blackjacks += sim->table->player->report.total_blackjacks;
-	sim->report.total_doubles += sim->table->player->report.total_doubles;
-	sim->report.total_splits += sim->table->player->report.total_splits;
-	sim->report.total_wins += sim->table->player->report.total_wins;
-	sim->report.total_pushes += sim->table->player->report.total_pushes;
-	sim->report.total_loses += sim->table->player->report.total_loses;
-	sim->report.duration += sim->table->report.duration;
+	simulator->report.total_bet += simulator->table->player->report.total_bet;
+	simulator->report.total_won += simulator->table->player->report.total_won;
+	simulator->report.total_rounds += simulator->table->report.total_rounds;
+	simulator->report.total_hands += simulator->table->report.total_hands;
+	simulator->report.total_blackjacks += simulator->table->player->report.total_blackjacks;
+	simulator->report.total_doubles += simulator->table->player->report.total_doubles;
+	simulator->report.total_splits += simulator->table->player->report.total_splits;
+	simulator->report.total_wins += simulator->table->player->report.total_wins;
+	simulator->report.total_pushes += simulator->table->player->report.total_pushes;
+	simulator->report.total_loses += simulator->table->player->report.total_loses;
+	simulator->report.duration += simulator->table->report.duration;
 }
 
 // Function to insert a simulation into the database (HTTP POST)
-void simulatorInsert(Simulator *sim, Simulation *sdt, const char *playbook) {
+void simulatorInsert(Simulation *simulation, const char *playbook) {
 	struct curl_slist *headers = NULL;
 	CURL *curl;
 	CURLcode res;
@@ -109,7 +109,7 @@ void simulatorInsert(Simulator *sim, Simulation *sdt, const char *playbook) {
 
 	if (curl) {
 		char url[MAX_BUFFER_SIZE];
-		snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), sdt->simulator, playbook, sdt->guid);
+		snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), simulation->simulator, playbook, simulation->guid);
     	printf("\n  -- insert ----------------------------------------------------------------------\n");
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
@@ -121,20 +121,20 @@ void simulatorInsert(Simulator *sim, Simulation *sdt, const char *playbook) {
 
 		// Convert Simulation to JSON
 		cJSON *json = cJSON_CreateObject();
-		cJSON_AddStringToObject(json, "playbook", sdt->playbook);
-		cJSON_AddStringToObject(json, "guid", sdt->guid);
-		cJSON_AddStringToObject(json, "simulator", sdt->simulator);
+		cJSON_AddStringToObject(json, "playbook", simulation->playbook);
+		cJSON_AddStringToObject(json, "guid", simulation->guid);
+		cJSON_AddStringToObject(json, "simulator", simulation->simulator);
 		cJSON_AddStringToObject(json, "summary", "no");
 		cJSON_AddStringToObject(json, "simulations", "1");
-		cJSON_AddStringToObject(json, "rounds", sdt->rounds);
-		cJSON_AddStringToObject(json, "hands", sdt->hands);
-		cJSON_AddStringToObject(json, "total_bet", sdt->total_bet);
-		cJSON_AddStringToObject(json, "total_won", sdt->total_won);
-		cJSON_AddStringToObject(json, "advantage", sdt->advantage);
-		cJSON_AddStringToObject(json, "total_time", sdt->total_time);
-		cJSON_AddStringToObject(json, "average_time", sdt->average_time);
-		cJSON_AddStringToObject(json, "parameters", sdt->parameters);
-		cJSON_AddStringToObject(json, "rules", sdt->rules);
+		cJSON_AddStringToObject(json, "rounds", simulation->rounds);
+		cJSON_AddStringToObject(json, "hands", simulation->hands);
+		cJSON_AddStringToObject(json, "total_bet", simulation->total_bet);
+		cJSON_AddStringToObject(json, "total_won", simulation->total_won);
+		cJSON_AddStringToObject(json, "advantage", simulation->advantage);
+		cJSON_AddStringToObject(json, "total_time", simulation->total_time);
+		cJSON_AddStringToObject(json, "average_time", simulation->average_time);
+		cJSON_AddStringToObject(json, "parameters", simulation->parameters);
+		cJSON_AddStringToObject(json, "rules", simulation->rules);
 		cJSON_AddStringToObject(json, "payload", "n/a");
 		// Add remaining fields...
 		char *jsonStr = cJSON_Print(json);

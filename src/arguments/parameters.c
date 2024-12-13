@@ -70,7 +70,7 @@ void getCurrentTime(char *buffer, long bufferSize) {
 //
 void generateName(char *buffer) {
     time_t t = time(NULL);
-    struct tm* tm_info = localtime(&t);
+    struct tm *tm_info = localtime(&t);
 
     int year = tm_info->tm_year + 1900;
     int month = tm_info->tm_mon + 1;

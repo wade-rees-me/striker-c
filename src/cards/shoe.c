@@ -60,9 +60,6 @@ Shoe *newShoe(int number_of_decks, float penetration) {
 
 // Cleanup the shoe and free allocated memory
 void shoeCleanup(Shoe *shoe) {
-	//for (int i = 0; i < shoe->number_of_cards; i++) {
-		//cardDestroy(shoe->cards[i]);  // Card_destroy should properly free card resources
-	//}
 	free(shoe->cards);  // Free the memory allocated for the cards array
 }
 
@@ -93,15 +90,5 @@ bool shoeShouldShuffle(Shoe *shoe) {
 // Check if a card is an ace
 bool cardIsAce(const Card *card) {
 	return card->value == 11;
-}
-
-// Display the shoe of cards (for debugging purposes)
-void shoeDisplay(Shoe *shoe) {
-	printf("--------------------------------------------------------------------------------\n");
-	for (int i = 0; i < shoe->number_of_cards; i++) {
-		printf("%03d: ", i);
-		//cardDisplay(shoe->cards[i]);  // Card_display should output the card information
-	}
-	printf("--------------------------------------------------------------------------------\n");
 }
 

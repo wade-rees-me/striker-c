@@ -8,7 +8,7 @@
 void printHelpMessage();
 
 //
-Arguments* newArguments(int argc, char *argv[]) {
+Arguments *newArguments(int argc, char *argv[]) {
 	Arguments *arguments = (Arguments*)malloc(sizeof(Arguments));
 
 	arguments->number_of_hands = MINIMUM_NUMBER_OF_HANDS;

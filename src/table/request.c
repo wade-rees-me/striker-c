@@ -28,7 +28,6 @@ void requestFetchJson(Request *request, const char *url) {
 		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		exit(-1);
 	}
-//printf("Response String: %s\n", request->responseString);
 	request->jsonResponse = cJSON_Parse(request->responseString);
 	if(request->jsonResponse == NULL) {
 		fprintf(stderr, "Error parsing JSON\n");

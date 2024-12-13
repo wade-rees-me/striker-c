@@ -224,7 +224,7 @@ void payoffSplit(Player *player, Wager *wager, int dealer_busted, int dealer_tot
 }
 
 //
-bool mimicStand(Player* player) {
+bool mimicStand(Player *player) {
     if (handIsSoft17(&player->wager.hand)) {
         return false;
     }

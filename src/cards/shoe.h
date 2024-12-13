@@ -42,6 +42,5 @@ Card *shoeDrawCard(Shoe *shoe);
 void shoeShuffle(Shoe *shoe);
 bool shoeShouldShuffle(Shoe *shoe);
 bool cardIsAce(const Card *card);
-void shoeDisplay(Shoe *shoe);
 
 #endif // SHOE_H
