@@ -14,6 +14,7 @@ Arguments *newArguments(int argc, char *argv[]) {
 	arguments->number_of_hands = MINIMUM_NUMBER_OF_HANDS;
 	arguments->mimic_flag = false;
 	arguments->basic_flag = false;
+	arguments->neural_flag = false;
 	arguments->linear_flag = false;
 	arguments->polynomial_flag = false;
 	arguments->high_low_flag = false;
@@ -33,6 +34,8 @@ Arguments *newArguments(int argc, char *argv[]) {
 			arguments->mimic_flag = 1;
 		} else if (strcmp(argv[i], "-B") == 0 || strcmp(argv[i], "--basic") == 0) {
 			arguments->basic_flag = 1;
+		} else if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--neural") == 0) {
+			arguments->neural_flag = 1;
 		} else if (strcmp(argv[i], "-L") == 0 || strcmp(argv[i], "--linear") == 0) {
 			arguments->linear_flag = 1;
 		} else if (strcmp(argv[i], "-P") == 0 || strcmp(argv[i], "--polynomial") == 0) {
@@ -76,6 +79,7 @@ void printHelpMessage() {
 		   "  -r, --number-of-hands <number of hands>   The number of hands to play in this simulation\n"
 		   "  -M, --mimic                               Use the mimic dealer player strategy\n"
 		   "  -B, --basic                               Use the basic player strategy\n"
+		   "  -N, --neural                              Use the neural player strategy\n"
 		   "  -L, --linear                              Use the liner regression player strategy\n"
 		   "  -P, --polynomial                          Use the polynomial regression player strategy\n"
 		   "  -H, --high-low                            Use the high low count player strategy\n"
@@ -95,6 +99,9 @@ const char *getStrategy(const Arguments *args) {
 	}
 	if (args->linear_flag) {
 		return "linear";
+	}
+	if (args->neural_flag) {
+		return "neural";
 	}
 	if (args->high_low_flag) {
 		return "high-low";
