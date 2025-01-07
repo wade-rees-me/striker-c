@@ -32,18 +32,19 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 		chartPrint(&strategy->PairSplit);
 		chartPrint(&strategy->SoftStand);
 		chartPrint(&strategy->HardStand);
+		countPrint(strategy->Counts);
 	}
 
 	return strategy;
 }
 
 // Get a bet based on seen cards
-int strategyGetBet(Strategy* strategy, const int* seenCards) {
+int strategyGetBet(Strategy *strategy, const int *seenCards) {
 	return getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards)) * TRUE_COUNT_BET;
 }
 
 // Get insurance decision
-bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
+bool strategyGetInsurance(Strategy *strategy, const int *seenCards) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
 	return processValue(strategy->Insurance, trueCount, false);
 }
@@ -51,21 +52,21 @@ bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
 // Determine whether to double
 bool strategyGetDouble(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	const char *value = soft ? chartGetValueByTotal(&strategy->SoftDouble, total, cardGetOffset(up)) : chartGetValueByTotal(&strategy->HardDouble, total, cardGetOffset(up));
+	const char *value = soft ? chartGetValueByTotal(&strategy->SoftDouble, total, cardGetValue(up)) : chartGetValueByTotal(&strategy->HardDouble, total, cardGetValue(up));
 	return processValue(value, trueCount, false);
 }
 
 // Determine whether to split
-bool strategyGetSplit(Strategy* strategy, const int* seenCards, Card* pair, Card* up) {
+bool strategyGetSplit(Strategy *strategy, const int *seenCards, Card *pair, Card *up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	const char *value = chartGetValue(&strategy->PairSplit, cardGetKey(pair), cardGetOffset(up));
+	const char *value = chartGetValue(&strategy->PairSplit, cardGetKey(pair), cardGetValue(up));
 	return processValue(value, trueCount, false);
 }
 
 // Determine whether to stand
-bool strategyGetStand(Strategy* strategy, const int* seenCards, int total, bool soft, Card* up) {
+bool strategyGetStand(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	const char *value = soft ? chartGetValueByTotal(&strategy->SoftStand, total, cardGetOffset(up)) : chartGetValueByTotal(&strategy->HardStand, total, cardGetOffset(up));
+	const char *value = soft ? chartGetValueByTotal(&strategy->SoftStand, total, cardGetValue(up)) : chartGetValueByTotal(&strategy->HardStand, total, cardGetValue(up));
 	return processValue(value, trueCount, false);
 }
 
@@ -102,19 +103,9 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 			cJSON *counts = cJSON_GetObjectItem(payload, "counts");
 			if (counts != NULL) {
 				cJSON *countItem;
-				int index = 0;
+				int index = MINIMUM_CARD_VALUE;
 				cJSON_ArrayForEach(countItem, counts) {
 					table->Counts[index++] = countItem->valueint;
-				}
-			}
-
-			// Set Bets
-			cJSON *bets = cJSON_GetObjectItem(payload, "bets");
-			if (bets != NULL) {
-				cJSON *betItem;
-				int index = 0;
-				cJSON_ArrayForEach(betItem, bets) {
-					table->Bets[index++] = betItem->valueint;
 				}
 			}
 
@@ -147,7 +138,7 @@ void strategyLoadTable(cJSON *strategy, Chart *chart) {
 			valueArray = cJSON_GetObjectItem(strategy, key->string);
 			if (valueArray != NULL) {
 				cJSON *valueItem;
-				int index = 0;
+				int index = MINIMUM_CARD_VALUE;
 				cJSON_ArrayForEach(valueItem, valueArray) {
 					chartInsert(chart, key->string, index++, valueItem->valuestring);
 				}
@@ -157,18 +148,18 @@ void strategyLoadTable(cJSON *strategy, Chart *chart) {
 }
 
 // Calculate running count
-int getRunningCount(Strategy* strat, const int* seenCards) {
+int getRunningCount(Strategy *strat, const int *seenCards) {
 	int running = 0;
-	for (int i = 0; i <= 12; i++) {
+	for (int i = MINIMUM_CARD_VALUE; i <= MAXIMUM_CARD_VALUE; i++) {
 		running += strat->Counts[i] * seenCards[i];
 	}
 	return running;
 }
 
 // Calculate true count
-int getTrueCount(Strategy* strat, const int* seenCards, int runningCount) {
+int getTrueCount(Strategy *strat, const int *seenCards, int runningCount) {
 	int unseen = strat->number_of_cards;
-	for (int i = 2; i <= 11; i++) {
+	for (int i = MINIMUM_CARD_VALUE; i <= MAXIMUM_CARD_VALUE; i++) {
 		unseen -= seenCards[i];
 	}
 
@@ -180,7 +171,7 @@ int getTrueCount(Strategy* strat, const int* seenCards, int runningCount) {
 }
 
 // Process string value for decision-making
-bool processValue(const char* value, int trueCount, bool missing_value) {
+bool processValue(const char *value, int trueCount, bool missing_value) {
 	if (value == NULL || strlen(value) == 0) {
 		return missing_value;
 	}

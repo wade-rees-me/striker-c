@@ -29,11 +29,13 @@ void parametersDelete(Parameters *parameters) {
 
 // Print the Parameters struct
 void printParameters(const Parameters *parameters) {
+	char buffer[MAX_BUFFER_SIZE];
+
 	printf("    %-24s: %s\n", "Name", parameters->name);
 	printf("    %-24s: %s\n", "Playbook", parameters->playbook);
 	printf("    %-24s: %s\n", "Processor", parameters->processor);
 	printf("    %-24s: %s\n", "Version", STRIKER_VERSION);
-	printf("    %-24s: %lld\n", "Number of hands", parameters->number_of_hands);
+	printf("    %-24s: %s\n", "Number of hands", convertToStringWithCommas(parameters->number_of_hands, buffer, MAX_BUFFER_SIZE));
 	printf("    %-24s: %s\n", "Timestamp", parameters->timestamp);
 }
 

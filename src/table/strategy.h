@@ -6,8 +6,6 @@
 #include "chart.h"
 #include "card.h"
 
-#define MAX_VALUES 13
-
 //
 typedef struct {
 	Request request;
@@ -18,8 +16,7 @@ typedef struct {
 	Chart PairSplit;
 	Chart SoftStand;
 	Chart HardStand;
-	int Counts[MAX_VALUES];
-	int Bets[MAX_VALUES];
+	int Counts[MAXIMUM_CARD_VALUE + 1];
 	int number_of_cards;
 } Strategy;
 

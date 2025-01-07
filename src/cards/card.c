@@ -3,7 +3,7 @@
 #include "card.h"
 
 //
-Card *newCard(const char *suit, const char *rank, const char *key, int value, int offset) {
+Card *newCard(const char *suit, const char *rank, const char *key, int value) {
 	Card *card = (Card*)malloc(sizeof(Card));
 	if (!card) {
 		printf("Memory allocation failed for card\n");
@@ -14,7 +14,6 @@ Card *newCard(const char *suit, const char *rank, const char *key, int value, in
 	card->rank = rank;
 	card->key = key;
 	card->value = value;
-	card->offset = offset;
 
 	return card;
 }
@@ -33,9 +32,5 @@ const char *cardGetKey(Card *card) {
 
 int cardGetValue(Card *card) {
 	return card->value;
-}
-
-int cardGetOffset(Card *card) {
-	return card->offset;
 }
 

@@ -40,5 +40,6 @@ void toUpperString(char *str);
 bool parseAuxBool(cJSON *json, char *tag, bool value);
 int parseAuxInt(cJSON *json, char *tag, int value);
 double parseAuxDouble(cJSON *json, char *tag, double value);
+char *convertToStringWithCommas(long long number, char *buffer, size_t bufferSize);
 
 #endif // CONSTANTS_H

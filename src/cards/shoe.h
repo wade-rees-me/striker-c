@@ -4,6 +4,11 @@
 #include <stdbool.h>
 #include "card.h"
 
+#define MINIMUM_CARD_VALUE 2
+#define MAXIMUM_CARD_VALUE 11
+
+#define CARD_INDEX 12 // Array size
+
 //
 #define SPADES "spades"
 #define DIAMONDS "diamonds"

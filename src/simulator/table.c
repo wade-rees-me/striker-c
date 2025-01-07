@@ -24,7 +24,9 @@ Table *newTable(Parameters *parameters, Rules *rules, Strategy *strategy) {
 
 //
 void tableSession(Table *table, bool mimic) {
-	printf("      Start: table, playing %lld hands\n", table->parameters->number_of_hands);
+	char buffer[MAX_BUFFER_SIZE];
+
+	printf("      Start: table, playing %s hands\n", convertToStringWithCommas(table->parameters->number_of_hands, buffer, MAX_BUFFER_SIZE));
 
 	table->report.start = time(NULL);
 	while (table->report.total_hands < table->parameters->number_of_hands) {
@@ -78,6 +80,9 @@ void tableDealCards(Table *table, Player *player, Hand *hand, Dealer *dealer, Sh
 
 //
 void status(int64_t round, int64_t hand) {
+	char buffer1[MAX_BUFFER_SIZE];
+	char buffer2[MAX_BUFFER_SIZE];
+
     if(round == 0) {
 		printf("        ");
     }
@@ -85,7 +90,7 @@ void status(int64_t round, int64_t hand) {
 		printf(".");
     }
     if((round + 1) % STATUS_LINE == 0) {
-        printf(" : %lld (rounds), %lld (hands)\n", (round + 1), hand);
+        printf(" : %s (rounds), %s (hands)\n", convertToStringWithCommas(round + 1, buffer1, MAX_BUFFER_SIZE), convertToStringWithCommas(hand, buffer2, MAX_BUFFER_SIZE));
 		printf("        ");
     }
 	fflush(stdout);

@@ -19,7 +19,7 @@ typedef struct {
 } Simulator;
 
 // Global functions
-Simulator *newSimulator(Parameters *parameters, Rules *rules, Strategy* strategy);
+Simulator *newSimulator(Parameters *parameters, Rules *rules, Strategy *strategy);
 void simulatorDelete(Simulator *simulator);
 void simulatorRunOnce(Simulator *simulator);
 void simulatorRunSimulation(Simulator *simulator);

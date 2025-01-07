@@ -27,7 +27,7 @@ typedef struct {
 	int64_t blackjack_pays;
 	int64_t blackjack_bets;
 	int number_of_cards;
-	int seen_cards[13];
+	int seen_cards[MAXIMUM_CARD_VALUE + 1];
 	Rules *rules;
 	Strategy *strategy;
 	Report report;

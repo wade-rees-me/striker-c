@@ -26,6 +26,7 @@ void simulatorDelete(Simulator *simulator) {
 // The SimulatorProcess function
 void simulatorRunOnce(Simulator *simulator) {
 	Simulation simulation;
+	char buffer[MAX_BUFFER_SIZE];
 
 	printf("\n  Start: simulation(%s)\n", simulator->parameters->name);
 	simulatorRunSimulation(simulator);
@@ -59,16 +60,16 @@ void simulatorRunOnce(Simulator *simulator) {
 
 	// Print out the results
     printf("\n  -- results ---------------------------------------------------------------------\n");
-	printf("    %-24s: %lld\n", "Number of hands", simulator->report.total_hands);
-	printf("    %-24s: %lld\n", "Number of rounds", simulator->report.total_rounds);
-	printf("    %-24s: %lld %+04.3f average bet per hand\n", "Total bet", simulator->report.total_bet, (double)simulator->report.total_bet / simulator->report.total_hands);
-	printf("    %-24s: %lld %+04.3f average win per hand\n", "Total won", simulator->report.total_won, (double)simulator->report.total_won / simulator->report.total_hands);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of blackjacks", simulator->report.total_blackjacks, (double)simulator->report.total_blackjacks / simulator->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of doubles", simulator->report.total_doubles, (double)simulator->report.total_doubles / simulator->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of splits", simulator->report.total_splits, (double)simulator->report.total_splits / simulator->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of wins", simulator->report.total_wins, (double)simulator->report.total_wins / simulator->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of pushes", simulator->report.total_pushes, (double)simulator->report.total_pushes / simulator->report.total_hands * 100.0);
-	printf("    %-24s: %lld %+04.3f percent of total hands\n", "Number of loses", simulator->report.total_loses, (double)simulator->report.total_loses / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %s\n", "Number of hands", convertToStringWithCommas(simulator->report.total_hands, buffer, MAX_BUFFER_SIZE));
+	printf("    %-24s: %s\n", "Number of rounds", convertToStringWithCommas(simulator->report.total_rounds, buffer, MAX_BUFFER_SIZE));
+	printf("    %-24s: %s %+04.3f average bet per hand\n", "Total bet", convertToStringWithCommas(simulator->report.total_bet, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_bet / simulator->report.total_hands);
+	printf("    %-24s: %s %+04.3f average win per hand\n", "Total won", convertToStringWithCommas(simulator->report.total_won, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_won / simulator->report.total_hands);
+	printf("    %-24s: %s %+04.3f percent of total hands\n", "Number of blackjacks", convertToStringWithCommas(simulator->report.total_blackjacks, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_blackjacks / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %s %+04.3f percent of total hands\n", "Number of doubles", convertToStringWithCommas(simulator->report.total_doubles, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_doubles / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %s %+04.3f percent of total hands\n", "Number of splits", convertToStringWithCommas(simulator->report.total_splits, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_splits / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %s %+04.3f percent of total hands\n", "Number of wins", convertToStringWithCommas(simulator->report.total_wins, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_wins / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %s %+04.3f percent of total hands\n", "Number of pushes", convertToStringWithCommas(simulator->report.total_pushes, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_pushes / simulator->report.total_hands * 100.0);
+	printf("    %-24s: %s %+04.3f percent of total hands\n", "Number of loses", convertToStringWithCommas(simulator->report.total_loses, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_loses / simulator->report.total_hands * 100.0);
 	printf("    %-24s: %s seconds\n", "Total time", simulation.total_time);
 	printf("    %-24s: %s per 1,000,000 hands\n", "Average time", simulation.average_time);
 	printf("    %-24s: %s\n", "Player advantage", simulation.advantage);

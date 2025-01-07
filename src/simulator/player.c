@@ -9,10 +9,10 @@
 //
 void playerPayoffHand(Player *player, Wager *wager, int dealer_blackjack, int dealer_busted, int dealer_total);
 void payoffSplit(Player *player, Wager *wager, int dealer_busted, int dealer_total);
-bool mimicStand(Player* player);
+bool mimicStand(Player *player);
 
 // Utility function to create a new Player object
-Player* newPlayer(Rules *rules, Strategy* strategy, int number_of_cards) {
+Player *newPlayer(Rules *rules, Strategy *strategy, int number_of_cards) {
 	Player* player = (Player*)malloc(sizeof(Player));
 	player->rules = rules;
 	player->strategy = strategy;
@@ -29,12 +29,12 @@ Player* newPlayer(Rules *rules, Strategy* strategy, int number_of_cards) {
 }
 
 // Shuffle function (reinitializes seen cards)
-void playerShuffle(Player* player) {
+void playerShuffle(Player *player) {
 	memset(player->seen_cards, 0, sizeof(player->seen_cards));
 }
 
 // Place a bet for the player
-void playerPlaceBet(Player* player, bool mimic) {
+void playerPlaceBet(Player *player, bool mimic) {
 	wagerReset(&player->wager);
 	for (int i = 0; i < MAX_SPLIT_HANDS; i++) {
 		player->splits[i].amount_bet = 0;
@@ -44,14 +44,14 @@ void playerPlaceBet(Player* player, bool mimic) {
 }
 
 //
-void playerInsurance(Player* player) {
+void playerInsurance(Player *player) {
 	if(strategyGetInsurance(player->strategy, player->seen_cards)) {
 		player->wager.insurance_bet = player->wager.amount_bet / 2;
 	}
 }
 
 //
-void playerPlay(Player* player, Shoe* shoe, Card* up, bool mimic) {
+void playerPlay(Player *player, Shoe *shoe, Card *up, bool mimic) {
 	if (handIsBlackjack(&player->wager.hand)) {
 		player->report.total_blackjacks++;
 		return;
@@ -103,7 +103,7 @@ void playerPlay(Player* player, Shoe* shoe, Card* up, bool mimic) {
 }
 
 // Simulate a split action
-void playerPlaySplit(Player* player, Wager* wager, Shoe* shoe, Card* up) {
+void playerPlaySplit(Player *player, Wager *wager, Shoe *shoe, Card *up) {
 	if (handIsPair(&wager->hand) && player->split_count < MAX_SPLIT_HANDS && strategyGetSplit(player->strategy, player->seen_cards, wager->hand.cards[0], up)) {
 		Wager* split = &player->splits[player->split_count];
 		player->split_count++;
@@ -127,20 +127,20 @@ void playerPlaySplit(Player* player, Wager* wager, Shoe* shoe, Card* up) {
 }
 
 //
-Card* playerDrawCard(Player* player, Hand* hand, Shoe* shoe) {
-	Card* card = shoeDrawCard(shoe);
+Card *playerDrawCard(Player *player, Hand *hand, Shoe *shoe) {
+	Card *card = shoeDrawCard(shoe);
 	playerShowCard(player, card);
 	handDrawCard(hand, card);
 	return card;
 }
 
 //
-void playerShowCard(Player* player, Card* card) {
-	player->seen_cards[card->offset]++;
+void playerShowCard(Player *player, Card *card) {
+	player->seen_cards[card->value]++;
 }
 
 // Function to check if the player busted or has blackjack
-int playerBustedOrBlackjack(Player* player) {
+int playerBustedOrBlackjack(Player *player) {
 	if (player->split_count == 0) {
 		return handIsBusted(&player->wager.hand) || handIsBlackjack(&player->wager.hand);
 	}
