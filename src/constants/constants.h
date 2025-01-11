@@ -6,7 +6,7 @@
 
 // General constants
 #define STRIKER_WHO_AM_I "striker-c"
-#define STRIKER_VERSION "v2.01.01"	// Epoch.Major.Minor
+#define STRIKER_VERSION "v2.02.00"	// Epoch.Major.Minor
 #define TIME_LAYOUT "%Y-%m-%d %H:%M:%S %z"
 
 // Define the maximum sizesstring fields
