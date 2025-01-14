@@ -32,19 +32,19 @@ Shoe *newShoe(int number_of_decks, float penetration) {
 	int card_index = 0;
 	for (int i = 0; i < number_of_decks; i++) {
 		for (int suit = 0; suit < 4; suit++) {
-			shoe->cards[card_index++] = newCard(suits[suit], TWO, 2, 0);
-			shoe->cards[card_index++] = newCard(suits[suit], THREE, 3, 1);
-			shoe->cards[card_index++] = newCard(suits[suit], FOUR, 4, 2);
-			shoe->cards[card_index++] = newCard(suits[suit], FIVE, 5, 3);
-			shoe->cards[card_index++] = newCard(suits[suit], SIX, 6, 4);
-			shoe->cards[card_index++] = newCard(suits[suit], SEVEN, 7, 5);
-			shoe->cards[card_index++] = newCard(suits[suit], EIGHT, 8, 6);
-			shoe->cards[card_index++] = newCard(suits[suit], NINE, 9, 7);
-			shoe->cards[card_index++] = newCard(suits[suit], TEN, 10, 8);
-			shoe->cards[card_index++] = newCard(suits[suit], JACK, 10, 9);
-			shoe->cards[card_index++] = newCard(suits[suit], QUEEN, 10, 10);
-			shoe->cards[card_index++] = newCard(suits[suit], KING, 10, 11);
-			shoe->cards[card_index++] = newCard(suits[suit], ACE, 11, 12);
+			shoe->cards[card_index++] = newCard(suits[suit], TWO, "2", 2);
+			shoe->cards[card_index++] = newCard(suits[suit], THREE, "3", 3);
+			shoe->cards[card_index++] = newCard(suits[suit], FOUR, "4", 4);
+			shoe->cards[card_index++] = newCard(suits[suit], FIVE, "5", 5);
+			shoe->cards[card_index++] = newCard(suits[suit], SIX, "6", 6);
+			shoe->cards[card_index++] = newCard(suits[suit], SEVEN, "7", 7);
+			shoe->cards[card_index++] = newCard(suits[suit], EIGHT, "8", 8);
+			shoe->cards[card_index++] = newCard(suits[suit], NINE, "9", 9);
+			shoe->cards[card_index++] = newCard(suits[suit], TEN, "X", 10);
+			shoe->cards[card_index++] = newCard(suits[suit], JACK, "X", 10);
+			shoe->cards[card_index++] = newCard(suits[suit], QUEEN, "X", 10);
+			shoe->cards[card_index++] = newCard(suits[suit], KING, "X", 10);
+			shoe->cards[card_index++] = newCard(suits[suit], ACE, "A", 11);
 		}
 	}
 
@@ -60,9 +60,6 @@ Shoe *newShoe(int number_of_decks, float penetration) {
 
 // Cleanup the shoe and free allocated memory
 void shoeCleanup(Shoe *shoe) {
-	//for (int i = 0; i < shoe->number_of_cards; i++) {
-		//cardDestroy(shoe->cards[i]);  // Card_destroy should properly free card resources
-	//}
 	free(shoe->cards);  // Free the memory allocated for the cards array
 }
 
@@ -93,15 +90,5 @@ bool shoeShouldShuffle(Shoe *shoe) {
 // Check if a card is an ace
 bool cardIsAce(const Card *card) {
 	return card->value == 11;
-}
-
-// Display the shoe of cards (for debugging purposes)
-void shoeDisplay(Shoe *shoe) {
-	printf("--------------------------------------------------------------------------------\n");
-	for (int i = 0; i < shoe->number_of_cards; i++) {
-		printf("%03d: ", i);
-		//cardDisplay(shoe->cards[i]);  // Card_display should output the card information
-	}
-	printf("--------------------------------------------------------------------------------\n");
 }
 

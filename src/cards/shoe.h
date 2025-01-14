@@ -4,6 +4,11 @@
 #include <stdbool.h>
 #include "card.h"
 
+#define MINIMUM_CARD_VALUE 2
+#define MAXIMUM_CARD_VALUE 11
+
+#define CARD_INDEX 12 // Array size
+
 //
 #define SPADES "spades"
 #define DIAMONDS "diamonds"
@@ -42,6 +47,5 @@ Card *shoeDrawCard(Shoe *shoe);
 void shoeShuffle(Shoe *shoe);
 bool shoeShouldShuffle(Shoe *shoe);
 bool cardIsAce(const Card *card);
-void shoeDisplay(Shoe *shoe);
 
 #endif // SHOE_H

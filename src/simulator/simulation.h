@@ -7,9 +7,9 @@
 typedef struct {
     char playbook[MAX_STRING_SIZE];
     char guid[MAX_STRING_SIZE];
-    const char* simulator;
-    const char* summary;
-    const char* simulations;
+    const char *simulator;
+    const char *summary;
+    const char *simulations;
     char rounds[MAX_STRING_SIZE];
     char hands[MAX_STRING_SIZE];
     char total_bet[MAX_STRING_SIZE];

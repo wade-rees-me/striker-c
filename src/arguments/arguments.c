@@ -8,17 +8,17 @@
 void printHelpMessage();
 
 //
-Arguments* newArguments(int argc, char *argv[]) {
+Arguments *newArguments(int argc, char *argv[]) {
 	Arguments *arguments = (Arguments*)malloc(sizeof(Arguments));
 
 	arguments->number_of_hands = MINIMUM_NUMBER_OF_HANDS;
 	arguments->mimic_flag = false;
 	arguments->basic_flag = false;
+	arguments->neural_flag = false;
 	arguments->linear_flag = false;
 	arguments->polynomial_flag = false;
 	arguments->high_low_flag = false;
 	arguments->wong_flag = false;
-	arguments->striker_flag = false;
 	arguments->single_deck_flag = false;
 	arguments->double_deck_flag = false;
 	arguments->six_shoe_flag = false;
@@ -34,6 +34,8 @@ Arguments* newArguments(int argc, char *argv[]) {
 			arguments->mimic_flag = 1;
 		} else if (strcmp(argv[i], "-B") == 0 || strcmp(argv[i], "--basic") == 0) {
 			arguments->basic_flag = 1;
+		} else if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--neural") == 0) {
+			arguments->neural_flag = 1;
 		} else if (strcmp(argv[i], "-L") == 0 || strcmp(argv[i], "--linear") == 0) {
 			arguments->linear_flag = 1;
 		} else if (strcmp(argv[i], "-P") == 0 || strcmp(argv[i], "--polynomial") == 0) {
@@ -42,8 +44,6 @@ Arguments* newArguments(int argc, char *argv[]) {
 			arguments->high_low_flag = 1;
 		} else if (strcmp(argv[i], "-W") == 0 || strcmp(argv[i], "--wong") == 0) {
 			arguments->wong_flag = 1;
-		} else if (strcmp(argv[i], "-S") == 0 || strcmp(argv[i], "--striker") == 0) {
-			arguments->striker_flag = 1;
 		} else if (strcmp(argv[i], "-1") == 0 || strcmp(argv[i], "--single-deck") == 0) {
 			arguments->single_deck_flag = 1;
 		} else if (strcmp(argv[i], "-2") == 0 || strcmp(argv[i], "--double-deck") == 0) {
@@ -79,11 +79,11 @@ void printHelpMessage() {
 		   "  -r, --number-of-hands <number of hands>   The number of hands to play in this simulation\n"
 		   "  -M, --mimic                               Use the mimic dealer player strategy\n"
 		   "  -B, --basic                               Use the basic player strategy\n"
+		   "  -N, --neural                              Use the neural player strategy\n"
 		   "  -L, --linear                              Use the liner regression player strategy\n"
 		   "  -P, --polynomial                          Use the polynomial regression player strategy\n"
 		   "  -H, --high-low                            Use the high low count player strategy\n"
 		   "  -W, --wong                                Use the Wong count player strategy\n"
-		   "  -S, --striker                             Use the Striker machine learning player strategy\n"
 		   "  -1, --single-deck                         Use a single deck of cards and rules\n"
 		   "  -2, --double-deck                         Use a double deck of cards and rules\n"
 		   "  -6, --six-shoe                            Use a six deck shoe of cards and rules\n");
@@ -100,14 +100,14 @@ const char *getStrategy(const Arguments *args) {
 	if (args->linear_flag) {
 		return "linear";
 	}
+	if (args->neural_flag) {
+		return "neural";
+	}
 	if (args->high_low_flag) {
 		return "high-low";
 	}
 	if (args->wong_flag) {
 		return "wong";
-	}
-	if (args->striker_flag) {
-		return "striker";
 	}
 	return "basic";
 }

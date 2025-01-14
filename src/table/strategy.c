@@ -7,7 +7,7 @@
 
 //
 void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, Strategy *table);
-void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE]);
+void strategyLoadTable(cJSON *strategy, Chart *chart);
 int getRunningCount(Strategy *strat, const int *seenCards);
 int getTrueCount(Strategy *strat, const int *seenCards, int runningCount);
 bool processValue(const char *value, int trueCount, bool missing_value);
@@ -17,21 +17,34 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_car
 	Strategy *strategy = (Strategy*)malloc(sizeof(Strategy));
 
 	strategy->number_of_cards = number_of_cards;
+	initChart(&strategy->SoftDouble, "Soft Double");
+	initChart(&strategy->HardDouble, "Hard Double");
+	initChart(&strategy->PairSplit, "Pair Split");
+	initChart(&strategy->SoftStand, "Soft Stand");
+	initChart(&strategy->HardStand, "Hard Stand");
 
 	if (strcasecmp("mimic", playbook) != 0) {
-		requestFetchJson(&strategy->request, "http://localhost:57910/striker/v1/strategy");
+		requestFetchJson(&strategy->request, getStrategyUrl());
 		strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
+
+		chartPrint(&strategy->SoftDouble);
+		chartPrint(&strategy->HardDouble);
+		chartPrint(&strategy->PairSplit);
+		chartPrint(&strategy->SoftStand);
+		chartPrint(&strategy->HardStand);
+		countPrint(strategy->Counts);
 	}
+
 	return strategy;
 }
 
 // Get a bet based on seen cards
-int strategyGetBet(Strategy* strategy, const int* seenCards) {
+int strategyGetBet(Strategy *strategy, const int *seenCards) {
 	return getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards)) * TRUE_COUNT_BET;
 }
 
 // Get insurance decision
-bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
+bool strategyGetInsurance(Strategy *strategy, const int *seenCards) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
 	return processValue(strategy->Insurance, trueCount, false);
 }
@@ -39,25 +52,22 @@ bool strategyGetInsurance(Strategy* strategy, const int* seenCards) {
 // Determine whether to double
 bool strategyGetDouble(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	if (soft) {
-		return processValue(strategy->SoftDouble[total][cardGetOffset(up)], trueCount, false);
-	}
-	return processValue(strategy->HardDouble[total][cardGetOffset(up)], trueCount, false);
+	const char *value = soft ? chartGetValueByTotal(&strategy->SoftDouble, total, cardGetValue(up)) : chartGetValueByTotal(&strategy->HardDouble, total, cardGetValue(up));
+	return processValue(value, trueCount, false);
 }
 
 // Determine whether to split
-bool strategyGetSplit(Strategy* strategy, const int* seenCards, Card* pair, Card* up) {
+bool strategyGetSplit(Strategy *strategy, const int *seenCards, Card *pair, Card *up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	return processValue(strategy->PairSplit[cardGetValue(pair)][cardGetOffset(up)], trueCount, false);
+	const char *value = chartGetValue(&strategy->PairSplit, cardGetKey(pair), cardGetValue(up));
+	return processValue(value, trueCount, false);
 }
 
 // Determine whether to stand
-bool strategyGetStand(Strategy* strategy, const int* seenCards, int total, bool soft, Card* up) {
+bool strategyGetStand(Strategy *strategy, const int *seenCards, int total, bool soft, Card *up) {
 	int trueCount = getTrueCount(strategy, seenCards, getRunningCount(strategy, seenCards));
-	if (soft) {
-		return processValue(strategy->SoftStand[total][cardGetOffset(up)], trueCount, false);
-	}
-	return processValue(strategy->HardStand[total][cardGetOffset(up)], trueCount, false);
+	const char *value = soft ? chartGetValueByTotal(&strategy->SoftStand, total, cardGetValue(up)) : chartGetValueByTotal(&strategy->HardStand, total, cardGetValue(up));
+	return processValue(value, trueCount, false);
 }
 
 //
@@ -72,15 +82,15 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 			if (payloadJson == NULL) {
 				printf("Error fetching strategy table payload\n");
 				cJSON_Delete(json);
-				return;
+				exit(-1);
 			}
 
-//printf("%s\n", payloadJson->valuestring); fflush(stdout);
 			cJSON *payload = cJSON_Parse(payloadJson->valuestring);
 			if (payload == NULL) {
 				printf("Error parsing payload\n");
+				printf("Payload: %s\n", payloadJson->valuestring);
 				cJSON_Delete(json);
-				return;
+				exit(-1);
 			}
 
 			// Set Playbook
@@ -93,19 +103,9 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 			cJSON *counts = cJSON_GetObjectItem(payload, "counts");
 			if (counts != NULL) {
 				cJSON *countItem;
-				int index = 0;
+				int index = MINIMUM_CARD_VALUE;
 				cJSON_ArrayForEach(countItem, counts) {
 					table->Counts[index++] = countItem->valueint;
-				}
-			}
-
-			// Set Bets
-			cJSON *bets = cJSON_GetObjectItem(payload, "bets");
-			if (bets != NULL) {
-				cJSON *betItem;
-				int index = 0;
-				cJSON_ArrayForEach(betItem, bets) {
-					table->Bets[index++] = betItem->valueint;
 				}
 			}
 
@@ -115,11 +115,11 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 				strncpy(table->Insurance, insurance->valuestring, MAX_STRING_SIZE);
 			}
 
-			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-double"), table->SoftDouble);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-double"), table->HardDouble);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "pair-split"), table->PairSplit);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-stand"), table->SoftStand);
-			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-stand"), table->HardStand);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-double"), &table->SoftDouble);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-double"), &table->HardDouble);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "pair-split"), &table->PairSplit);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "soft-stand"), &table->SoftStand);
+			strategyLoadTable(cJSON_GetObjectItem(payload, "hard-stand"), &table->HardStand);
 
 			cJSON_Delete(payload);
 			break; // We've found and processed the relevant item, no need to loop further
@@ -129,7 +129,8 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
 	cJSON_Delete(json);
 }
 
-void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX_STRING_SIZE]) {
+//
+void strategyLoadTable(cJSON *strategy, Chart *chart) {
 	if (strategy != NULL) {
 		cJSON *key;
 		cJSON *valueArray;
@@ -137,9 +138,9 @@ void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX
 			valueArray = cJSON_GetObjectItem(strategy, key->string);
 			if (valueArray != NULL) {
 				cJSON *valueItem;
-				int index = 0;
+				int index = MINIMUM_CARD_VALUE;
 				cJSON_ArrayForEach(valueItem, valueArray) {
-					strcpy(values[atoi(key->string)][index++], valueItem->valuestring);
+					chartInsert(chart, key->string, index++, valueItem->valuestring);
 				}
 			}
 		}
@@ -147,18 +148,18 @@ void strategyLoadTable(cJSON *strategy, char values[MAX_ENTRIES][MAX_VALUES][MAX
 }
 
 // Calculate running count
-int getRunningCount(Strategy* strat, const int* seenCards) {
+int getRunningCount(Strategy *strat, const int *seenCards) {
 	int running = 0;
-	for (int i = 0; i <= 12; i++) {
+	for (int i = MINIMUM_CARD_VALUE; i <= MAXIMUM_CARD_VALUE; i++) {
 		running += strat->Counts[i] * seenCards[i];
 	}
 	return running;
 }
 
 // Calculate true count
-int getTrueCount(Strategy* strat, const int* seenCards, int runningCount) {
+int getTrueCount(Strategy *strat, const int *seenCards, int runningCount) {
 	int unseen = strat->number_of_cards;
-	for (int i = 2; i <= 11; i++) {
+	for (int i = MINIMUM_CARD_VALUE; i <= MAXIMUM_CARD_VALUE; i++) {
 		unseen -= seenCards[i];
 	}
 
@@ -170,7 +171,7 @@ int getTrueCount(Strategy* strat, const int* seenCards, int runningCount) {
 }
 
 // Process string value for decision-making
-bool processValue(const char* value, int trueCount, bool missing_value) {
+bool processValue(const char *value, int trueCount, bool missing_value) {
 	if (value == NULL || strlen(value) == 0) {
 		return missing_value;
 	}
@@ -186,14 +187,3 @@ bool processValue(const char* value, int trueCount, bool missing_value) {
 	return trueCount >= atoi(value);
 }
 
-// Free the Strategy struct
-void freeStrategy(Strategy* strat) {
-	if (strat) {
-		free(strat->Playbook);
-		free(strat->Insurance);
-		free(strat->Counts);
-		free(strat->Bets);
-		// Free other dynamically allocated memory if needed...
-		free(strat);
-	}
-}

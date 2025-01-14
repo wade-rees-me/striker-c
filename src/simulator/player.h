@@ -27,23 +27,23 @@ typedef struct {
 	int64_t blackjack_pays;
 	int64_t blackjack_bets;
 	int number_of_cards;
-	int seen_cards[13];
-	Rules* rules;
-	Strategy* strategy;
+	int seen_cards[MAXIMUM_CARD_VALUE + 1];
+	Rules *rules;
+	Strategy *strategy;
 	Report report;
 	struct PlayData play;
 } Player;
 
 // Global functions
-Player* newPlayer(Rules *rules, Strategy* strategy, int number_of_cards);
-void playerShuffle(Player* p);
-void playerPlaceBet(Player* p, bool bet);
-void playerInsurance(Player* p);
-void playerPlay(Player* p, Shoe* s, Card* up, bool mimic);
-void playerPlaySplit(Player* p, Wager* w, Shoe* s, Card* up);
-Card* playerDrawCard(Player* p, Hand* h, Shoe* s);
-void playerShowCard(Player* p, Card* c);
-int playerBustedOrBlackjack(Player* p);
-void playerPayoff(Player *p, bool dealer_blackjack, bool dealer_busted, int dealer_total);
+Player *newPlayer(Rules *rules, Strategy *strategy, int number_of_cards);
+void playerShuffle(Player *player);
+void playerPlaceBet(Player *player, bool bet);
+void playerInsurance(Player *player);
+void playerPlay(Player *player, Shoe *shoe, Card *up, bool mimic);
+void playerPlaySplit(Player *player, Wager *wager, Shoe *shoe, Card* up);
+Card* playerDrawCard(Player *player, Hand *hand, Shoe *shoe);
+void playerShowCard(Player *player, Card *ard);
+int playerBustedOrBlackjack(Player *player);
+void playerPayoff(Player *player, bool dealer_blackjack, bool dealer_busted, int dealer_total);
 
 #endif // PLAYER_H
