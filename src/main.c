@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 	Arguments *arguments = newArguments(argc, argv);
 	Parameters *parameters = newParameters(getDecks(arguments), getStrategy(arguments), getNumberOfDecks(arguments), arguments->number_of_hands);
 	Rules *rules = newRules(getDecks(arguments));
-    Strategy *strategy = newStrategy(getDecks(arguments), getStrategy(arguments), getNumberOfDecks(arguments) * 52);
+	Strategy *strategy = newStrategy(getDecks(arguments), getStrategy(arguments), getNumberOfDecks(arguments) * 52);
 	Simulator *simulator = newSimulator(parameters, rules, strategy);
 
 	printf("  -- arguments -------------------------------------------------------------------\n");

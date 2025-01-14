@@ -83,16 +83,16 @@ void status(int64_t round, int64_t hand) {
 	char buffer1[MAX_BUFFER_SIZE];
 	char buffer2[MAX_BUFFER_SIZE];
 
-    if(round == 0) {
+	if(round == 0) {
 		printf("        ");
-    }
-    if((round + 1) % STATUS_DOT == 0) {
+	}
+	if((round + 1) % STATUS_DOT == 0) {
 		printf(".");
-    }
-    if((round + 1) % STATUS_LINE == 0) {
-        printf(" : %s (rounds), %s (hands)\n", convertToStringWithCommas(round + 1, buffer1, MAX_BUFFER_SIZE), convertToStringWithCommas(hand, buffer2, MAX_BUFFER_SIZE));
+	}
+	if((round + 1) % STATUS_LINE == 0) {
+		printf(" : %s (rounds), %s (hands)\n", convertToStringWithCommas(round + 1, buffer1, MAX_BUFFER_SIZE), convertToStringWithCommas(hand, buffer2, MAX_BUFFER_SIZE));
 		printf("        ");
-    }
+	}
 	fflush(stdout);
 }
 

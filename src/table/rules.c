@@ -8,7 +8,7 @@ void rulesFetchTable(cJSON *json, Rules *rules);
 
 // Function to load table rules by calling FetchRulesTable
 Rules *newRules(const char *decks) {
-    Rules *rules = (Rules*)malloc(sizeof(Rules));
+	Rules *rules = (Rules*)malloc(sizeof(Rules));
 
 	char url[MAX_BUFFER_SIZE];
 	snprintf(url, MAX_BUFFER_SIZE, "%s/%s", getRulesUrl(), decks);
@@ -77,7 +77,7 @@ void serializeRules(Rules *rules, char *buffer, int buffer_size) {
 	cJSON_AddNumberToObject(json, "penetration", rules->penetration);
 
 	char *jsonString = cJSON_Print(json);
-    snprintf(buffer, buffer_size, "%s", jsonString);
+	snprintf(buffer, buffer_size, "%s", jsonString);
 	free(jsonString);
 	cJSON_Delete(json);
 }

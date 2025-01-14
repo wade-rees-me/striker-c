@@ -9,8 +9,8 @@
 
 // Define the Request struct
 typedef struct {
-    char responseString[MAX_MEMORY_SIZE];
-    cJSON *jsonResponse;
+	char responseString[MAX_MEMORY_SIZE];
+	cJSON *jsonResponse;
 } Request;
 
 // Function prototypes
