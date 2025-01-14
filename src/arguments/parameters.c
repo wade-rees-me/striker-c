@@ -3,7 +3,7 @@
 #include "parameters.h"
 
 // Local functions
-void getCurrentTime(char *buffer);
+void getCurrentTime(char *buffer, long bufferSize);
 void generateName(char *buffer);
 
 //
@@ -17,7 +17,7 @@ Parameters *newParameters(const char *decks, const char *strategy, int number_of
 	parameters->number_of_hands = number_of_hands;
 	snprintf(parameters->playbook, MAX_STRING_SIZE, "%s-%s", parameters->decks, parameters->strategy);
 	snprintf(parameters->processor, MAX_STRING_SIZE, "%s", STRIKER_WHO_AM_I);
-	getCurrentTime(parameters->timestamp);
+	getCurrentTime(parameters->timestamp, sizeof(parameters->timestamp));
 
 	return parameters;
 }
@@ -29,11 +29,13 @@ void parametersDelete(Parameters *parameters) {
 
 // Print the Parameters struct
 void printParameters(const Parameters *parameters) {
+	char buffer[MAX_BUFFER_SIZE];
+
 	printf("    %-24s: %s\n", "Name", parameters->name);
 	printf("    %-24s: %s\n", "Playbook", parameters->playbook);
 	printf("    %-24s: %s\n", "Processor", parameters->processor);
 	printf("    %-24s: %s\n", "Version", STRIKER_VERSION);
-	printf("    %-24s: %lld\n", "Number of hands", parameters->number_of_hands);
+	printf("    %-24s: %s\n", "Number of hands", convertToStringWithCommas(parameters->number_of_hands, buffer, MAX_BUFFER_SIZE));
 	printf("    %-24s: %s\n", "Timestamp", parameters->timestamp);
 }
 
@@ -56,17 +58,21 @@ void serializeParameters(Parameters *parameters, char *buffer, int buffer_size) 
 	cJSON_Delete(json);
 }
 
-// Function to get the current time and format it
-void getCurrentTime(char *buffer) {
-	time_t t = time(NULL);
-	struct tm *tm_info = localtime(&t);
-	strftime(buffer, MAX_STRING_SIZE, TIME_LAYOUT, tm_info);
+//
+void getCurrentTime(char *buffer, long bufferSize) {
+    time_t rawtime;
+    struct tm *timeinfo;
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer, bufferSize, TIME_LAYOUT, timeinfo);
 }
 
 //
 void generateName(char *buffer) {
     time_t t = time(NULL);
-    struct tm* tm_info = localtime(&t);
+    struct tm *tm_info = localtime(&t);
 
     int year = tm_info->tm_year + 1900;
     int month = tm_info->tm_mon + 1;

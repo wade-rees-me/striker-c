@@ -48,7 +48,7 @@ void rulesFetchTable(cJSON *json, Rules *rules) {
 }
 
 //
-void printRules(Rules* rules) {
+void printRules(Rules *rules) {
 	printf("    %-24s\n", "Table Rules");
 	printf("      %-24s: %s\n", "Table", rules->playbook);
 	printf("      %-24s: %s\n", "Hit soft 17", boolToString(rules->hit_soft_17));
@@ -64,7 +64,7 @@ void printRules(Rules* rules) {
 
 //
 void serializeRules(Rules *rules, char *buffer, int buffer_size) {
-	cJSON* json = cJSON_CreateObject();
+	cJSON *json = cJSON_CreateObject();
 
 	cJSON_AddStringToObject(json, "hit_soft_17", rules->hit_soft_17 ? "true" : "false");
 	cJSON_AddStringToObject(json, "surrender", rules->surrender ? "true" : "false");
@@ -76,7 +76,7 @@ void serializeRules(Rules *rules, char *buffer, int buffer_size) {
 	cJSON_AddNumberToObject(json, "blackjack_pays", rules->blackjack_pays);
 	cJSON_AddNumberToObject(json, "penetration", rules->penetration);
 
-	char* jsonString = cJSON_Print(json);
+	char *jsonString = cJSON_Print(json);
     snprintf(buffer, buffer_size, "%s", jsonString);
 	free(jsonString);
 	cJSON_Delete(json);

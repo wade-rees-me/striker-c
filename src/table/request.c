@@ -15,22 +15,24 @@ void requestFetchJson(Request *request, const char *url) {
     CURLcode res;
 
     curl = curl_easy_init();
-    if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)request);
+    if(!curl) {
+		fprintf(stderr, "curl_easy_perform() failed:\n");
+		exit(-1);
+	}
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)request);
         
-        res = curl_easy_perform(curl);
-        if(res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        } else {
-//printf("%s\n", request->responseString);
-            request->jsonResponse = cJSON_Parse(request->responseString);
-            if(request->jsonResponse == NULL) {
-                fprintf(stderr, "Error parsing JSON\n");
-            }
-        }
-        curl_easy_cleanup(curl);
-    }
+	res = curl_easy_perform(curl);
+	if(res != CURLE_OK) {
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		exit(-1);
+	}
+	request->jsonResponse = cJSON_Parse(request->responseString);
+	if(request->jsonResponse == NULL) {
+		fprintf(stderr, "Error parsing JSON\n");
+		exit(-1);
+	}
+	curl_easy_cleanup(curl);
 }
 
