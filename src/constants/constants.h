@@ -6,7 +6,7 @@
 
 // General constants
 #define STRIKER_WHO_AM_I "striker-c"
-#define STRIKER_VERSION "v2.01.01"	// Epoch.Major.Minor
+#define STRIKER_VERSION "v2.02.00"	// Epoch.Major.Minor
 #define TIME_LAYOUT "%Y-%m-%d %H:%M:%S %z"
 
 // Define the maximum sizesstring fields
@@ -36,8 +36,10 @@ const char *getStrategyUrl();
 const char *getRulesUrl();
 const char *getSimulationUrl();
 const char *boolToString(bool b);
+void toUpperString(char *str);
 bool parseAuxBool(cJSON *json, char *tag, bool value);
 int parseAuxInt(cJSON *json, char *tag, int value);
 double parseAuxDouble(cJSON *json, char *tag, double value);
+char *convertToStringWithCommas(long long number, char *buffer, size_t bufferSize);
 
 #endif // CONSTANTS_H

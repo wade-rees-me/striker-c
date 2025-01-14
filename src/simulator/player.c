@@ -7,58 +7,59 @@
 #include "constants.h"
 
 //
-void playerPayoffHand(Player *p, Wager *w, int dealer_blackjack, int dealer_busted, int dealer_total);
-void payoffSplit(Player *p, Wager *w, int dealer_busted, int dealer_total);
-bool mimicStand(Player* p);
+void playerPayoffHand(Player *player, Wager *wager, int dealer_blackjack, int dealer_busted, int dealer_total);
+void payoffSplit(Player *player, Wager *wager, int dealer_busted, int dealer_total);
+bool mimicStand(Player *player);
 
 // Utility function to create a new Player object
-Player* newPlayer(Rules *rules, Strategy* strategy, int number_of_cards) {
-	Player* p = (Player*)malloc(sizeof(Player));
-	p->rules = rules;
-	p->strategy = strategy;
-	p->number_of_cards = number_of_cards;
-	p->play.do_play = false;
+Player *newPlayer(Rules *rules, Strategy *strategy, int number_of_cards) {
+	Player* player = (Player*)malloc(sizeof(Player));
+	player->rules = rules;
+	player->strategy = strategy;
+	player->number_of_cards = number_of_cards;
+	player->play.do_play = false;
 
-	initReport(&p->report);
-	initWager(&p->wager, MINIMUM_BET, MAXIMUM_BET);
+	initReport(&player->report);
+	initWager(&player->wager, MINIMUM_BET, MAXIMUM_BET);
 	for (int i = 0; i < MAX_SPLIT_HANDS; i++) {
-		initWager(&p->splits[i], MINIMUM_BET, MAXIMUM_BET);
+		initWager(&player->splits[i], MINIMUM_BET, MAXIMUM_BET);
 	}
 
-	return p;
+	return player;
 }
 
 // Shuffle function (reinitializes seen cards)
-void playerShuffle(Player* p) {
-	memset(p->seen_cards, 0, sizeof(p->seen_cards));
+void playerShuffle(Player *player) {
+	memset(player->seen_cards, 0, sizeof(player->seen_cards));
 }
 
 // Place a bet for the player
-void playerPlaceBet(Player* p, bool mimic) {
-	wagerReset(&p->wager);
+void playerPlaceBet(Player *player, bool mimic) {
+	wagerReset(&player->wager);
 	for (int i = 0; i < MAX_SPLIT_HANDS; i++) {
-		p->splits[i].amount_bet = 0;
+		player->splits[i].amount_bet = 0;
 	}
-	p->split_count = 0;
-	wagerPlaceBet(&p->wager, mimic ? MINIMUM_BET : strategyGetBet(p->strategy, p->seen_cards));
+	player->split_count = 0;
+	wagerPlaceBet(&player->wager, mimic ? MINIMUM_BET : strategyGetBet(player->strategy, player->seen_cards));
 }
 
 //
-void playerInsurance(Player* player) {
+void playerInsurance(Player *player) {
 	if(strategyGetInsurance(player->strategy, player->seen_cards)) {
 		player->wager.insurance_bet = player->wager.amount_bet / 2;
 	}
 }
 
 //
-void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
+void playerPlay(Player *player, Shoe *shoe, Card *up, bool mimic) {
 	if (handIsBlackjack(&player->wager.hand)) {
+		player->report.total_blackjacks++;
 		return;
 	}
 
     if(mimic) {
         while (!mimicStand(player)) {
-			playerDrawCard(player, &player->wager.hand, s);
+			playerDrawCard(player, &player->wager.hand, shoe);
         }
         return;
     }
@@ -66,33 +67,35 @@ void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
 	// Check for double
 	if (strategyGetDouble(player->strategy, player->seen_cards, player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up)) {
 		wagerDoubleBet(&player->wager);
-		playerDrawCard(player, &player->wager.hand, s);
+		playerDrawCard(player, &player->wager.hand, shoe);
+		player->report.total_doubles++;
 		return;
 	}
 
 	if (handIsPair(&player->wager.hand) && strategyGetSplit(player->strategy, player->seen_cards, player->wager.hand.cards[0], up)) {
 		Wager* split = &player->splits[player->split_count];
 		player->split_count++;
+		player->report.total_splits++;
 		
 		if (handIsPairOfAces(&player->wager.hand)) {
 			wagerSplit(&player->wager, split);
-			playerDrawCard(player, &player->wager.hand, s);
-			playerDrawCard(player, &split->hand, s);
+			playerDrawCard(player, &player->wager.hand, shoe);
+			playerDrawCard(player, &split->hand, shoe);
 			return;
 		}
 
 		wagerSplit(&player->wager, split);
-		playerDrawCard(player, &player->wager.hand, s);
-		playerPlaySplit(player, &player->wager, s, up);
-		playerDrawCard(player, &split->hand, s);
-		playerPlaySplit(player, split, s, up);
+		playerDrawCard(player, &player->wager.hand, shoe);
+		playerPlaySplit(player, &player->wager, shoe, up);
+		playerDrawCard(player, &split->hand, shoe);
+		playerPlaySplit(player, split, shoe, up);
 		return;
 	}
 
 	// Handle the stand logic
 	bool doStand = strategyGetStand(player->strategy, player->seen_cards, player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up);
 	while (!handIsBusted(&player->wager.hand) && !doStand) {
-		playerDrawCard(player, &player->wager.hand, s);
+		playerDrawCard(player, &player->wager.hand, shoe);
 		if (!handIsBusted(&player->wager.hand)) {
 			doStand = strategyGetStand(player->strategy, player->seen_cards, player->wager.hand.hand_total, handIsSoft(&player->wager.hand), up);
 		}
@@ -100,48 +103,49 @@ void playerPlay(Player* player, Shoe* s, Card* up, bool mimic) {
 }
 
 // Simulate a split action
-void playerPlaySplit(Player* p, Wager* w, Shoe* s, Card* up) {
-	if (handIsPair(&w->hand) && p->split_count < MAX_SPLIT_HANDS && strategyGetSplit(p->strategy, p->seen_cards, w->hand.cards[0], up)) {
-		Wager* split = &p->splits[p->split_count];
-		p->split_count++;
+void playerPlaySplit(Player *player, Wager *wager, Shoe *shoe, Card *up) {
+	if (handIsPair(&wager->hand) && player->split_count < MAX_SPLIT_HANDS && strategyGetSplit(player->strategy, player->seen_cards, wager->hand.cards[0], up)) {
+		Wager* split = &player->splits[player->split_count];
+		player->split_count++;
+		player->report.total_splits++;
 
-		wagerSplit(w, split);
-		playerDrawCard(p, &w->hand, s);
-		playerPlaySplit(p, w, s, up);
-		playerDrawCard(p, &split->hand, s);
-		playerPlaySplit(p, split, s, up);
+		wagerSplit(wager, split);
+		playerDrawCard(player, &wager->hand, shoe);
+		playerPlaySplit(player, wager, shoe, up);
+		playerDrawCard(player, &split->hand, shoe);
+		playerPlaySplit(player, split, shoe, up);
 		return;
 	}
 
-	bool doStand = strategyGetStand(p->strategy, p->seen_cards, w->hand.hand_total, handIsSoft(&w->hand), up);
-	while (!handIsBusted(&w->hand) && !doStand) {
-		playerDrawCard(p, &w->hand, s);
-		if (!handIsBusted(&w->hand)) {
-			doStand = strategyGetStand(p->strategy, p->seen_cards, w->hand.hand_total, handIsSoft(&w->hand), up);
+	bool doStand = strategyGetStand(player->strategy, player->seen_cards, wager->hand.hand_total, handIsSoft(&wager->hand), up);
+	while (!handIsBusted(&wager->hand) && !doStand) {
+		playerDrawCard(player, &wager->hand, shoe);
+		if (!handIsBusted(&wager->hand)) {
+			doStand = strategyGetStand(player->strategy, player->seen_cards, wager->hand.hand_total, handIsSoft(&wager->hand), up);
 		}
 	}
 }
 
 //
-Card* playerDrawCard(Player* p, Hand* h, Shoe* s) {
-	Card* card = shoeDrawCard(s);
-	playerShowCard(p, card);
-	handDrawCard(h, card);
+Card *playerDrawCard(Player *player, Hand *hand, Shoe *shoe) {
+	Card *card = shoeDrawCard(shoe);
+	playerShowCard(player, card);
+	handDrawCard(hand, card);
 	return card;
 }
 
 //
-void playerShowCard(Player* p, Card* c) {
-	p->seen_cards[c->offset]++;
+void playerShowCard(Player *player, Card *card) {
+	player->seen_cards[card->value]++;
 }
 
 // Function to check if the player busted or has blackjack
-int playerBustedOrBlackjack(Player* p) {
-	if (p->split_count == 0) {
-		return handIsBusted(&p->wager.hand) || handIsBlackjack(&p->wager.hand);
+int playerBustedOrBlackjack(Player *player) {
+	if (player->split_count == 0) {
+		return handIsBusted(&player->wager.hand) || handIsBlackjack(&player->wager.hand);
 	}
-	for (int i = 0; i < p->split_count; i++) {
-		if (!handIsBusted(&p->splits[i].hand)) {
+	for (int i = 0; i < player->split_count; i++) {
+		if (!handIsBusted(&player->splits[i].hand)) {
 			return 0;
 		}
 	}
@@ -149,68 +153,81 @@ int playerBustedOrBlackjack(Player* p) {
 }
 
 //
-void playerPayoff(Player *p, bool dealer_blackjack, bool dealer_busted, int dealer_total) {
-	if (p->split_count == 0) {
-		playerPayoffHand(p, &(p->wager), dealer_blackjack, dealer_busted, dealer_total);
+void playerPayoff(Player *player, bool dealer_blackjack, bool dealer_busted, int dealer_total) {
+	if (player->split_count == 0) {
+		playerPayoffHand(player, &(player->wager), dealer_blackjack, dealer_busted, dealer_total);
 		return;
 	}
 
-	payoffSplit(p, &(p->wager), dealer_busted, dealer_total);
-	for (int i = 0; i < p->split_count; i++) {
-		payoffSplit(p, &(p->splits[i]), dealer_busted, dealer_total);
+	payoffSplit(player, &(player->wager), dealer_busted, dealer_total);
+	for (int i = 0; i < player->split_count; i++) {
+		payoffSplit(player, &(player->splits[i]), dealer_busted, dealer_total);
 	}
 }
 
 //
-void playerPayoffHand(Player *p, Wager *w, int dealer_blackjack, int dealer_busted, int dealer_total) {
+void playerPayoffHand(Player *player, Wager *wager, int dealer_blackjack, int dealer_busted, int dealer_total) {
 	if (dealer_blackjack) {
-		wagerWonInsurance(w);
+		wagerWonInsurance(wager);
 	} else {
-		wagerLostInsurance(w);
+		wagerLostInsurance(wager);
 	}
 
 	if (dealer_blackjack) {
-		if (wagerIsBlackjack(w)) {
-			wagerPush(w);
+		if (wagerIsBlackjack(wager)) {
+			wagerPush(wager);
+			player->report.total_pushes++;
 		} else {
-			wagerLost(w);
+			wagerLost(wager);
+			player->report.total_loses++;
 		}
-	} else if (wagerIsBlackjack(w)) {
-		wagerWonBlackjack(w, p->rules->blackjack_pays, p->rules->blackjack_bets);
-	} else if (handIsBusted(&w->hand)) {
-		wagerLost(w);
-	} else if (dealer_busted || (w->hand.hand_total > dealer_total)) {
-		wagerWon(w);
-	} else if (dealer_total > w->hand.hand_total) {
-		wagerLost(w);
 	} else {
-		wagerPush(w);
+		if (wagerIsBlackjack(wager)) {
+			wagerWonBlackjack(wager, player->rules->blackjack_pays, player->rules->blackjack_bets);
+		} else if (handIsBusted(&wager->hand)) {
+			wagerLost(wager);
+			player->report.total_loses++;
+		} else if (dealer_busted || (wager->hand.hand_total > dealer_total)) {
+			wagerWon(wager);
+			player->report.total_wins++;
+		} else if (dealer_total > wager->hand.hand_total) {
+			wagerLost(wager);
+			player->report.total_loses++;
+		} else {
+			wagerPush(wager);
+			player->report.total_pushes++;
+		}
 	}
-	p->report.total_won += w->amount_won;
-	p->report.total_bet += w->amount_bet + w->insurance_bet;
+
+	player->report.total_won += wager->amount_won;
+	player->report.total_bet += wager->amount_bet + wager->insurance_bet;
 }
 
 //
-void payoffSplit(Player *p, Wager *w, int dealer_busted, int dealer_total) {
-	if (handIsBusted(&w->hand)) {
-		wagerLost(w);
-	} else if (dealer_busted || (w->hand.hand_total > dealer_total)) {
-		wagerWon(w);
-	} else if (dealer_total > w->hand.hand_total) {
-		wagerLost(w);
+void payoffSplit(Player *player, Wager *wager, int dealer_busted, int dealer_total) {
+	if (handIsBusted(&wager->hand)) {
+		wagerLost(wager);
+		player->report.total_loses++;
+	} else if (dealer_busted || (wager->hand.hand_total > dealer_total)) {
+		wagerWon(wager);
+		player->report.total_wins++;
+	} else if (dealer_total > wager->hand.hand_total) {
+		wagerLost(wager);
+		player->report.total_loses++;
 	} else {
-		wagerPush(w);
+		wagerPush(wager);
+		player->report.total_pushes++;
 	}
 
-	p->report.total_won += w->amount_won;
-	p->report.total_bet += w->amount_bet;
+	player->report.total_won += wager->amount_won;
+	player->report.total_bet += wager->amount_bet;
 }
 
 //
-bool mimicStand(Player* p) {
-    if (handIsSoft17(&p->wager.hand)) {
+bool mimicStand(Player *player) {
+    if (handIsSoft17(&player->wager.hand)) {
         return false;
     }
-    return handTotal(&p->wager.hand) >= 17;
+    return handTotal(&player->wager.hand) >= 17;
 }
 
