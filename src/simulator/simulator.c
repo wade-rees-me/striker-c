@@ -59,7 +59,7 @@ void simulatorRunOnce(Simulator *simulator) {
 	sprintf(simulation.advantage, "%+04.3f %%", ((double)simulator->report.total_won / simulator->report.total_bet) * 100);
 
 	// Print out the results
-    printf("\n  -- results ---------------------------------------------------------------------\n");
+	printf("\n  -- results ---------------------------------------------------------------------\n");
 	printf("    %-24s: %s\n", "Number of hands", convertToStringWithCommas(simulator->report.total_hands, buffer, MAX_BUFFER_SIZE));
 	printf("    %-24s: %s\n", "Number of rounds", convertToStringWithCommas(simulator->report.total_rounds, buffer, MAX_BUFFER_SIZE));
 	printf("    %-24s: %s %+04.3f average bet per hand\n", "Total bet", convertToStringWithCommas(simulator->report.total_bet, buffer, MAX_BUFFER_SIZE), (double)simulator->report.total_bet / simulator->report.total_hands);
@@ -73,7 +73,7 @@ void simulatorRunOnce(Simulator *simulator) {
 	printf("    %-24s: %s seconds\n", "Total time", simulation.total_time);
 	printf("    %-24s: %s per 1,000,000 hands\n", "Average time", simulation.average_time);
 	printf("    %-24s: %s\n", "Player advantage", simulation.advantage);
-    printf("  --------------------------------------------------------------------------------\n");
+	printf("  --------------------------------------------------------------------------------\n");
 
 	if(simulator->report.total_hands >= DATABASE_NUMBER_OF_HANDS) {
 		simulatorInsert(&simulation, simulator->parameters->playbook);
@@ -111,7 +111,7 @@ void simulatorInsert(Simulation *simulation, const char *playbook) {
 	if (curl) {
 		char url[MAX_BUFFER_SIZE];
 		snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), simulation->simulator, playbook, simulation->guid);
-    	printf("\n  -- insert ----------------------------------------------------------------------\n");
+		printf("\n  -- insert ----------------------------------------------------------------------\n");
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
 		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
@@ -156,7 +156,7 @@ void simulatorInsert(Simulation *simulation, const char *playbook) {
 		curl_easy_cleanup(curl);
 		cJSON_Delete(json);
 		free(jsonStr);
-    	printf("\n  --------------------------------------------------------------------------------\n");
+		printf("\n  --------------------------------------------------------------------------------\n");
 	}
 
 	curl_global_cleanup();
