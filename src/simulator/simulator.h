@@ -11,11 +11,11 @@
 
 //
 typedef struct {
-    Parameters *parameters;
-    Rules *rules;
-    Strategy *strategy;
-    Table *table;
-    Report report;
+	Parameters *parameters;
+	Rules *rules;
+	Strategy *strategy;
+	Table *table;
+	Report report;
 } Simulator;
 
 // Global functions

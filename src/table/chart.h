@@ -11,14 +11,14 @@
 
 //
 typedef struct ChartRow {
-    char key[KEY_SIZE];
+	char key[KEY_SIZE];
 	char value[MAXIMUM_CARD_VALUE + 1][KEY_SIZE]; // 2, 3, ... A
 } ChartRow;
 
 //
 typedef struct Chart {
-    ChartRow rows[TABLE_SIZE];
-    char name[KEY_SIZE];
+	ChartRow rows[TABLE_SIZE];
+	char name[KEY_SIZE];
 	int nextRow;
 } Chart;
 

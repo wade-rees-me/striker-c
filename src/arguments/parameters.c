@@ -53,31 +53,31 @@ void serializeParameters(Parameters *parameters, char *buffer, int buffer_size) 
 	cJSON_AddNumberToObject(json, "number_of_decks", parameters->number_of_decks);
 
 	char *jsonString = cJSON_Print(json);
-    snprintf(buffer, buffer_size, "%s", jsonString);
+	snprintf(buffer, buffer_size, "%s", jsonString);
 	free(jsonString);
 	cJSON_Delete(json);
 }
 
 //
 void getCurrentTime(char *buffer, long bufferSize) {
-    time_t rawtime;
-    struct tm *timeinfo;
+	time_t rawtime;
+	struct tm *timeinfo;
 
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
 
-    strftime(buffer, bufferSize, TIME_LAYOUT, timeinfo);
+	strftime(buffer, bufferSize, TIME_LAYOUT, timeinfo);
 }
 
 //
 void generateName(char *buffer) {
-    time_t t = time(NULL);
-    struct tm *tm_info = localtime(&t);
+	time_t t = time(NULL);
+	struct tm *tm_info = localtime(&t);
 
-    int year = tm_info->tm_year + 1900;
-    int month = tm_info->tm_mon + 1;
-    int day = tm_info->tm_mday;
+	int year = tm_info->tm_year + 1900;
+	int month = tm_info->tm_mon + 1;
+	int day = tm_info->tm_mday;
 
-    snprintf(buffer, MAX_STRING_SIZE, "%s_%4d_%02d_%02d_%012ld", STRIKER_WHO_AM_I, year, month, day, (long)t);
+	snprintf(buffer, MAX_STRING_SIZE, "%s_%4d_%02d_%02d_%012ld", STRIKER_WHO_AM_I, year, month, day, (long)t);
 }
 
