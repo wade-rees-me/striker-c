@@ -6,7 +6,6 @@
 #include "rules.h"
 #include "strategy.h"
 #include "parameters.h"
-#include "simulation.h"
 #include "constants.h"
 
 //
@@ -15,14 +14,15 @@ typedef struct {
 	Rules *rules;
 	Strategy *strategy;
 	Table *table;
+	int core;
 	Report report;
 } Simulator;
 
 // Global functions
-Simulator *newSimulator(Parameters *parameters, Rules *rules, Strategy *strategy);
+Simulator *newSimulator(Parameters *parameters, Rules *rules, Strategy *strategy, int core);
 void simulatorDelete(Simulator *simulator);
-void simulatorRunOnce(Simulator *simulator);
+Report *getReport(Simulator *simulator);
+void* simulatorRunOnce(void* arg);
 void simulatorRunSimulation(Simulator *simulator);
-void simulatorInsert(Simulation *simulation, const char *playbook);
 
 #endif // SIMULATOR_H

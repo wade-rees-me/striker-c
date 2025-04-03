@@ -6,8 +6,8 @@
 #include "constants.h"
 
 //
-const char *getStrategyUrl() {
-	return getenv("STRIKER_URL_STRATEGY");
+const char *getChartsUrl() {
+	return getenv("STRIKER_URL_CHARTS");
 }
 
 //
@@ -17,7 +17,7 @@ const char *getRulesUrl() {
 
 //
 const char *getSimulationUrl() {
-	return getenv("STRIKER_URL_SIMULATION");
+	return getenv("STRIKER_URL_SIMULATIONS");
 }
 
 // Function to convert bool to string
@@ -30,6 +30,53 @@ void toUpperString(char *str) {
 	for (int i = 0; str[i] != '\0'; i++) {
 		str[i] = toupper((unsigned char)str[i]);
 	}
+}
+
+void removeAllSubstrings(char *str, const char *sub) {
+    size_t sub_len = strlen(sub);
+    char *pos;
+
+    while ((pos = strstr(str, sub)) != NULL) {
+        memmove(pos, pos + sub_len, strlen(pos + sub_len) + 1); // Shift left
+    }
+}
+
+//  
+void unescape_json(char *str) {
+    char *src = str, *dst = str;
+
+    while (*src) {
+        if (*src == '\\') {
+            src++; // Skip the backslash
+    
+            // Handle known escape sequences
+            if (*src == 'n') {
+                *dst = '\n'; /* Convert \n to newline (optional) */
+            } else if (*src == '\"') {
+                *dst = '\"'; /* Convert \" to " */
+            } else if (*src == '\\') {
+					*dst = '\\'; /* Convert \\ to \ */
+			} else {
+                *dst = *src; /* Default: copy character */
+            }
+        } else {
+            *dst = *src; // Copy normal characters
+        }
+        src++;
+        dst++;
+    }
+    *dst = '\0'; // Null-terminate
+}
+
+//
+void strip_quotes(char *str) {
+    size_t len = strlen(str);
+    if (len > 1 && str[0] == '"' && str[len - 1] == '"') {
+        // Shift characters left to remove first quote
+        memmove(str, str + 1, len - 2);
+        // Null-terminate after removing last quote
+        str[len - 2] = '\0';
+    }
 }
 
 //
@@ -58,6 +105,56 @@ double parseAuxDouble(cJSON *json, char *tag, double value) {
 	}
 	return value;
 }
+
+/*
+//
+char *convertToStringWithCommas(long long number) {
+    char temp[100];
+    int len = 0;
+    int isNegative = 0;
+
+    if (number < 0) {
+        isNegative = 1;
+        number = -number;
+    }
+
+    do {
+        temp[len++] = (number % 10) + '0';
+        number /= 10;
+    } while (number > 0);
+
+    int resultSize = len + (len - 1) / 3 + (isNegative ? 1 : 0) + 1;
+    char *buffer = (char *)malloc(resultSize);
+    if (!buffer) {
+        printf("Error: Memory allocation failed.\n");
+        exit(-1);
+    }
+
+    int resultIndex = 0;
+    if (isNegative) {
+        buffer[resultIndex++] = '-';
+    }
+
+    for (int i = 0; i < len; i++) {
+        if (i > 0 && i % 3 == 0) {
+            buffer[resultIndex++] = ',';
+        }
+        buffer[resultIndex++] = temp[i];
+    }
+    buffer[resultIndex] = '\0';
+
+    int start = isNegative ? 1 : 0;
+    int end = resultIndex - 1;
+    while (start < end) {
+        char tempChar = buffer[start];
+        buffer[start] = buffer[end];
+        buffer[end] = tempChar;
+        start++;
+        end--;
+    }
+    return buffer;
+}
+*/
 
 //
 char *convertToStringWithCommas(long long number, char *buffer, size_t bufferSize) {

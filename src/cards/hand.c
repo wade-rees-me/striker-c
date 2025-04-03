@@ -28,12 +28,14 @@ bool handIsBlackjack(Hand *hand) {
 
 // Check if the hand is a pair
 bool handIsPair(Hand *hand) {
-	return hand->card_count == 2 && strcmp(hand->cards[0]->rank, hand->cards[1]->rank) == 0;
+	//return hand->card_count == 2 && strcmp(hand->cards[0]->rank, hand->cards[1]->rank) == 0;
+	return hand->card_count == 2 && hand->cards[0]->value == hand->cards[1]->value;
 }
 
 // Check if the hand is a pair of aces
 bool handIsPairOfAces(Hand *hand) {
-	return handIsPair(hand) && strcmp(hand->cards[0]->rank, "ace") == 0;
+	//return handIsPair(hand) && strcmp(hand->cards[0]->rank, "ace") == 0;
+	return handIsPair(hand) && hand->cards[0]->value == 11;
 }
 
 // Check if the hand is busted (over 21)

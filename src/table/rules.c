@@ -26,25 +26,18 @@ void rulesDelete(Rules *rules) {
 
 // Function to fetch rules table using libcurl
 void rulesFetchTable(cJSON *json, Rules *rules) {
-	cJSON *itemPayload = cJSON_GetObjectItemCaseSensitive(json, "payload");
-	cJSON *jsonPayload = cJSON_Parse(itemPayload->valuestring);
-	if(jsonPayload == NULL) {
-		printf("Error parsing JSON response\n");
-		exit(0);
-	}
-
 	// Extract data from JSON into TableRules struct
-	cJSON *playbook = cJSON_GetObjectItemCaseSensitive(jsonPayload, "playbook");
+	cJSON *playbook = cJSON_GetObjectItemCaseSensitive(json, "playbook");
 	if (playbook) strcpy(rules->playbook, playbook->valuestring);
-	rules->hit_soft_17 = parseAuxBool(jsonPayload, "hitSoft17", false);
-	rules->surrender = parseAuxBool(jsonPayload, "surrender", false);
-	rules->double_any_two_cards = parseAuxBool(jsonPayload, "doubleAnyTwoCards", false);
-	rules->double_after_split = parseAuxBool(jsonPayload, "doubleAfterSplit", false);
-	rules->resplit_aces = parseAuxBool(jsonPayload, "resplitAces", false);
-	rules->hit_split_aces = parseAuxBool(jsonPayload, "hitSplitAces", false);
-	rules->blackjack_bets = parseAuxInt(jsonPayload, "blackjackBets", 0);
-	rules->blackjack_pays = parseAuxInt(jsonPayload, "blackjackPays", 0);
-	rules->penetration = parseAuxDouble(jsonPayload, "penetration", 0.50);
+	rules->hit_soft_17 = parseAuxBool(json, "hitSoft17", false);
+	rules->surrender = parseAuxBool(json, "surrender", false);
+	rules->double_any_two_cards = parseAuxBool(json, "doubleAnyTwoCards", false);
+	rules->double_after_split = parseAuxBool(json, "doubleAfterSplit", false);
+	rules->resplit_aces = parseAuxBool(json, "resplitAces", false);
+	rules->hit_split_aces = parseAuxBool(json, "hitSplitAces", false);
+	rules->blackjack_bets = parseAuxInt(json, "blackjackBets", 0);
+	rules->blackjack_pays = parseAuxInt(json, "blackjackPays", 0);
+	rules->penetration = parseAuxDouble(json, "penetration", 0.50);
 }
 
 //

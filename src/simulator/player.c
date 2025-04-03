@@ -19,7 +19,7 @@ Player *newPlayer(Rules *rules, Strategy *strategy, int number_of_cards) {
 	player->number_of_cards = number_of_cards;
 	player->play.do_play = false;
 
-	initReport(&player->report);
+	initReport(&player->report, 0);
 	initWager(&player->wager, MINIMUM_BET, MAXIMUM_BET);
 	for (int i = 0; i < MAX_SPLIT_HANDS; i++) {
 		initWager(&player->splits[i], MINIMUM_BET, MAXIMUM_BET);
@@ -40,7 +40,11 @@ void playerPlaceBet(Player *player, bool mimic) {
 		player->splits[i].amount_bet = 0;
 	}
 	player->split_count = 0;
-	wagerPlaceBet(&player->wager, mimic ? MINIMUM_BET : strategyGetBet(player->strategy, player->seen_cards));
+	if(mimic) {
+		wagerPlaceBet(&player->wager, MINIMUM_BET);
+	} else {
+		wagerPlaceBet(&player->wager, strategyGetBet(player->strategy, player->seen_cards));
+	}
 }
 
 //

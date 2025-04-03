@@ -11,7 +11,8 @@ void printHelpMessage();
 Arguments *newArguments(int argc, char *argv[]) {
 	Arguments *arguments = (Arguments*)malloc(sizeof(Arguments));
 
-	arguments->number_of_hands = MINIMUM_NUMBER_OF_HANDS;
+	arguments->number_of_hands = NUMBER_OF_HANDS_DEFAULT;
+	arguments->number_of_threads = NUMBER_OF_CORES_DEFAULT;
 	arguments->mimic_flag = false;
 	arguments->basic_flag = false;
 	arguments->neural_flag = false;
@@ -25,9 +26,20 @@ Arguments *newArguments(int argc, char *argv[]) {
 
 	for (int i = 1; i < argc; ++i) {
 		if ((strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--number-of-hands") == 0) && i + 1 < argc) {
-			arguments->number_of_hands = atoll(argv[++i]);
-			if (arguments->number_of_hands < MINIMUM_NUMBER_OF_HANDS || arguments->number_of_hands > MAXIMUM_NUMBER_OF_HANDS) {
-				fprintf(stderr, "Number of hands must be between %lld and %lld\n", MINIMUM_NUMBER_OF_HANDS, MAXIMUM_NUMBER_OF_HANDS);
+			char buffer[MAX_BUFFER_SIZE];
+			snprintf(buffer, MAX_BUFFER_SIZE, "%s", argv[++i]);
+			removeAllSubstrings(buffer, ",");
+			arguments->number_of_hands = atoll(buffer);
+			convertToStringWithCommas(NUMBER_OF_HANDS_MINIMUM, arguments->number_of_hands_min, MAX_BUFFER_SIZE);
+			convertToStringWithCommas(NUMBER_OF_HANDS_MAXIMUM, arguments->number_of_hands_max, MAX_BUFFER_SIZE);
+			if (arguments->number_of_hands < NUMBER_OF_HANDS_MINIMUM || arguments->number_of_hands > NUMBER_OF_HANDS_MAXIMUM) {
+				fprintf(stderr, "Number of hands must be between %s and %s\n", arguments->number_of_hands_min, arguments->number_of_hands_max);
+				exit(EXIT_FAILURE);
+			}
+		} else if ((strcmp(argv[i], "-t") == 0 || strcmp(argv[i], "--number-of-threads") == 0) && i + 1 < argc) {
+			arguments->number_of_threads = atoll(argv[++i]);
+			if (arguments->number_of_threads < 1 || arguments->number_of_threads > NUMBER_OF_CORES_LOGICAL) {
+				fprintf(stderr, "Number of threads must be between 1 and %d\n", NUMBER_OF_CORES_LOGICAL);
 				exit(EXIT_FAILURE);
 			}
 		} else if (strcmp(argv[i], "-M") == 0 || strcmp(argv[i], "--mimic") == 0) {
@@ -74,19 +86,20 @@ void argumentsDelete(Arguments *arguments) {
 void printHelpMessage() {
 	printf("Usage: strikerC [options]\n"
 		   "Options:\n"
-		   "  --help                                    Show this help message\n"
-		   "  --version                                 Display the program version\n"
-		   "  -r, --number-of-hands <number of hands>   The number of hands to play in this simulation\n"
-		   "  -M, --mimic                               Use the mimic dealer player strategy\n"
-		   "  -B, --basic                               Use the basic player strategy\n"
-		   "  -N, --neural                              Use the neural player strategy\n"
-		   "  -L, --linear                              Use the liner regression player strategy\n"
-		   "  -P, --polynomial                          Use the polynomial regression player strategy\n"
-		   "  -H, --high-low                            Use the high low count player strategy\n"
-		   "  -W, --wong                                Use the Wong count player strategy\n"
-		   "  -1, --single-deck                         Use a single deck of cards and rules\n"
-		   "  -2, --double-deck                         Use a double deck of cards and rules\n"
-		   "  -6, --six-shoe                            Use a six deck shoe of cards and rules\n");
+		   "  --help                                      Show this help message\n"
+		   "  --version                                   Display the program version\n"
+		   "  -r, --number-of-hands <number of hands>     The number of hands to play in this simulation\n"
+		   "  -t, --number-of-threads <number of threads> The number of threads to use in this simulation\n"
+		   "  -M, --mimic                                 Use the mimic dealer player strategy\n"
+		   "  -B, --basic                                 Use the basic player strategy\n"
+		   "  -N, --neural                                Use the neural player strategy\n"
+		   "  -L, --linear                                Use the liner regression player strategy\n"
+		   "  -P, --polynomial                            Use the polynomial regression player strategy\n"
+		   "  -H, --high-low                              Use the high low count player strategy\n"
+		   "  -W, --wong                                  Use the Wong count player strategy\n"
+		   "  -1, --single-deck                           Use a single deck of cards and rules\n"
+		   "  -2, --double-deck                           Use a double deck of cards and rules\n"
+		   "  -6, --six-shoe                              Use a six deck shoe of cards and rules\n");
 }
 
 // Get the current strategy as a string

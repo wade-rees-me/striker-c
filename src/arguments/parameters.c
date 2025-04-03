@@ -7,15 +7,18 @@ void getCurrentTime(char *buffer, long bufferSize);
 void generateName(char *buffer);
 
 //
-Parameters *newParameters(const char *decks, const char *strategy, int number_of_decks, int64_t number_of_hands) {
+Parameters *newParameters(Arguments *arguments) {
 	Parameters *parameters = (Parameters*)malloc(sizeof(Parameters));
 
 	generateName(parameters->name);
-	snprintf(parameters->decks, MAX_STRING_SIZE, "%s", decks);
-	snprintf(parameters->strategy, MAX_STRING_SIZE, "%s", strategy);
-	parameters->number_of_decks = number_of_decks;
-	parameters->number_of_hands = number_of_hands;
-	snprintf(parameters->playbook, MAX_STRING_SIZE, "%s-%s", parameters->decks, parameters->strategy);
+	snprintf(parameters->decks, MAX_STRING_SIZE, "%s", getDecks(arguments));
+	snprintf(parameters->strategy, MAX_STRING_SIZE, "%s", getStrategy(arguments));
+	parameters->number_of_decks = getNumberOfDecks(arguments);
+	parameters->number_of_hands = arguments->number_of_hands;
+	parameters->number_of_threads = arguments->number_of_threads;
+	parameters->share_of_hands = parameters->number_of_hands / parameters->number_of_threads;
+	parameters->verbose = parameters->number_of_threads == 1;
+	snprintf(parameters->playbook, MAX_STRING_SIZE * 2, "%s-%s", parameters->decks, parameters->strategy);
 	snprintf(parameters->processor, MAX_STRING_SIZE, "%s", STRIKER_WHO_AM_I);
 	getCurrentTime(parameters->timestamp, sizeof(parameters->timestamp));
 
@@ -31,31 +34,16 @@ void parametersDelete(Parameters *parameters) {
 void printParameters(const Parameters *parameters) {
 	char buffer[MAX_BUFFER_SIZE];
 
-	printf("    %-24s: %s\n", "Name", parameters->name);
-	printf("    %-24s: %s\n", "Playbook", parameters->playbook);
-	printf("    %-24s: %s\n", "Processor", parameters->processor);
-	printf("    %-24s: %s\n", "Version", STRIKER_VERSION);
-	printf("    %-24s: %s\n", "Number of hands", convertToStringWithCommas(parameters->number_of_hands, buffer, MAX_BUFFER_SIZE));
-	printf("    %-24s: %s\n", "Timestamp", parameters->timestamp);
-}
-
-//
-void serializeParameters(Parameters *parameters, char *buffer, int buffer_size) {
-	cJSON *json = cJSON_CreateObject();
-
-	cJSON_AddStringToObject(json, "playbook", parameters->playbook);
-	cJSON_AddStringToObject(json, "name", parameters->name);
-	cJSON_AddStringToObject(json, "processor", parameters->processor);
-	cJSON_AddStringToObject(json, "timestamp", parameters->timestamp);
-	cJSON_AddStringToObject(json, "decks", parameters->decks);
-	cJSON_AddStringToObject(json, "strategy", parameters->strategy);
-	cJSON_AddNumberToObject(json, "hands", parameters->number_of_hands);
-	cJSON_AddNumberToObject(json, "number_of_decks", parameters->number_of_decks);
-
-	char *jsonString = cJSON_Print(json);
-	snprintf(buffer, buffer_size, "%s", jsonString);
-	free(jsonString);
-	cJSON_Delete(json);
+	printf("    %-26s: %s\n", "Processor", parameters->processor);
+	printf("    %-26s: %d\n", "Threads", parameters->number_of_threads);
+	printf("    %-26s: %s\n", "Name", parameters->name);
+	printf("    %-26s: %s\n", "Version", STRIKER_VERSION);
+	printf("    %-26s: %s\n", "Playbook", parameters->playbook);
+	printf("    %-26s: %s\n", "Decks", parameters->decks);
+	printf("    %-26s: %s\n", "Strategy", parameters->strategy);
+	printf("    %-26s: %17s\n", "Number of hands", convertToStringWithCommas(parameters->number_of_hands, buffer, MAX_BUFFER_SIZE));
+	printf("    %-26s: %17s\n", "Thread's share of hands", convertToStringWithCommas(parameters->share_of_hands, buffer, MAX_BUFFER_SIZE));
+	printf("    %-26s: %s\n", "Timestamp", parameters->timestamp);
 }
 
 //

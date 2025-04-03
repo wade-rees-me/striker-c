@@ -1,16 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include <time.h>
 #include "shoe.h"
 #include "card.h"
 
 //
 const char *suits[4] = {SPADES, DIAMONDS, CLUBS, HEARTS};
+__thread unsigned int seed;
 
 // Helper function to shuffle the deck (Fisher-Yates algorithm)
 static void shuffleRandom(Shoe *shoe) {
 	for (int i = shoe->last_discard - 1; i > 0; i--) {
-		int j = rand() % (i + 1);
+		//int j = rand() % (i + 1);
+		int j = rand_r(&seed) % (i + 1);
 		Card* temp = shoe->cards[i];
 		shoe->cards[i] = shoe->cards[j];
 		shoe->cards[j] = temp;
