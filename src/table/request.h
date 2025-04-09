@@ -1,16 +1,16 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
+#include "constants.h"
+#include <cjson/cJSON.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cjson/cJSON.h>
-#include "constants.h"
 
-// Define the Request struct
+// Define the Request
 typedef struct {
-	char responseString[MAX_MEMORY_SIZE];
-	cJSON *jsonResponse;
+    char responseString[MAX_MEMORY_SIZE];
+    cJSON *jsonResponse;
 } Request;
 
 // Function prototypes

@@ -1,24 +1,24 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <stdbool.h>
 #include <cjson/cJSON.h>
+#include <stdbool.h>
 
 // General constants
 #define STRIKER_WHO_AM_I "striker-c"
-#define STRIKER_VERSION "v3.00.00"	// Epoch.Major.Minor
+#define STRIKER_VERSION "v3.00.00" // Epoch.Major.Minor
 #define TIME_LAYOUT "%Y-%m-%d %H:%M:%S %z"
 
-// 
+//
 #define NUMBER_OF_CARDS_IN_DECK 52
 #define NUMBER_OF_CORES_PHYSICAL 24
 #define NUMBER_OF_CORES_LOGICAL 32
 #define NUMBER_OF_CORES_DEFAULT 24
 
 // Define the maximum size string fields
-#define MAX_STRING_SIZE 256
-#define MAX_BUFFER_SIZE 4096
-#define MAX_MEMORY_SIZE 1048576
+#define MAX_STRING_SIZE 512
+#define MAX_BUFFER_SIZE 8192
+#define MAX_MEMORY_SIZE 536870912
 
 // Simulation constants
 #define MILLION 1000000LL
