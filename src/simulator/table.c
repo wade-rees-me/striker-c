@@ -24,13 +24,6 @@ Table *newTable(Parameters *parameters, Rules *rules, Strategy *strategy) {
 
 //
 void tableSession(Table *table, bool mimic) {
-    char buffer[MAX_BUFFER_SIZE];
-
-    if (table->parameters->verbose) {
-        printf("      Start: table, playing %s hands\n",
-               convertToStringWithCommas(table->parameters->number_of_hands, buffer, MAX_BUFFER_SIZE));
-    }
-
     table->report.start = time(NULL);
     while (table->report.total_hands < table->parameters->share_of_hands) {
         if (table->parameters->verbose) {
@@ -68,12 +61,12 @@ void tableSession(Table *table, bool mimic) {
                          table->dealer->hand.hand_total);
         }
     }
+    if (table->parameters->verbose) {
+        printf("\r");
+    }
 
     table->report.end = time(NULL);
     table->report.duration = table->report.end - table->report.start;
-    if (table->parameters->verbose) {
-        printf("\n      End: table\n");
-    }
 }
 
 // Function to deal cards
@@ -90,20 +83,8 @@ void tableDealCards(Table *table, Player *player, Hand *hand, Dealer *dealer, Sh
 
 //
 void status(int64_t round, int64_t hand) {
-    char buffer1[MAX_BUFFER_SIZE];
-    char buffer2[MAX_BUFFER_SIZE];
-
-    if (round == 0) {
-        printf("        ");
-    }
-    if ((round + 1) % STATUS_DOT == 0) {
-        printf(".");
-    }
-    if ((round + 1) % STATUS_LINE == 0) {
-        printf(" : %13s (rounds), %13s (hands)\n", convertToStringWithCommas(round + 1, buffer1, MAX_BUFFER_SIZE),
-               convertToStringWithCommas(hand, buffer2, MAX_BUFFER_SIZE));
-        printf("        ");
-    }
+    const char *spinner = "|/-\\";
+    printf("\r%c Simulating...", spinner[hand % 4]);
     fflush(stdout);
 }
 

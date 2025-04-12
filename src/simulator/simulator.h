@@ -23,6 +23,5 @@ Simulator *newSimulator(Parameters *parameters, Rules *rules, Strategy *strategy
 void simulatorDelete(Simulator *simulator);
 Report *getReport(Simulator *simulator);
 void *simulatorRunOnce(void *arg);
-void simulatorRunSimulation(Simulator *simulator);
 
 #endif // SIMULATOR_H

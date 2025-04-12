@@ -30,7 +30,7 @@ void simulatorDelete(Simulator *simulator) { free(simulator); }
 //
 Report *getReport(Simulator *simulator) { return &(simulator->report); }
 
-// The SimulatorProcess function
+// The Simulator Process function
 void *simulatorRunOnce(void *arg) {
     Simulator *simulator = (Simulator *)arg;
 
@@ -41,34 +41,14 @@ void *simulatorRunOnce(void *arg) {
 
     pthread_t thread = pthread_self();
     if (pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpuset) != 0) {
-        perror("pthread_setaffinity_np");
+        perror("thread set affinity");
     }
 
-    simulatorRunSimulation(simulator);
-
-    return simulator;
-}
-
-// Function to run the simulation
-void simulatorRunSimulation(Simulator *simulator) {
-    if (simulator->parameters->verbose) {
-        printf("    Start: %s table session\n", simulator->parameters->strategy);
-    }
     tableSession(simulator->table, strcmp("mimic", simulator->parameters->strategy) == 0);
-    if (simulator->parameters->verbose) {
-        printf("    End: table session\n");
-    }
-
-    simulator->report.total_bet += simulator->table->player->report.total_bet;
-    simulator->report.total_won += simulator->table->player->report.total_won;
+    mergeReport(&simulator->report, &simulator->table->player->report);
     simulator->report.total_rounds += simulator->table->report.total_rounds;
     simulator->report.total_hands += simulator->table->report.total_hands;
-    simulator->report.total_blackjacks += simulator->table->player->report.total_blackjacks;
-    simulator->report.total_doubles += simulator->table->player->report.total_doubles;
-    simulator->report.total_splits += simulator->table->player->report.total_splits;
-    simulator->report.total_wins += simulator->table->player->report.total_wins;
-    simulator->report.total_pushes += simulator->table->player->report.total_pushes;
-    simulator->report.total_loses += simulator->table->player->report.total_loses;
-    simulator->report.duration += simulator->table->report.duration;
+
+    return simulator;
 }
 

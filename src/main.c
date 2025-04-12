@@ -25,9 +25,8 @@ int main(int argc, char *argv[]) {
     printParameters(parameters);
     printRules(rules);
     printf("  --------------------------------------------------------------------------------\n");
-    printf("  Start: simulation(%s) on %d logical cores\n", parameters->name, arguments->number_of_threads);
 
-    initReportFinal(&finalReport, parameters, time(NULL));
+    initReportFinal(&finalReport, parameters);
     for (int i = 0; i < arguments->number_of_threads; i++) {
         simulators[i] = newSimulator(parameters, rules, strategy, NUMBER_OF_CORES_LOGICAL - 1 - i);
         pthread_create(&threads[i], NULL, simulatorRunOnce, (void *)simulators[i]);
@@ -40,15 +39,10 @@ int main(int argc, char *argv[]) {
         mergeReport(&finalReport, getReport(simulators[i]));
         simulatorDelete(simulators[i]);
     }
-    finishReport(&finalReport, time(NULL));
 
-    printf("  End: simulation\n");
-    printf("End: %s\n", STRIKER_WHO_AM_I);
-
+    finishReport(&finalReport);
     printReport(&finalReport);
-    if (finalReport.total_hands >= NUMBER_OF_HANDS_DATABASE) {
-        insertReport(&finalReport);
-    }
+    insertReport(&finalReport);
 
     rulesDelete(rules);
     parametersDelete(parameters);

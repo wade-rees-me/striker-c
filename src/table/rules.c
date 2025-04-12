@@ -4,9 +4,9 @@
 #include <string.h>
 
 //
-void rulesFetchTable(cJSON *json, Rules *rules);
+void rulesInitTable(cJSON *json, Rules *rules);
 
-// Function to load table rules by calling FetchRulesTable
+// Function to load table rules
 Rules *newRules(const char *decks) {
     Rules *rules = (Rules *)malloc(sizeof(Rules));
 
@@ -14,7 +14,7 @@ Rules *newRules(const char *decks) {
     snprintf(url, MAX_BUFFER_SIZE, "%s/%s", getRulesUrl(), decks);
 
     requestFetchJson(&rules->request, url);
-    rulesFetchTable(rules->request.jsonResponse, rules);
+    rulesInitTable(rules->request.jsonResponse, rules);
 
     return rules;
 }
@@ -22,12 +22,10 @@ Rules *newRules(const char *decks) {
 //
 void rulesDelete(Rules *rules) { free(rules); }
 
-// Function to fetch rules table using libcurl
-void rulesFetchTable(cJSON *json, Rules *rules) {
-    // Extract data from JSON into TableRules struct
+//
+void rulesInitTable(cJSON *json, Rules *rules) {
     cJSON *playbook = cJSON_GetObjectItemCaseSensitive(json, "playbook");
-    if (playbook)
-        strcpy(rules->playbook, playbook->valuestring);
+    strcpy(rules->playbook, playbook->valuestring);
     rules->hit_soft_17 = parseAuxBool(json, "hitSoft17", false);
     rules->surrender = parseAuxBool(json, "surrender", false);
     rules->double_any_two_cards = parseAuxBool(json, "doubleAnyTwoCards", false);
@@ -52,25 +50,5 @@ void printRules(Rules *rules) {
     printf("      %-24s: %d\n", "Blackjack bets", rules->blackjack_bets);
     printf("      %-24s: %d\n", "Blackjack pays", rules->blackjack_pays);
     printf("      %-24s: %0.3f %%\n", "Penetration", rules->penetration);
-}
-
-//
-void serializeRules(Rules *rules, char *buffer, int buffer_size) {
-    cJSON *json = cJSON_CreateObject();
-
-    cJSON_AddStringToObject(json, "hit_soft_17", rules->hit_soft_17 ? "true" : "false");
-    cJSON_AddStringToObject(json, "surrender", rules->surrender ? "true" : "false");
-    cJSON_AddStringToObject(json, "double_any_two_cards", rules->double_any_two_cards ? "true" : "false");
-    cJSON_AddStringToObject(json, "double_after_split", rules->double_after_split ? "true" : "false");
-    cJSON_AddStringToObject(json, "resplit_aces", rules->resplit_aces ? "true" : "false");
-    cJSON_AddStringToObject(json, "hit_split_aces", rules->hit_split_aces ? "true" : "false");
-    cJSON_AddNumberToObject(json, "blackjack_bets", rules->blackjack_bets);
-    cJSON_AddNumberToObject(json, "blackjack_pays", rules->blackjack_pays);
-    cJSON_AddNumberToObject(json, "penetration", rules->penetration);
-
-    char *jsonString = cJSON_Print(json);
-    snprintf(buffer, buffer_size, "%s", jsonString);
-    free(jsonString);
-    cJSON_Delete(json);
 }
 

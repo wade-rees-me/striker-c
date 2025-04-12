@@ -5,7 +5,7 @@
 #include "request.h"
 #include <stdbool.h>
 
-// Struct to hold table rules
+// table rules
 typedef struct {
     Request request;
 
@@ -25,6 +25,5 @@ typedef struct {
 Rules *newRules(const char *decks);
 void rulesDelete(Rules *rules);
 void printRules(Rules *rules);
-void serializeRules(Rules *rules, char *buffer, int buffer_size);
 
 #endif // RULES_H

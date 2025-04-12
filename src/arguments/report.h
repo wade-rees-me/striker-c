@@ -35,10 +35,10 @@ typedef struct {
 } Report;
 
 // Global functions
-void initReportFinal(Report *report, Parameters *parameters, int64_t start);
+void initReportFinal(Report *report, Parameters *parameters);
 void initReport(Report *report);
 void mergeReport(Report *a, Report *b);
-void finishReport(Report *report, int64_t end);
+void finishReport(Report *report);
 void printReport(Report *report);
 void insertReport(Report *report);
 

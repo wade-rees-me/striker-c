@@ -3,7 +3,10 @@
 #include <stdio.h>
 
 //
-void initReportFinal(Report *report, Parameters *parameters, int64_t start) {
+cJSON *toJsonObject(Report *report);
+
+//
+void initReportFinal(Report *report, Parameters *parameters) {
     initReport(report);
     strcpy(report->name, parameters->name);
     strcpy(report->version, STRIKER_VERSION);
@@ -13,7 +16,7 @@ void initReportFinal(Report *report, Parameters *parameters, int64_t start) {
     strcpy(report->decks, parameters->decks);
     strcpy(report->epoch, parameters->epoch);
     report->total_threads = parameters->number_of_threads;
-    report->start = start;
+    report->start = time(NULL);
     report->end = 0;
     report->duration = 0;
     report->advantage = 0.0;
@@ -49,8 +52,8 @@ void mergeReport(Report *a, Report *b) {
 }
 
 //
-void finishReport(Report *report, int64_t end) {
-    report->end = end;
+void finishReport(Report *report) {
+    report->end = time(NULL);
     report->duration = report->end - report->start;
     report->advantage = ((double)report->total_won / report->total_bet) * 100;
     report->per_billion = ((float)report->duration * (float)BILLION / (float)report->total_hands);
@@ -61,7 +64,7 @@ void printReport(Report *report) {
     char buffer[MAX_BUFFER_SIZE];
     char hands[MAX_BUFFER_SIZE];
 
-    printf("\n  -- results ---------------------------------------------------------------------\n");
+    printf("  -- results ---------------------------------------------------------------------\n");
     printf("    %-26s: %17s\n", "Number of hands",
            convertToStringWithCommas(report->total_hands, buffer, MAX_BUFFER_SIZE));
     printf("    %-26s: %17s\n", "Number of rounds",
@@ -102,76 +105,94 @@ void printReport(Report *report) {
 
 // Function to insert a simulation into the database (HTTP POST)
 void insertReport(Report *report) {
-    struct curl_slist *headers = NULL;
-    CURL *curl;
-    CURLcode res;
+    printf("  -- insert ----------------------------------------------------------------------\n");
 
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
+    if (report->total_hands >= NUMBER_OF_HANDS_DATABASE) {
+        struct curl_slist *headers = NULL;
+        CURL *curl;
+        CURLcode res;
 
-    if (curl) {
-        char url[MAX_BUFFER_SIZE];
-        //		char tmp[MAX_BUFFER_SIZE];
-        snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), report->simulator, report->playbook,
-                 report->name);
-        printf("\n  -- insert ----------------------------------------------------------------------\n");
-        printf("%s\n", url);
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
-        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+        curl_global_init(CURL_GLOBAL_ALL);
+        curl = curl_easy_init();
 
-        // Set headers
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        if (curl) {
+            char url[MAX_BUFFER_SIZE];
+            snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), report->simulator,
+                     report->playbook, report->name);
 
-        // Convert Simulation to JSON
-        cJSON *json = cJSON_CreateObject();
-        cJSON_AddStringToObject(json, "guid", report->name);
-        cJSON_AddStringToObject(json, "version", report->version);
-        cJSON_AddStringToObject(json, "simulator", report->simulator);
-        cJSON_AddNumberToObject(json, "threads", report->total_threads);
-        cJSON_AddStringToObject(json, "playbook", report->playbook);
-        cJSON_AddStringToObject(json, "decks", report->decks);
-        cJSON_AddStringToObject(json, "strategy", report->strategy);
-        cJSON_AddNumberToObject(json, "rounds", report->total_rounds);
-        cJSON_AddNumberToObject(json, "hands", report->total_hands);
-        cJSON_AddNumberToObject(json, "total_bet", report->total_bet);
-        cJSON_AddNumberToObject(json, "total_won", report->total_won);
-        cJSON_AddNumberToObject(json, "total_blackjacks", report->total_blackjacks);
-        cJSON_AddNumberToObject(json, "total_doubles", report->total_doubles);
-        cJSON_AddNumberToObject(json, "total_splits", report->total_splits);
-        cJSON_AddNumberToObject(json, "total_wins", report->total_wins);
-        cJSON_AddNumberToObject(json, "total_loses", report->total_loses);
-        cJSON_AddNumberToObject(json, "total_pushes", report->total_pushes);
-        cJSON_AddNumberToObject(json, "advantage", report->advantage);
-        cJSON_AddStringToObject(json, "epoch", report->epoch);
-        cJSON_AddNumberToObject(json, "start", report->start);
-        cJSON_AddNumberToObject(json, "end", report->end);
-        cJSON_AddNumberToObject(json, "duration", report->duration);
-        cJSON_AddNumberToObject(json, "per_billion", report->per_billion);
-        //		serializeRules(rules, tmp, MAX_BUFFER_SIZE);
-        //		cJSON_AddStringToObject(json, "rules", tmp);
-        // Add remaining fields...
-        char *jsonStr = cJSON_Print(json);
+            curl_easy_setopt(curl, CURLOPT_URL, url);
+            curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
+            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
 
-        // Set POST fields
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStr);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fopen("/dev/null", "w"));
+            curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, NULL);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, fopen("/dev/null", "w"));
 
-        // Perform the request
-        res = curl_easy_perform(curl);
+            // Set headers
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-            return;
+            // Convert Simulation to JSON
+            cJSON *json = toJsonObject(report);
+            char *jsonStr = cJSON_Print(json);
+
+            // Set POST fields
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStr);
+
+            // Perform the request
+            res = curl_easy_perform(curl); // FIX
+
+            if (res != CURLE_OK) {
+                printf("    curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            } else {
+                printf("    Code: HTTP-200-OK\n");
+            }
+
+            // Cleanup
+            curl_easy_cleanup(curl);
+            cJSON_Delete(json);
+            free(jsonStr);
+        } else {
+            printf("    Curl failed to generate\n");
         }
-
-        // Cleanup
-        curl_easy_cleanup(curl);
-        cJSON_Delete(json);
-        free(jsonStr);
-        printf("\n  --------------------------------------------------------------------------------\n");
+        curl_global_cleanup();
+    } else {
+        char hands[MAX_BUFFER_SIZE];
+        char minimum[MAX_BUFFER_SIZE];
+        convertToStringWithCommas(report->total_hands, hands, MAX_BUFFER_SIZE);
+        convertToStringWithCommas(NUMBER_OF_HANDS_DATABASE, minimum, MAX_BUFFER_SIZE);
+        printf("    Error: Not enough hands played (%s). Minimum required is %s\n", hands, minimum);
     }
+    printf("  --------------------------------------------------------------------------------\n");
+}
 
-    curl_global_cleanup();
+// Convert Simulation to JSON
+cJSON *toJsonObject(Report *report) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "guid", report->name);
+    cJSON_AddStringToObject(json, "version", report->version);
+    cJSON_AddStringToObject(json, "simulator", report->simulator);
+    cJSON_AddNumberToObject(json, "threads", report->total_threads);
+    cJSON_AddStringToObject(json, "playbook", report->playbook);
+    cJSON_AddStringToObject(json, "decks", report->decks);
+    cJSON_AddStringToObject(json, "strategy", report->strategy);
+    cJSON_AddNumberToObject(json, "rounds", report->total_rounds);
+    cJSON_AddNumberToObject(json, "hands", report->total_hands);
+    cJSON_AddNumberToObject(json, "total_bet", report->total_bet);
+    cJSON_AddNumberToObject(json, "total_won", report->total_won);
+    cJSON_AddNumberToObject(json, "total_blackjacks", report->total_blackjacks);
+    cJSON_AddNumberToObject(json, "total_doubles", report->total_doubles);
+    cJSON_AddNumberToObject(json, "total_splits", report->total_splits);
+    cJSON_AddNumberToObject(json, "total_wins", report->total_wins);
+    cJSON_AddNumberToObject(json, "total_loses", report->total_loses);
+    cJSON_AddNumberToObject(json, "total_pushes", report->total_pushes);
+    cJSON_AddNumberToObject(json, "advantage", report->advantage);
+    cJSON_AddStringToObject(json, "epoch", report->epoch);
+    cJSON_AddNumberToObject(json, "start", report->start);
+    cJSON_AddNumberToObject(json, "end", report->end);
+    cJSON_AddNumberToObject(json, "duration", report->duration);
+    cJSON_AddNumberToObject(json, "per_billion", report->per_billion);
+    return json;
 }
 
