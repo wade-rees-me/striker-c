@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
     pthread_t threads[NUMBER_OF_CORES_LOGICAL];
     Report finalReport;
 
+    setvbuf(stdout, NULL, _IONBF, 0); // Unbuffered
     printf("Start: %s\n", STRIKER_WHO_AM_I);
     printf("  -- arguments -------------------------------------------------------------------\n");
     printParameters(parameters);

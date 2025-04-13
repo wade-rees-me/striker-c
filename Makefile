@@ -1,6 +1,14 @@
 # Compiler and flags
 CC = gcc
+TIDY = clang-tidy
 CFLAGS = -O3 -Wall -I/usr/include -I/usr/local/include -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0 -L/usr/lib/x86_64-linux-gnu -march=native -flto -pthread
+
+# Strategies and decks
+STRATEGIES := mimic linear polynomial neural basic high-low wong
+DECKS := single-deck double-deck six-shoe
+
+# .PHONY targets (non-file targets)
+.PHONY: all lint bear clean help install run run-all run-mimic-1 run-mimic-2 run-mimic-6 run-basic-1 run-basic-2 run-basic-6 run-linear-1 run-linear-2 run-linear-6 run-polynomial-1 run-polynomial-2 run-polynomial-6 run-neural-1 run-neural-2 run-neural-6 run-high-low-1 run-high-low-2 run-high-low-6 run-wong-1 run-wong-2 run-wong-6
 
 # Directories
 SRC_DIR = src
@@ -20,13 +28,45 @@ OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
 # Output binary
 TARGET = bin/strikerC
 
-#
-STRIKER = /home/wade/Striker
+# Home directory for Striker
+STRIKER = ${HOME}/Striker
 
-# Default target
+# Runtime parameters
+HANDS ?= 500000000
+THREADS ?= 24
+STRATEGY ?= mimic
+DECKS ?= single-deck
+
+# Date-based log file
+LOG_DIR = $(STRIKER)/Simulations/$(shell date +%Y)/$(shell date +%m)/$(shell date +%d)
+LOG = $(LOG_DIR)/$(notdir $(TARGET))-$(shell date +%H%M%S).log
+
+# Default target (run 'make help' to view available targets)
+.DEFAULT_GOAL := help
+
+# Help target to show information about the Makefile
+help:
+	@echo "Makefile for StrikerC project"
+	@echo ""
+	@echo "Available targets:"
+	@echo "  all           - Compile and link all source files"
+	@echo "  clean         - Remove object files and binary"
+	@echo "  lint          - Run clang-tidy on the source files"
+	@echo "  bear          - Generate a compile_commands.json file using Bear"
+	@echo "  install       - Install the compiled binary to the Striker directory"
+	@echo "  run           - Run a simulation with specified parameters"
+	@echo "  run-all       - Run all strategy/deck combinations"
+	@echo ""
+	@echo "Variables (can override via command line):"
+	@echo "  HANDS=<n>     - Number of hands to simulate (default: 500000000)"
+	@echo "  THREADS=<n>   - Number of threads (default: 24)"
+	@echo "  STRATEGY=<s>  - Strategy to use (e.g. mimic, linear)"
+	@echo "  DECKS=<s>     - Deck type (e.g. single-deck, six-shoe)"
+
+# Build target (compile and link the source files)
 all: $(TARGET)
 
-# Build target
+# Link the object files into the final binary
 $(TARGET): $(OBJ_FILES)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET) $(OBJ_FILES) -static-libgcc -static-libstdc++ -luuid -lcjson -lcurl -L/usr/lib/x86_64-linux-gnu -lbson-1.0 -lmongoc-1.0 -march=native -flto -pthread
@@ -40,7 +80,112 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 clean:
 	rm -rf $(OBJ_DIR)/*.o $(OBJ_DIR)/*/*.o $(TARGET)
 
-# Install
+# Lint: Run clang-tidy on all source files
+lint:
+	$(TIDY) $(SRC_FILES)
+
+# Generate compile_commands.json using Bear
+bear:
+	bear -- make clean all
+
+# Install the compiled binary to the Striker directory
 install:
 	cp -rf $(TARGET) $(STRIKER)/bin
+
+# Main run rule
+define run_template
+run-$(1)-$(2):
+	@mkdir -p $(LOG_DIR)
+	@echo "Running: $(1) strategy with $(2), $(HANDS) hands on $(THREADS) threads"
+	clear
+	./$(TARGET) --$(1) --$(2) --number-of-hands $(HANDS) --number-of-threads $(THREADS) | tee $(LOG)
+	sleep 3
+endef
+
+# Generate run-<strategy>-<deck> targets
+$(foreach strategy,$(STRATEGIES), \
+	$(foreach deck,$(DECKS), \
+		$(eval $(call run_template,$(strategy),$(deck))) \
+	) \
+)
+
+# Group runs per strategy
+define group_template
+run-$(1):
+	$(foreach deck,$(DECKS), \
+		$(MAKE) run-$(1)-$(deck); \
+	)
+endef
+
+$(foreach strategy,$(STRATEGIES), \
+	$(eval $(call group_template,$(strategy))) \
+)
+
+# Run all combinations
+run-all:
+	$(foreach strategy,$(STRATEGIES), \
+		$(MAKE) run-$(strategy); \
+	)
+
+run-single-deck:
+	@for strategy in mimic basic linear polynomial neural high-low wong; do \
+		$(MAKE) run-$$strategy-single-deck; \
+	done
+
+run-double-deck:
+	@for strategy in mimic basic linear polynomial neural high-low wong; do \
+		$(MAKE) run-STRATEGY=$$strategy-DECKS=double-deck; \
+	done
+
+run-six-shoe:
+	@for strategy in mimic basic linear polynomial neural high-low wong; do \
+		$(MAKE) run-STRATEGY=$$strategy-DECKS=six-shoe; \
+	done
+
+# Aliases for decks
+r1: run-single-deck
+r2: run-double-deck
+r6: run-six-shoe
+
+# Aliases for mimic
+rm: run-mimic
+rm1: run-mimic-single-deck
+rm2: run-mimic-double-deck
+rm6: run-mimic-six-shoe
+
+# Aliases for linear
+rl: run-linear
+rl1: run-linear-single-deck
+rl2: run-linear-double-deck
+rl6: run-linear-six-shoe
+
+# Aliases for polynomial
+rp: run-polynomial
+rp1: run-polynomial-single-deck
+rp2: run-polynomial-double-deck
+rp6: run-polynomial-six-shoe
+
+# Aliases for neural
+rn: run-neural
+rn1: run-neural-single-deck
+rn2: run-neural-double-deck
+rn6: run-neural-six-shoe
+
+# Aliases for basic
+rb: run-basic
+rb1: run-basic-single-deck
+rb2: run-basic-double-deck
+rb6: run-basic-six-shoe
+
+# Aliases for high-low
+rh: run-high-low
+rh1: run-high-low-single-deck
+rh2: run-high-low-double-deck
+rh6: run-high-low-six-shoe
+
+# Aliases for wong
+rw: run-wong
+rw1: run-wong-single-deck
+rw2: run-wong-double-deck
+rw6: run-wong-six-shoe
 
