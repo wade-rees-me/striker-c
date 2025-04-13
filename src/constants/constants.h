@@ -35,10 +35,6 @@
 #define TRUE_COUNT_MULTIPLIER 26
 #define MAX_SPLIT_HANDS 18
 
-//
-#define STATUS_DOT 25000
-#define STATUS_LINE 1000000
-
 // Global functions
 const char *getChartsUrl();
 const char *getRulesUrl();

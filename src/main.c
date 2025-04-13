@@ -41,8 +41,12 @@ int main(int argc, char *argv[]) {
     }
 
     finishReport(&finalReport);
+    printf("  -- results ---------------------------------------------------------------------\n");
     printReport(&finalReport);
+    printf("  --------------------------------------------------------------------------------\n");
+    printf("  -- insert ----------------------------------------------------------------------\n");
     insertReport(&finalReport);
+    printf("  --------------------------------------------------------------------------------\n");
 
     rulesDelete(rules);
     parametersDelete(parameters);

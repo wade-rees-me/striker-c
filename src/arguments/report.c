@@ -64,7 +64,6 @@ void printReport(Report *report) {
     char buffer[MAX_BUFFER_SIZE];
     char hands[MAX_BUFFER_SIZE];
 
-    printf("  -- results ---------------------------------------------------------------------\n");
     printf("    %-26s: %17s\n", "Number of hands",
            convertToStringWithCommas(report->total_hands, buffer, MAX_BUFFER_SIZE));
     printf("    %-26s: %17s\n", "Number of rounds",
@@ -100,71 +99,68 @@ void printReport(Report *report) {
     printf("    %-26s: %17s seconds per %s hands\n", "Average time",
            convertToStringWithCommas((int)report->per_billion, buffer, MAX_BUFFER_SIZE), hands);
     printf("    %-26s: %17s %+08.3f %%\n", "Player advantage", "", report->advantage);
-    printf("  --------------------------------------------------------------------------------\n");
 }
 
 // Function to insert a simulation into the database (HTTP POST)
 void insertReport(Report *report) {
-    printf("  -- insert ----------------------------------------------------------------------\n");
-
-    if (report->total_hands >= NUMBER_OF_HANDS_DATABASE) {
-        struct curl_slist *headers = NULL;
-        CURL *curl;
-        CURLcode res;
-
-        curl_global_init(CURL_GLOBAL_ALL);
-        curl = curl_easy_init();
-
-        if (curl) {
-            char url[MAX_BUFFER_SIZE];
-            snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), report->simulator,
-                     report->playbook, report->name);
-
-            curl_easy_setopt(curl, CURLOPT_URL, url);
-            curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
-            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fopen("/dev/null", "w"));
-            curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, NULL);
-            curl_easy_setopt(curl, CURLOPT_HEADERDATA, fopen("/dev/null", "w"));
-
-            // Set headers
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-            // Convert Simulation to JSON
-            cJSON *json = toJsonObject(report);
-            char *jsonStr = cJSON_Print(json);
-
-            // Set POST fields
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStr);
-
-            // Perform the request
-            res = curl_easy_perform(curl); // FIX
-
-            if (res != CURLE_OK) {
-                printf("    curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-            } else {
-                printf("    Code: HTTP-200-OK\n");
-            }
-
-            // Cleanup
-            curl_easy_cleanup(curl);
-            cJSON_Delete(json);
-            free(jsonStr);
-        } else {
-            printf("    Curl failed to generate\n");
-        }
-        curl_global_cleanup();
-    } else {
+    if (report->total_hands < NUMBER_OF_HANDS_DATABASE) {
         char hands[MAX_BUFFER_SIZE];
         char minimum[MAX_BUFFER_SIZE];
         convertToStringWithCommas(report->total_hands, hands, MAX_BUFFER_SIZE);
         convertToStringWithCommas(NUMBER_OF_HANDS_DATABASE, minimum, MAX_BUFFER_SIZE);
         printf("    Error: Not enough hands played (%s). Minimum required is %s\n", hands, minimum);
+        return;
     }
-    printf("  --------------------------------------------------------------------------------\n");
+
+    struct curl_slist *headers = NULL;
+    CURL *curl;
+    CURLcode res;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+    curl = curl_easy_init();
+    if (!curl) {
+        printf("    Curl failed to generate\n");
+        return;
+    }
+
+    char url[MAX_BUFFER_SIZE];
+    snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), report->simulator, report->playbook,
+             report->name);
+
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fopen("/dev/null", "w"));
+    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, NULL);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, fopen("/dev/null", "w"));
+
+    // Set headers
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+    // Convert Simulation to JSON
+    cJSON *json = toJsonObject(report);
+    char *jsonStr = cJSON_Print(json);
+
+    // Set POST fields
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStr);
+
+    // Perform the request
+    res = curl_easy_perform(curl);
+
+    if (res == CURLE_OK) {
+        printf("    Insert successful\n");
+    } else {
+        printf("    curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+    }
+
+    // Cleanup
+    curl_easy_cleanup(curl);
+    cJSON_Delete(json);
+    free(jsonStr);
+    curl_global_cleanup();
 }
 
 // Convert Simulation to JSON
