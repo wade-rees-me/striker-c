@@ -41,7 +41,7 @@ void printParameters(const Parameters *parameters) {
     printf("    %-26s: %s\n", "Strategy", parameters->strategy);
     printf("    %-26s: %17s\n", "Number of hands",
            convertToStringWithCommas(parameters->number_of_hands, buffer, MAX_BUFFER_SIZE));
-    printf("    %-26s: %17s\n", "Thread's share of hands",
+    printf("    %-26s: %17s\n", "Thread share of hands",
            convertToStringWithCommas(parameters->share_of_hands, buffer, MAX_BUFFER_SIZE));
     printf("    %-26s: %s\n", "Epoch", parameters->epoch);
 }

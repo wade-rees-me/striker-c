@@ -8,6 +8,7 @@
 #define STRIKER_WHO_AM_I "striker-c"
 #define STRIKER_VERSION "v3.00.00" // Epoch.Major.Minor
 #define TIME_LAYOUT "%Y-%m-%d %H:%M:%S %z"
+#define STATUS_ROUNDS 1000000
 
 //
 #define NUMBER_OF_CARDS_IN_DECK 52

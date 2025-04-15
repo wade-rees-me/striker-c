@@ -83,8 +83,13 @@ void tableDealCards(Table *table, Player *player, Hand *hand, Dealer *dealer, Sh
 
 //
 void status(int64_t round, int64_t hand) {
-    const char *spinner = "|/-\\";
-    printf("\r%c Simulating...", spinner[hand % 4]);
-    fflush(stdout);
+    if (round % STATUS_ROUNDS == 0) {
+        char buffer_round[MAX_BUFFER_SIZE];
+        char buffer_hand[MAX_BUFFER_SIZE];
+        convertToStringWithCommas(round, buffer_round, MAX_BUFFER_SIZE);
+        convertToStringWithCommas(hand, buffer_hand, MAX_BUFFER_SIZE);
+        printf("\r    Rounds: [%13sd] Hands [%13sd]: Simulating...", buffer_round, buffer_hand);
+        fflush(stdout);
+    }
 }
 
