@@ -1,9 +1,11 @@
+#include "constants.h"
 #include <ctype.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "constants.h"
+#define SAFE_BUFFER_SIZE 1024
 
 //
 const char *getChartsUrl() { return getenv("STRIKER_URL_CHARTS"); }

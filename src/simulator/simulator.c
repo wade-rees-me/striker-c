@@ -44,7 +44,7 @@ void *simulatorRunOnce(void *arg) {
         perror("thread set affinity");
     }
 
-    tableSession(simulator->table, strcmp("mimic", simulator->parameters->strategy) == 0);
+    tableSession(simulator->table, strcmp(MIMIC, simulator->parameters->strategy) == 0);
     mergeReport(&simulator->report, &simulator->table->player->report);
     simulator->report.total_rounds += simulator->table->report.total_rounds;
     simulator->report.total_hands += simulator->table->report.total_hands;

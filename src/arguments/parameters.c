@@ -11,15 +11,15 @@ Parameters *newParameters(Arguments *arguments) {
     Parameters *parameters = (Parameters *)malloc(sizeof(Parameters));
 
     generateName(parameters->name);
-    snprintf(parameters->decks, MAX_STRING_SIZE, "%s", getDecks(arguments));
-    snprintf(parameters->strategy, MAX_STRING_SIZE, "%s", getStrategy(arguments));
+    parameters->decks = getDecks(arguments);
+    parameters->strategy = getStrategy(arguments);
     parameters->number_of_decks = getNumberOfDecks(arguments);
     parameters->number_of_hands = arguments->number_of_hands;
     parameters->number_of_threads = arguments->number_of_threads;
     parameters->share_of_hands = (parameters->number_of_hands / parameters->number_of_threads) + 1;
     parameters->verbose = parameters->number_of_threads == 1;
     snprintf(parameters->playbook, MAX_STRING_SIZE * 2, "%s-%s", parameters->decks, parameters->strategy);
-    snprintf(parameters->processor, MAX_STRING_SIZE, "%s", STRIKER_WHO_AM_I);
+    parameters->processor = STRIKER_WHO_AM_I;
     getCurrentTime(parameters->epoch, sizeof(parameters->epoch));
 
     return parameters;

@@ -82,6 +82,7 @@ void playerPlay(Player *player, Shoe *shoe, Card *up, bool mimic) {
         player->report.total_splits++;
 
         if (handIsPairOfAces(&player->wager.hand)) {
+            player->report.total_splits_ace++;
             wagerSplit(&player->wager, split);
             playerDrawCard(player, &player->wager.hand, shoe);
             playerDrawCard(player, &split->hand, shoe);

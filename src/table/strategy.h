@@ -9,8 +9,8 @@
 //
 typedef struct {
     Request request;
-    char Playbook[MAX_STRING_SIZE];
-    char Insurance[MAX_STRING_SIZE];
+    char *Playbook;
+    char *Insurance;
     Chart SoftDouble;
     Chart HardDouble;
     Chart PairSplit;

@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include "strategy.h"
 #include "cjson/cJSON.h"
 #include "constants.h"
@@ -24,8 +26,10 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_dec
     initChart(&strategy->HardStand, "Hard Stand");
 
     if (strcasecmp("mimic", playbook) != 0) {
-        char url[MAX_BUFFER_SIZE];
-        snprintf(url, MAX_BUFFER_SIZE, "%s/%s/%s", getChartsUrl(), decks, playbook);
+        char *url = NULL;
+        if (asprintf(&url, "%s/%s/%s", getChartsUrl(), decks, playbook) < 0) {
+            exit(EXIT_FAILURE);
+        }
 
         requestFetchJson(&strategy->request, url);
         strategyFetchTable(decks, playbook, strategy->request.jsonResponse, strategy);
@@ -82,7 +86,10 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
     // Set Playbook
     cJSON *playbook = cJSON_GetObjectItem(json, "playbook");
     if (playbook != NULL) {
-        snprintf(table->Playbook, MAX_STRING_SIZE, "%s", playbook->valuestring);
+        // snprintf(table->Playbook, MAX_STRING_SIZE, "%s", playbook->valuestring);
+        if (asprintf(&table->Playbook, "%s", playbook->valuestring) < 0) {
+            exit(EXIT_FAILURE);
+        }
     }
 
     // Set Counts
@@ -96,7 +103,10 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
     // Set Insurance
     cJSON *insurance = cJSON_GetObjectItem(json, "insurance");
     if (insurance != NULL) {
-        snprintf(table->Insurance, MAX_STRING_SIZE, "%s", insurance->valuestring);
+        char *buffer = NULL;
+        if (asprintf(&buffer, "%s", insurance->valuestring) < 0) {
+            exit(EXIT_FAILURE);
+        }
     }
 
     strategyLoadTable(cJSON_GetObjectItem(json, "soft-double"), &table->SoftDouble);

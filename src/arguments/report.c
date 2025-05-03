@@ -1,3 +1,5 @@
+#define _GNU_SOURCE // Enable GNU extensions (needed on some systems)
+
 #include "report.h"
 #include <curl/curl.h>
 #include <stdio.h>
@@ -8,13 +10,13 @@ cJSON *toJsonObject(Report *report);
 //
 void initReportFinal(Report *report, Parameters *parameters) {
     initReport(report);
-    strcpy(report->name, parameters->name);
-    strcpy(report->version, STRIKER_VERSION);
-    strcpy(report->playbook, parameters->playbook);
-    strcpy(report->simulator, parameters->processor);
-    strcpy(report->strategy, parameters->strategy);
-    strcpy(report->decks, parameters->decks);
-    strcpy(report->epoch, parameters->epoch);
+    report->name = parameters->name;
+    report->version = STRIKER_VERSION;
+    report->playbook = parameters->playbook;
+    report->simulator = parameters->processor;
+    report->strategy = parameters->strategy;
+    report->decks = parameters->decks;
+    report->epoch = parameters->epoch;
     report->total_threads = parameters->number_of_threads;
     report->start = time(NULL);
     report->end = 0;
@@ -32,6 +34,7 @@ void initReport(Report *report) {
     report->total_blackjacks = 0;
     report->total_doubles = 0;
     report->total_splits = 0;
+    report->total_splits_ace = 0;
     report->total_wins = 0;
     report->total_loses = 0;
     report->total_pushes = 0;
@@ -46,6 +49,7 @@ void mergeReport(Report *a, Report *b) {
     a->total_blackjacks += b->total_blackjacks;
     a->total_doubles += b->total_doubles;
     a->total_splits += b->total_splits;
+    a->total_splits_ace += b->total_splits_ace;
     a->total_wins += b->total_wins;
     a->total_loses += b->total_loses;
     a->total_pushes += b->total_pushes;
@@ -83,6 +87,9 @@ void printReport(Report *report) {
     printf("    %-26s: %17s %+08.3f %% of total hands\n", "Number of splits",
            convertToStringWithCommas(report->total_splits, buffer, MAX_BUFFER_SIZE),
            (double)report->total_splits / report->total_hands * 100.0);
+    printf("    %-26s: %17s %+08.3f %% of total hands\n", "Number of splits - Aces",
+           convertToStringWithCommas(report->total_splits_ace, buffer, MAX_BUFFER_SIZE),
+           (double)report->total_splits_ace / report->total_hands * 100.0);
     printf("    %-26s: %17s %+08.3f %% of total hands\n", "Number of wins",
            convertToStringWithCommas(report->total_wins, buffer, MAX_BUFFER_SIZE),
            (double)report->total_wins / report->total_hands * 100.0);
@@ -123,9 +130,12 @@ void insertReport(Report *report) {
         return;
     }
 
-    char url[MAX_BUFFER_SIZE];
-    snprintf(url, MAX_BUFFER_SIZE, "http://%s/%s/%s/%s", getSimulationUrl(), report->simulator, report->playbook,
-             report->name);
+    char *url = NULL;
+    if (asprintf(&url, "http://%s/%s/%s/%s", getSimulationUrl(), report->simulator, report->playbook, report->name) ==
+        -1) {
+        printf("    URL failed to generate\n");
+        return;
+    }
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
@@ -180,6 +190,7 @@ cJSON *toJsonObject(Report *report) {
     cJSON_AddNumberToObject(json, "total_blackjacks", report->total_blackjacks);
     cJSON_AddNumberToObject(json, "total_doubles", report->total_doubles);
     cJSON_AddNumberToObject(json, "total_splits", report->total_splits);
+    cJSON_AddNumberToObject(json, "total_splits_aces", report->total_splits_ace);
     cJSON_AddNumberToObject(json, "total_wins", report->total_wins);
     cJSON_AddNumberToObject(json, "total_loses", report->total_loses);
     cJSON_AddNumberToObject(json, "total_pushes", report->total_pushes);

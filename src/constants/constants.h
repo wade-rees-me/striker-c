@@ -6,7 +6,7 @@
 
 // General constants
 #define STRIKER_WHO_AM_I "striker-c"
-#define STRIKER_VERSION "v3.00.00" // Epoch.Major.Minor
+#define STRIKER_VERSION "v3.00.00" // Major.Minor.Patch
 #define TIME_LAYOUT "%Y-%m-%d %H:%M:%S %z"
 #define STATUS_ROUNDS 1000000
 
@@ -31,10 +31,23 @@
 
 // Betting constants
 #define MINIMUM_BET 2
-#define MAXIMUM_BET 80
+#define MAXIMUM_BET 20
 #define TRUE_COUNT_BET 2
 #define TRUE_COUNT_MULTIPLIER 26
 #define MAX_SPLIT_HANDS 18
+
+// String constants
+#define SINGLE_DECK "single-deck"
+#define DOUBLE_DECK "double-deck"
+#define SIX_SHOE "six-shoe"
+
+#define MIMIC "mimic"
+#define POLYNOMIAL "polynomial"
+#define LINEAR "linear"
+#define NEURAL "neural"
+#define HIGH_LOW "high-low"
+#define WONG "wong"
+#define BASIC "basic"
 
 // Global functions
 const char *getChartsUrl();

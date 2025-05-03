@@ -10,9 +10,9 @@
 typedef struct {
     char name[MAX_STRING_SIZE];
     char playbook[MAX_STRING_SIZE * 2];
-    char decks[MAX_STRING_SIZE];
-    char strategy[MAX_STRING_SIZE];
-    char processor[MAX_STRING_SIZE];
+    const char *decks;
+    const char *strategy;
+    const char *processor;
     char epoch[MAX_STRING_SIZE];
     int64_t number_of_hands;
     int64_t share_of_hands;

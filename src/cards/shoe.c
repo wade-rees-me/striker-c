@@ -1,5 +1,8 @@
+#define _POSIX_C_SOURCE 200112L
+
 #include "shoe.h"
 #include "card.h"
+#include "constants.h"
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -31,7 +34,7 @@ Shoe *newShoe(int number_of_decks, float penetration) {
     }
 
     seed = (unsigned int)time(NULL) ^ (unsigned int)(uintptr_t)pthread_self() ^ getpid();
-    shoe->number_of_cards = number_of_decks * 52; // 52 cards per deck
+    shoe->number_of_cards = number_of_decks * NUMBER_OF_CARDS_IN_DECK;
     shoe->cards = (Card **)malloc(shoe->number_of_cards * sizeof(Card *));
 
     int card_index = 0;

@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200112L
+
 #include "arguments.h"
 #include "constants.h"
 #include <stdio.h>
@@ -105,35 +107,35 @@ void printHelpMessage() {
 // Get the current strategy as a string
 const char *getStrategy(const Arguments *args) {
     if (args->mimic_flag) {
-        return "mimic";
+        return MIMIC;
     }
     if (args->polynomial_flag) {
-        return "polynomial";
+        return POLYNOMIAL;
     }
     if (args->linear_flag) {
-        return "linear";
+        return LINEAR;
     }
     if (args->neural_flag) {
-        return "neural";
+        return NEURAL;
     }
     if (args->high_low_flag) {
-        return "high-low";
+        return HIGH_LOW;
     }
     if (args->wong_flag) {
-        return "wong";
+        return WONG;
     }
-    return "basic";
+    return BASIC;
 }
 
 // Get the type of deck being used
 const char *getDecks(const Arguments *args) {
     if (args->double_deck_flag) {
-        return "double-deck";
+        return DOUBLE_DECK;
     }
     if (args->six_shoe_flag) {
-        return "six-shoe";
+        return SIX_SHOE;
     }
-    return "single-deck";
+    return SINGLE_DECK;
 }
 
 // Get the number of decks being used

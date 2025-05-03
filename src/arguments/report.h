@@ -9,13 +9,13 @@
 
 //
 typedef struct {
-    char name[MAX_STRING_SIZE];
-    char version[MAX_STRING_SIZE];
-    char playbook[MAX_STRING_SIZE];
-    char simulator[MAX_STRING_SIZE];
-    char strategy[MAX_STRING_SIZE];
-    char decks[MAX_STRING_SIZE];
-    char epoch[MAX_STRING_SIZE];
+    const char *name;
+    const char *version;
+    const char *playbook;
+    const char *simulator;
+    const char *strategy;
+    const char *decks;
+    const char *epoch;
     int64_t total_rounds;
     int64_t total_hands;
     int64_t total_bet;
@@ -23,6 +23,7 @@ typedef struct {
     int64_t total_blackjacks;
     int64_t total_doubles;
     int64_t total_splits;
+    int64_t total_splits_ace;
     int64_t total_wins;
     int64_t total_loses;
     int64_t total_pushes;
