@@ -1,8 +1,8 @@
 #ifndef SHOE_H
 #define SHOE_H
 
-#include <stdbool.h>
 #include "card.h"
+#include <stdbool.h>
 
 #define MINIMUM_CARD_VALUE 2
 #define MAXIMUM_CARD_VALUE 11
@@ -32,12 +32,12 @@
 
 // Shoe structure to hold cards and state of the shoe
 typedef struct {
-	Card **cards;			// Array of card pointers
-	int number_of_cards;	// Total number of cards
-	int cut_card;			// Cut card position
-	int next_card;			// Index of the next card to be drawn
-	int last_discard;		// Last card discarded
-	bool force_shuffle;		// Flag to force shuffle
+    Card **cards;        // Array of card pointers
+    int number_of_cards; // Total number of cards
+    int cut_card;        // Cut card position
+    int next_card;       // Index of the next card to be drawn
+    int last_discard;    // Last card discarded
+    bool force_shuffle;  // Flag to force shuffle
 } Shoe;
 
 // Global functions

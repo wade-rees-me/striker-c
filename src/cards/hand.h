@@ -1,15 +1,15 @@
 #ifndef HAND_H
 #define HAND_H
 
-#include <stdbool.h>
 #include "card.h"
+#include <stdbool.h>
 
-// Define the Hand struct
+// Define the Hand
 typedef struct {
-	Card *cards[24];	// Array of cards in the hand
-	int card_count;		// Number of cards in the hand
-	int hand_total;		// Total value of the hand
-	int soft_ace;		// Number of aces valued as 11
+    Card *cards[24]; // Array of cards in the hand
+    int card_count;  // Number of cards in the hand
+    int hand_total;  // Total value of the hand
+    int soft_ace;    // Number of aces valued as 11
 } Hand;
 
 // Global functions

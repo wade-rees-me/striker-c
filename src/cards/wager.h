@@ -1,23 +1,23 @@
 #ifndef WAGER_H
 #define WAGER_H
 
+#include "hand.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include "hand.h" // Include the Hand struct
 
 //
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#define max(a,b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
-// Define the Wager struct
+// Define the Wager
 typedef struct {
-	Hand hand;
-	int64_t minimum_bet;
-	int64_t maximum_bet;
-	int64_t amount_bet;
-	int64_t amount_won;
-	int64_t insurance_bet;
-	int64_t insurance_won;
+    Hand hand;
+    int64_t minimum_bet;
+    int64_t maximum_bet;
+    int64_t amount_bet;
+    int64_t amount_won;
+    int64_t insurance_bet;
+    int64_t insurance_won;
 } Wager;
 
 // Global functions
