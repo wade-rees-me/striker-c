@@ -1,6 +1,7 @@
 #define _GNU_SOURCE // Enable GNU extensions (needed on some systems)
 
 #include "report.h"
+#include "constants.h"
 #include <curl/curl.h>
 #include <stdio.h>
 
@@ -110,6 +111,11 @@ void printReport(Report *report) {
 
 // Function to insert a simulation into the database (HTTP POST)
 void insertReport(Report *report) {
+    if (!is_my_computer()) {
+        printf("    This code is restricted to running only on my computer.\n");
+        return;
+    }
+
     if (report->total_hands < NUMBER_OF_HANDS_DATABASE) {
         char hands[MAX_BUFFER_SIZE];
         char minimum[MAX_BUFFER_SIZE];

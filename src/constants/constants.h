@@ -9,6 +9,7 @@
 #define STRIKER_VERSION "v3.00.00" // Major.Minor.Patch
 #define TIME_LAYOUT "%Y-%m-%d %H:%M:%S %z"
 #define STATUS_ROUNDS 1000000
+#define MY_HOSTNAME "Striker"
 
 //
 #define NUMBER_OF_CARDS_IN_DECK 52
@@ -17,6 +18,7 @@
 #define NUMBER_OF_CORES_DEFAULT 24
 
 // Define the maximum size string fields
+#define SAFE_BUFFER_SIZE 1024
 #define MAX_STRING_SIZE 512
 #define MAX_BUFFER_SIZE 8192
 #define MAX_MEMORY_SIZE 536870912
@@ -50,6 +52,7 @@
 #define BASIC "basic"
 
 // Global functions
+int is_my_computer();
 const char *getChartsUrl();
 const char *getRulesUrl();
 const char *getSimulationUrl();

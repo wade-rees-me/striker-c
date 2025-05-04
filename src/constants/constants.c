@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define SAFE_BUFFER_SIZE 1024
+#include <unistd.h>
 
 //
 const char *getChartsUrl() { return getenv("STRIKER_URL_CHARTS"); }
@@ -18,6 +17,21 @@ const char *getSimulationUrl() { return getenv("STRIKER_URL_SIMULATIONS"); }
 
 // Function to convert bool to string
 const char *boolToString(bool b) { return b ? "true" : "false"; }
+
+// Get hostname
+int is_my_computer() {
+    char hostname[SAFE_BUFFER_SIZE];
+    const char *my_hostname = MY_HOSTNAME;
+
+    if (gethostname(hostname, sizeof(hostname)) != 0) {
+        perror("gethostname");
+        return 0;
+    }
+
+    hostname[SAFE_BUFFER_SIZE - 1] = '\0'; // Ensure null-termination
+
+    return strcmp(hostname, my_hostname) == 0;
+}
 
 //
 void toUpperString(char *str) {

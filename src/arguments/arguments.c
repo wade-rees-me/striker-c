@@ -86,7 +86,7 @@ void argumentsDelete(Arguments *arguments) { free(arguments); }
 
 // Print help message
 void printHelpMessage() {
-    printf("Usage: strikerC [options]\n"
+    printf("Usage: striker-c [options]\n"
            "Options:\n"
            "  --help                                      Show this help message\n"
            "  --version                                   Display the program version\n"

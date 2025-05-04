@@ -26,7 +26,7 @@ SRC_FILES = $(wildcard $(SRC_DIR)/main.c $(foreach dir, $(SRC_DIRS), $(SRC_DIR)/
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 # Output binary
-TARGET = bin/strikerC
+TARGET = bin/striker-c
 
 # Home directory for Striker
 STRIKER = ${HOME}/Striker
