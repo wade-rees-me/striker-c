@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "../xlog/xlog.h"
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -138,8 +139,7 @@ char *convertToStringWithCommas(long long number, char *buffer, size_t bufferSiz
 
     // Ensure the provided buffer is large enough to hold the result
     if (resultSize > bufferSize) {
-        printf("Error: Buffer is too small to hold the formatted number.\n");
-        exit(-1);
+        xlog_panic("Error: Buffer is too small to hold the formatted number.");
     }
 
     int resultIndex = 0;

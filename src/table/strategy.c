@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 
 #include "strategy.h"
+#include "../xlog/xlog.h"
 #include "cjson/cJSON.h"
 #include "constants.h"
 #include <stdio.h>
@@ -28,7 +29,7 @@ Strategy *newStrategy(const char *decks, const char *playbook, int number_of_dec
     if (strcasecmp("mimic", playbook) != 0) {
         char *url = NULL;
         if (asprintf(&url, "%s/%s/%s", getChartsUrl(), decks, playbook) < 0) {
-            exit(EXIT_FAILURE);
+            xlog_panic(url);
         }
 
         requestFetchJson(&strategy->request, url);
@@ -88,7 +89,7 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
     if (playbook != NULL) {
         // snprintf(table->Playbook, MAX_STRING_SIZE, "%s", playbook->valuestring);
         if (asprintf(&table->Playbook, "%s", playbook->valuestring) < 0) {
-            exit(EXIT_FAILURE);
+            xlog_panic(table->Playbook);
         }
     }
 
@@ -105,7 +106,7 @@ void strategyFetchTable(const char *decks, const char *strategy, cJSON *json, St
     if (insurance != NULL) {
         char *buffer = NULL;
         if (asprintf(&buffer, "%s", insurance->valuestring) < 0) {
-            exit(EXIT_FAILURE);
+            xlog_panic(buffer);
         }
     }
 

@@ -4,6 +4,7 @@
 #include "rules.h"
 #include "simulator.h"
 #include "strategy.h"
+#include "xlog/xlog.h"
 #include <pthread.h>
 #include <sched.h>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 
 //
 int main(int argc, char *argv[]) {
+    xlog_init(SYSLOG_ADDRESS, SYSLOG_PORT);
     Arguments *arguments = newArguments(argc, argv);
     Parameters *parameters = newParameters(arguments);
     Rules *rules = newRules(getDecks(arguments));
@@ -20,6 +22,8 @@ int main(int argc, char *argv[]) {
     pthread_t threads[NUMBER_OF_CORES_LOGICAL];
     Report finalReport;
 
+    time_t start = xlog_start("Simulation started, strategy=%s, decks=%s, hands=%ld", getStrategy(arguments),
+                              getDecks(arguments), arguments->number_of_hands);
     setvbuf(stdout, NULL, _IONBF, 0); // Unbuffered
     printf("Start: %s\n", STRIKER_WHO_AM_I);
     printf("  -- arguments -------------------------------------------------------------------\n");
@@ -48,11 +52,13 @@ int main(int argc, char *argv[]) {
     printf("  -- insert ----------------------------------------------------------------------\n");
     insertReport(&finalReport);
     printf("  --------------------------------------------------------------------------------\n");
+    xlog_stop(start, "Simulation completed: %s", getStrategy(arguments));
 
     rulesDelete(rules);
     parametersDelete(parameters);
     argumentsDelete(arguments);
 
+    xlog_close();
     return 0;
 }
 
