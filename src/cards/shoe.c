@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200112L
 
 #include "shoe.h"
+#include "../xlog/xlog.h"
 #include "card.h"
 #include "constants.h"
 #include <pthread.h>
@@ -29,8 +30,7 @@ static void shuffleRandom(Shoe *shoe) {
 Shoe *newShoe(int number_of_decks, float penetration) {
     Shoe *shoe = (Shoe *)malloc(sizeof(Shoe));
     if (!shoe) {
-        printf("Memory allocation failed for shoe\n");
-        exit(1);
+        xlog_panic("Memory allocation failed for shoe\n");
     }
 
     seed = (unsigned int)time(NULL) ^ (unsigned int)(uintptr_t)pthread_self() ^ getpid();

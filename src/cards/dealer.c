@@ -1,4 +1,5 @@
 #include "dealer.h"
+#include "../xlog/xlog.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,8 +7,7 @@
 Dealer *newDealer(bool hit_soft_17) {
     Dealer *dealer = (Dealer *)malloc(sizeof(Dealer));
     if (!dealer) {
-        printf("Memory allocation failed for Dealer\n");
-        exit(1);
+        xlog_panic("Memory allocation failed for Dealer");
     }
     dealer->hit_soft_17 = hit_soft_17;
     handReset(&dealer->hand);

@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200112L
 
 #include "arguments.h"
+#include "../xlog/xlog.h"
 #include "constants.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,15 +37,13 @@ Arguments *newArguments(int argc, char *argv[]) {
             convertToStringWithCommas(NUMBER_OF_HANDS_MAXIMUM, arguments->number_of_hands_max, MAX_BUFFER_SIZE);
             if (arguments->number_of_hands < NUMBER_OF_HANDS_MINIMUM ||
                 arguments->number_of_hands > NUMBER_OF_HANDS_MAXIMUM) {
-                fprintf(stderr, "Number of hands must be between %s and %s\n", arguments->number_of_hands_min,
-                        arguments->number_of_hands_max);
-                exit(EXIT_FAILURE);
+                xlog_panic("Number of hands must be between %s and %s\n", arguments->number_of_hands_min,
+                           arguments->number_of_hands_max);
             }
         } else if ((strcmp(argv[i], "-t") == 0 || strcmp(argv[i], "--number-of-threads") == 0) && i + 1 < argc) {
             arguments->number_of_threads = atoll(argv[++i]);
             if (arguments->number_of_threads < 1 || arguments->number_of_threads > NUMBER_OF_CORES_LOGICAL) {
-                fprintf(stderr, "Number of threads must be between 1 and %d\n", NUMBER_OF_CORES_LOGICAL);
-                exit(EXIT_FAILURE);
+                xlog_panic("Number of threads must be between 1 and %d\n", NUMBER_OF_CORES_LOGICAL);
             }
         } else if (strcmp(argv[i], "-M") == 0 || strcmp(argv[i], "--mimic") == 0) {
             arguments->mimic_flag = 1;
@@ -73,8 +72,7 @@ Arguments *newArguments(int argc, char *argv[]) {
             printf("%s: version: %s\n", STRIKER_WHO_AM_I, STRIKER_VERSION);
             exit(EXIT_SUCCESS);
         } else {
-            fprintf(stderr, "Error: Invalid argument: %s\n", argv[i]);
-            exit(EXIT_FAILURE);
+            xlog_panic("Error: Invalid argument: %s", argv[i]);
         }
     }
 
@@ -86,7 +84,7 @@ void argumentsDelete(Arguments *arguments) { free(arguments); }
 
 // Print help message
 void printHelpMessage() {
-    printf("Usage: strikerC [options]\n"
+    printf("Usage: striker-c [options]\n"
            "Options:\n"
            "  --help                                      Show this help message\n"
            "  --version                                   Display the program version\n"

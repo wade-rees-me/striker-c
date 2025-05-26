@@ -1,11 +1,11 @@
 #include "constants.h"
+#include "../xlog/xlog.h"
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define SAFE_BUFFER_SIZE 1024
+#include <unistd.h>
 
 //
 const char *getChartsUrl() { return getenv("STRIKER_URL_CHARTS"); }
@@ -18,6 +18,21 @@ const char *getSimulationUrl() { return getenv("STRIKER_URL_SIMULATIONS"); }
 
 // Function to convert bool to string
 const char *boolToString(bool b) { return b ? "true" : "false"; }
+
+// Get hostname
+int is_my_computer() {
+    char hostname[SAFE_BUFFER_SIZE];
+    const char *my_hostname = MY_HOSTNAME;
+
+    if (gethostname(hostname, sizeof(hostname)) != 0) {
+        perror("gethostname");
+        return 0;
+    }
+
+    hostname[SAFE_BUFFER_SIZE - 1] = '\0'; // Ensure null-termination
+
+    return strcmp(hostname, my_hostname) == 0;
+}
 
 //
 void toUpperString(char *str) {
@@ -124,8 +139,7 @@ char *convertToStringWithCommas(long long number, char *buffer, size_t bufferSiz
 
     // Ensure the provided buffer is large enough to hold the result
     if (resultSize > bufferSize) {
-        printf("Error: Buffer is too small to hold the formatted number.\n");
-        exit(-1);
+        xlog_panic("Error: Buffer is too small to hold the formatted number.");
     }
 
     int resultIndex = 0;

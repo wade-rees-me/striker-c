@@ -1,4 +1,5 @@
 #include "request.h"
+#include "../xlog/xlog.h"
 #include "constants.h"
 #include <curl/curl.h>
 
@@ -17,8 +18,7 @@ void requestFetchJson(Request *request, const char *url) {
 
     curl = curl_easy_init();
     if (!curl) {
-        fprintf(stderr, "curl_easy_perform() failed:\n");
-        exit(-1);
+        xlog_panic("curl_easy_perform() failed:");
     }
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
@@ -26,16 +26,13 @@ void requestFetchJson(Request *request, const char *url) {
 
     res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        exit(-1);
+        xlog_panic("curl_easy_perform() failed: %s", curl_easy_strerror(res));
     }
     unescape_json(request->responseString);
     strip_quotes(request->responseString);
     request->jsonResponse = cJSON_Parse(request->responseString);
     if (request->jsonResponse == NULL) {
-        fprintf(stderr, "Error parsing JSON\n");
-        fprintf(stderr, "%s\n", request->responseString);
-        exit(-1);
+        xlog_panic("Error parsing JSON");
     }
     curl_easy_cleanup(curl);
 }

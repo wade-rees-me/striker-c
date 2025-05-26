@@ -10,8 +10,8 @@ STRATEGY ?= mimic
 DECKS ?= single-deck
 
 # Target name, etc.
-TARGET = bin/strikerC
-STRIKER = ${HOME}/Striker
+#TARGET = bin/striker-c
+#STRIKER = ${HOME}/Striker
 LOG_DIR = $(STRIKER)/Simulations/$(shell date +%Y)/$(shell date +%m)/$(shell date +%d)
 LOG = $(LOG_DIR)/$(notdir $(TARGET))-$(shell date +%H%M%S).log
 

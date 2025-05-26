@@ -1,4 +1,5 @@
 #include "chart.h"
+#include "../xlog/xlog.h"
 #include "constants.h"
 
 //
@@ -46,11 +47,10 @@ void chartInsert(Chart *chart, const char *key, int up, const char *value) {
 //
 const char *chartGetValue(Chart *chart, const char *key, int up) {
     ChartRow *row = chartGetRow(chart, key);
-    if (row != NULL) {
-        return row->value[up];
+    if (row == NULL) {
+        xlog_panic("Cannot find value in %s for %s vs %d", chart->name, key, up);
     }
-    printf("Cannot find value in %s for %s vs %d\n", chart->name, key, up);
-    exit(-1);
+    return row->value[up];
 }
 
 //

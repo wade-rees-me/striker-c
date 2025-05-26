@@ -1,4 +1,5 @@
 #include "card.h"
+#include "../xlog/xlog.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,8 +7,7 @@
 Card *newCard(const char *suit, const char *rank, const char *key, int value) {
     Card *card = (Card *)malloc(sizeof(Card));
     if (!card) {
-        printf("Memory allocation failed for card\n");
-        exit(1);
+        xlog_panic("Memory allocation failed for card");
     }
 
     card->suit = suit;
