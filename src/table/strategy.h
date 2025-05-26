@@ -1,23 +1,23 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-#include <stdbool.h>
-#include "request.h"
-#include "chart.h"
 #include "card.h"
+#include "chart.h"
+#include "request.h"
+#include <stdbool.h>
 
 //
 typedef struct {
-	Request request;
-	char Playbook[MAX_STRING_SIZE];
-	char Insurance[MAX_STRING_SIZE];
-	Chart SoftDouble;
-	Chart HardDouble;
-	Chart PairSplit;
-	Chart SoftStand;
-	Chart HardStand;
-	int Counts[MAXIMUM_CARD_VALUE + 1];
-	int number_of_cards;
+    Request request;
+    char *Playbook;
+    char *Insurance;
+    Chart SoftDouble;
+    Chart HardDouble;
+    Chart PairSplit;
+    Chart SoftStand;
+    Chart HardStand;
+    int Counts[MAXIMUM_CARD_VALUE + 1];
+    int number_of_cards;
 } Strategy;
 
 // Function prototypes

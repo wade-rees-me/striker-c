@@ -1,14 +1,14 @@
 #ifndef DEALER_H
 #define DEALER_H
 
-#include <stdbool.h>
-#include "shoe.h"
 #include "hand.h"
+#include "shoe.h"
+#include <stdbool.h>
 
-// Define the Dealer struct
+// Define the Dealer
 typedef struct {
-	Hand hand;
-	bool hit_soft_17;
+    Hand hand;
+    bool hit_soft_17;
 } Dealer;
 
 // Global functions

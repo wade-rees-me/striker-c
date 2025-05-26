@@ -3,10 +3,10 @@
 
 //
 typedef struct {
-	const char *rank;	// Rank of the card (e.g., "ace")
-	const char *suit;	// Suit of the card (e.g., "hearts")
-	const char *key;
-	int value;			// Value of the card for game calculations - 2 thru 11
+    const char *rank; // Rank of the card (e.g., "ace")
+    const char *suit; // Suit of the card (e.g., "hearts")
+    const char *key;
+    int value; // Value of the card for game calculations - 2 thru 11
 } Card;
 
 // Global functions
