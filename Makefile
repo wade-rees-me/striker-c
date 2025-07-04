@@ -70,5 +70,3 @@ bear:
 install:
 	cp -rf $(TARGET) $(STRIKER)/bin
 
-include Makefile.run
-
